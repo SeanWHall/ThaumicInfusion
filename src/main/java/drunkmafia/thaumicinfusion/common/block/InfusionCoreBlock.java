@@ -2,6 +2,7 @@ package drunkmafia.thaumicinfusion.common.block;
 
 import drunkmafia.thaumicinfusion.common.block.tile.InfusionCoreTile;
 import drunkmafia.thaumicinfusion.common.tab.TITab;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -41,7 +42,7 @@ public class InfusionCoreBlock extends BlockStoneDevice implements IInfusionStab
     public void setBlockBoundsBasedOnState(IBlockAccess world, int x, int y, int z) {
         InfusionCoreTile core = (InfusionCoreTile) world.getTileEntity(x, y, z);
         if(core != null)
-            setBlockBounds(0.25F, 0.25F + core.yLevel, 0.25F, 0.75F, 0.75F  + core.yLevel, 0.75F);
+            setBlockBounds(0.25F, 0.55F, 0.25F, 0.75F, 1F, 0.75F);
     }
 
     @Override
@@ -90,6 +91,9 @@ public class InfusionCoreBlock extends BlockStoneDevice implements IInfusionStab
         }
         return false;
     }
+
+    @Override
+    public void registerBlockIcons(IIconRegister ir) {}
 
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, List list) {

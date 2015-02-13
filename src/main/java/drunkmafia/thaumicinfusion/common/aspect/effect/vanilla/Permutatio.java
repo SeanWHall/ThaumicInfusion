@@ -26,18 +26,17 @@ public class Permutatio  extends AspectEffect {
     @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
         if(world.isRemote)
-            return true;
+            return data.getContainingBlock().onBlockActivated(world, x, y, z, player, side, hitX, hitY, hitZ);
 
         ItemStack wand = player.getCurrentEquippedItem();
         if(wand == null)
-            return false;
+            return data.getContainingBlock().onBlockActivated(world, x, y, z, player, side, hitX, hitY, hitZ);
 
         PermutatioTile tile;
         if(world.getTileEntity(x, y, z) != null)
             tile = (PermutatioTile) world.getTileEntity(x, y, z);
         else
-            return false;
-
+            return data.getContainingBlock().onBlockActivated(world, x, y, z, player, side, hitX, hitY, hitZ);
         if(player.isSneaking()){
             tile.linkedPos = null;
             return true;
@@ -56,7 +55,7 @@ public class Permutatio  extends AspectEffect {
             world.setTileEntity(x, y, z, tile);
             return true;
         }
-        return true;
+        return data.getContainingBlock().onBlockActivated(world, x, y, z, player, side, hitX, hitY, hitZ);
     }
 
     @Override

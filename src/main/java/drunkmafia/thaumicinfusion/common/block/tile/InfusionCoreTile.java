@@ -30,7 +30,7 @@ public class InfusionCoreTile extends TilePedestal implements IWandable {
     public TileInfusionMatrix matrix;
 
     @SideOnly(Side.CLIENT)
-    public float yLevel, angle;
+    public float angle;
     @SideOnly(Side.CLIENT)
     public Vector3 coreAxies;
 
@@ -52,7 +52,7 @@ public class InfusionCoreTile extends TilePedestal implements IWandable {
     @SideOnly(Side.CLIENT)
     void particles(){
         if(matrix.crafting)
-            Thaumcraft.proxy.burst(worldObj, xCoord + 0.5F, yCoord + 0.5F + yLevel, zCoord + 0.5F, 0.5F);
+            Thaumcraft.proxy.burst(worldObj, xCoord + 0.5F, yCoord + 0.75F, zCoord + 0.5F, 0.5F);
     }
 
     boolean checkInfusion(){

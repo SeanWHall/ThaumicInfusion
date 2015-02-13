@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
@@ -20,7 +21,7 @@ import thaumcraft.api.aspects.AspectList;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public abstract class ItemFocusBasic extends Item {
+public class ItemFocusBasic extends Item {
 	
 	public ItemFocusBasic ()
     {
@@ -90,7 +91,9 @@ public abstract class ItemFocusBasic extends Item {
 	/**
 	 * What color will the focus orb be rendered on the held wand
 	 */
-	public abstract int getFocusColor(ItemStack focusstack);
+	public int getFocusColor(ItemStack focusstack) {
+		return 0;
+	}
 
 	
 	/**
@@ -132,7 +135,9 @@ public abstract class ItemFocusBasic extends Item {
 	/**
 	 * How much vis does this focus consume per activation. 
 	 */
-	public abstract AspectList getVisCost(ItemStack focusstack);	
+	public AspectList getVisCost(ItemStack focusstack) {
+		return null;
+	}
 	
 	/**
 	 * This returns how many milliseconds must pass before the focus can be activated again.
@@ -151,7 +156,9 @@ public abstract class ItemFocusBasic extends Item {
 	/**
 	 * What upgrades can be applied to this focus for ranks 1 to 5
 	 */
-	public abstract FocusUpgradeType[] getPossibleUpgradesByRank(ItemStack focusstack, int rank);	
+	public FocusUpgradeType[] getPossibleUpgradesByRank(ItemStack focusstack, int rank) {
+		return null;
+	}
 	
 	/**
 	 * What upgrades does the focus currently have
@@ -256,4 +263,14 @@ public abstract class ItemFocusBasic extends Item {
 		}
 	}
 
+	@Override
+	public void onUpdate(ItemStack stack, World world, Entity entity, int p_77663_4_, boolean p_77663_5_) {
+		if (stack.stackTagCompound !=null && stack.stackTagCompound.hasKey("ench")) {
+			stack.stackTagCompound.removeTag("ench");
+		}
+		super.onUpdate(stack, world, entity, p_77663_4_, p_77663_5_);
+	}
+
+	
+	
 }

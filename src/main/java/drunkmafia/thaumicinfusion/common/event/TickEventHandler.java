@@ -4,14 +4,13 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
-import drunkmafia.thaumicinfusion.common.util.helper.BlockHelper;
+import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
-import drunkmafia.thaumicinfusion.common.world.BlockSavable;
+import drunkmafia.thaumicinfusion.common.world.TIWorldData;
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.World;
-import org.apache.logging.log4j.Level;
 
 /**
  * Created by DrunkMafia on 25/07/2014.
@@ -34,17 +33,13 @@ public class TickEventHandler {
     }
 
     void tickWorld(World world){
-        BlockSavable[] savables = BlockHelper.getWorldData(world).getAllBocks();
-        for(BlockSavable block : savables) {
-            if (block instanceof BlockData) {
-                for (AspectEffect effect : ((BlockData) block).getEffects()) {
-                    try {
-                        effect.updateBlock(world);
-                    }catch (Exception e){
-                        if(!world.isRemote)
-                            BlockHelper.destroyBlock(world, block.getCoords());
-                        ThaumicInfusion.getLogger().log(Level.ERROR, "Block at: " + block.getCoords().toString());
-                    }
+        BlockData[] datas = TIWorldData.getWorldData(world).getAllBlocks(BlockData.class);
+        for(BlockData data : datas) {
+            for (AspectEffect effect : data.getEffects()) {
+                try {
+                    effect.updateBlock(world);
+                } catch (Exception e) {
+                    InfusedBlock.handleError(e, world, effect.data, true);
                 }
             }
         }

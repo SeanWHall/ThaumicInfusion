@@ -4,7 +4,7 @@ import cpw.mods.fml.client.FMLClientHandler;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
-import drunkmafia.thaumicinfusion.common.util.helper.BlockHelper;
+import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
@@ -41,7 +41,7 @@ public class InfusedBlockGUI extends GuiScreen {
         ySize = 104;
 
         world = FMLClientHandler.instance().getClient().theWorld;
-        data = BlockHelper.getData(BlockData.class, world, coordinates);
+        data = TIWorldData.getData(BlockData.class, world, coordinates);
     }
 
     public void setupEffect(AspectEffect effect){
@@ -63,7 +63,7 @@ public class InfusedBlockGUI extends GuiScreen {
         for(AspectEffect effect : data.getEffects()){
             Effect anot = effect.getClass().getAnnotation(Effect.class);
             if(anot.hasGUI())
-                temp.add(AspectHandler.getInstance().getAspectsFromEffect(effect.getClass()));
+                temp.add(AspectHandler.getAspectsFromEffect(effect.getClass()));
         }
         effectGUIS = temp.toArray(new Aspect[temp.size()]);
 
@@ -92,7 +92,7 @@ public class InfusedBlockGUI extends GuiScreen {
 
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY, float tpf) {
         if (data != null) {
-            Aspect aspect = AspectHandler.getInstance().getAspectsFromEffect(currentEffect.getClass());
+            Aspect aspect = AspectHandler.getAspectsFromEffect(currentEffect.getClass());
             fontRendererObj.drawString(aspect.getName(), guiLeft + 7, guiTop + 7, aspect.getColor());
             effectGUI.drawGuiContainerForegroundLayer(mouseX, mouseY, tpf);
 
@@ -129,7 +129,7 @@ public class InfusedBlockGUI extends GuiScreen {
     }
 
     protected AspectEffect effectFromAspect(Aspect aspect){
-        Class effectClass = AspectHandler.getInstance().getEffectFromAspect(aspect);
+        Class effectClass = AspectHandler.getEffectFromAspect(aspect);
         for(AspectEffect effect : data.getEffects())
             if(effect.getClass() == effectClass)
                 return effect;

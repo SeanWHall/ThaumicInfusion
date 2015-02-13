@@ -89,15 +89,14 @@ public class ThaumcraftIntergration {
     }
 
     private static ResearchPage[] getPages() {
-        Aspect[] aspects = AspectHandler.getInstance().getAspects();
+        Aspect[] aspects = AspectHandler.getAspects();
         AspectList current = new AspectList();
         ArrayList<ResearchPage> pages = new ArrayList<ResearchPage>();
 
-        AspectHandler handler = AspectHandler.getInstance();
         int index = 0;
         for (Aspect aspect : aspects) {
             if (aspect != null) {
-                current.add(aspect, handler.getCostOfEffect(aspect));
+                current.add(aspect, AspectHandler.getCostOfEffect(aspect));
                 if (index == 1) {
                     pages.add(new AspectEffectPage(current));
                     current = new AspectList();
@@ -129,7 +128,7 @@ public class ThaumcraftIntergration {
             for (Aspect aspect : aspects.getAspects()) {
                 if (aspect != null) {
                     ResourceLocation location = aspect.getImage();
-                    str += "<IMG>" + location.getResourceDomain() + ":" + location.getResourcePath() + ":0:0:255:255:0.125</IMG>" + aspect.getName() + " Cost: " + AspectHandler.getInstance().getCostOfEffect(aspect) + " " + ThaumicInfusion.translate("ti.effect_info." + aspect.getName().toUpperCase()) + "\n";
+                    str += "<IMG>" + location.getResourceDomain() + ":" + location.getResourcePath() + ":0:0:255:255:0.125</IMG>" + aspect.getName() + " Cost: " + AspectHandler.getCostOfEffect(aspect) + " " + ThaumicInfusion.translate("ti.effect_info." + aspect.getName().toUpperCase()) + "\n";
                 }
             }
             return str;
@@ -153,14 +152,9 @@ public class ThaumcraftIntergration {
                     break;
             }
 
-            Block block;
+            Block block = (central.getItem() instanceof ItemBlock ? Block.getBlockFromItem(central.getItem()) : null);
 
-            if(!(central.getItem() instanceof ItemBlock))
-                block = BlockHandler.getInfusionBlock(central.getItem());
-            else
-                block = Block.getBlockFromItem(central.getItem());
-
-            if (!isStackSetToInfuse || BlockHandler.isBlockBlacklisted(block))
+            if (block == null || !isStackSetToInfuse || BlockHandler.isBlockBlacklisted(block))
                 return false;
 
             ArrayList<ItemStack> ii = new ArrayList<ItemStack>();
@@ -181,13 +175,12 @@ public class ThaumcraftIntergration {
                 if (infuseAspects.getAmount(aspect) > 0)
                     return false;
 
-                int cost = AspectHandler.getInstance().getCostOfEffect(aspect);
+                int cost = AspectHandler.getCostOfEffect(aspect);
                 if (cost != -1)
                     infuseAspects.add(aspect, cost * central.stackSize);
                 else return false;
             }
-            AspectHandler handler = AspectHandler.getInstance();
-            if (!handler.canInfuse(infuseAspects.getAspects()) || !handler.canInfuse(block, infuseAspects.getAspects()))
+            if (!AspectHandler.canInfuse(infuseAspects.getAspects()) || !AspectHandler.canInfuse(block, infuseAspects.getAspects()))
                 return false;
 
             aspects = infuseAspects;

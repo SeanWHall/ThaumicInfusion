@@ -1,9 +1,9 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
-import drunkmafia.thaumicinfusion.common.util.helper.BlockHelper;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
+import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import net.minecraft.world.World;
 
 /**
@@ -18,7 +18,7 @@ public class Tutamen extends AspectEffect {
 
     @Override
     public float getBlockHardness(World world, int x, int y, int z) {
-        BlockData data = BlockHelper.getData(BlockData.class, world, getPos());
+        BlockData data = TIWorldData.getData(BlockData.class, world, getPos());
         return data.getContainingBlock().getBlockHardness(world, x, y, z) + hardnessModifer;
     }
 }

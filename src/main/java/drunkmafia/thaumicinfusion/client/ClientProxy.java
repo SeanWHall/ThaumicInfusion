@@ -6,6 +6,7 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import drunkmafia.thaumicinfusion.client.event.ClientEventContainer;
 import drunkmafia.thaumicinfusion.client.event.ClientTickHandler;
 import drunkmafia.thaumicinfusion.client.gui.InfusedBlockGUI;
+import drunkmafia.thaumicinfusion.client.renderer.InfusedBlockFallingRenderer;
 import drunkmafia.thaumicinfusion.client.renderer.RenderInfused;
 import drunkmafia.thaumicinfusion.client.renderer.item.CoreItemRenderer;
 import drunkmafia.thaumicinfusion.client.renderer.item.EssentiaBlockRenderer;
@@ -13,6 +14,7 @@ import drunkmafia.thaumicinfusion.client.renderer.item.InfusedItemRenderer;
 import drunkmafia.thaumicinfusion.client.renderer.tile.InfusionCoreRenderer;
 import drunkmafia.thaumicinfusion.common.CommonProxy;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
+import drunkmafia.thaumicinfusion.common.aspect.entity.InfusedBlockFalling;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
 import drunkmafia.thaumicinfusion.common.block.TIBlocks;
@@ -36,6 +38,7 @@ public class ClientProxy extends CommonProxy {
             MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(block), new InfusedItemRenderer());
 
         RenderingRegistry.registerBlockHandler(new RenderInfused());
+        RenderingRegistry.registerEntityRenderingHandler(InfusedBlockFalling.class, new InfusedBlockFallingRenderer());
 
         ClientRegistry.bindTileEntitySpecialRenderer(InfusionCoreTile.class, new InfusionCoreRenderer());
 

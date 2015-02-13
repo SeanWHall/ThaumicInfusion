@@ -67,7 +67,7 @@ public class WorldCoord extends WorldCoordinates {
 
     @Override
     public String toString() {
-        return "X: " + x + " Y: " + y + " Z: " + z;
+        return "ID:" + id + "X: " + x + " Y: " + y + " Z: " + z + " Dim: " + dim;
     }
 
     @Override

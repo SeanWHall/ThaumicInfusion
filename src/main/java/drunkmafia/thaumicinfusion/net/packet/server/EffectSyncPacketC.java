@@ -4,7 +4,7 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
-import drunkmafia.thaumicinfusion.common.util.helper.BlockHelper;
+import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
@@ -58,7 +58,7 @@ public class EffectSyncPacketC  implements IMessage {
             if (effect == null || ctx.side.isServer()) return null;
             World world = ChannelHandler.getClientWorld();
             WorldCoord pos = effect.getPos();
-            BlockData data = BlockHelper.getWorldData(world).getBlock(BlockData.class, effect.getPos());
+            BlockData data = TIWorldData.getWorldData(world).getBlock(BlockData.class, effect.getPos());
             if(data != null &&  data.getEffect(effect.getClass()) != null)
                 data.getEffect(effect.getClass()).readNBT(message.tagCompound);
 

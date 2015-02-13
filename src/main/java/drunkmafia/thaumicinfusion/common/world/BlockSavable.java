@@ -1,5 +1,6 @@
 package drunkmafia.thaumicinfusion.common.world;
 
+import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
@@ -10,13 +11,15 @@ import net.minecraft.world.World;
  */
 public abstract class BlockSavable extends Savable {
 
-    private WorldCoord coordinates;
+    protected WorldCoord coordinates;
+    protected int blockID;
 
     public BlockSavable() {
     }
 
-    public BlockSavable(WorldCoord coordinates) {
+    public BlockSavable(WorldCoord coordinates, int blockID) {
         this.coordinates = coordinates;
+        this.blockID = blockID;
     }
 
     public boolean init = false;
@@ -36,13 +39,23 @@ public abstract class BlockSavable extends Savable {
         return coordinates;
     }
 
+    public void setCoords(WorldCoord newPos){
+        coordinates = newPos;
+    }
+
+    public Block getBlock(){
+        return Block.getBlockById(blockID);
+    }
+
     public void writeNBT(NBTTagCompound tagCompound) {
         super.writeNBT(tagCompound);
+        tagCompound.setInteger("blockID", blockID);
         coordinates.writeNBT(tagCompound);
     }
 
     public void readNBT(NBTTagCompound tagCompound) {
         super.readNBT(tagCompound);
+        blockID = tagCompound.getInteger("blockID");
         coordinates = new WorldCoord();
         coordinates.readNBT(tagCompound);
     }

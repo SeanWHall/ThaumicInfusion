@@ -7,6 +7,9 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import drunkmafia.thaumicinfusion.common.util.helper.InfusionHelper;
+import drunkmafia.thaumicinfusion.common.world.BlockData;
+import drunkmafia.thaumicinfusion.common.world.TIWorldData;
+import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
@@ -14,6 +17,7 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.DimensionManager;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import thaumcraft.api.aspects.Aspect;
@@ -27,23 +31,22 @@ import thaumcraft.common.config.Config;
  * See http://www.wtfpl.net/txt/copying for licence
  * <p/>
  * NOTICE: The following class contains code taken from TC
- * it has been ripped from TC with the premission of Azanor
+ * it has been ripped from TC with the permission of Azanor
  * and is used to make my infused block compatible with
  * seeing the aspect in the block
  */
+@SideOnly(Side.CLIENT)
 public class ClientTickHandler {
-
-    @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public void renderTick(TickEvent.RenderTickEvent event) {
         Minecraft mc = FMLClientHandler.instance().getClient();
         if (event.phase != TickEvent.Phase.START) {
-            if ((Minecraft.getMinecraft().renderViewEntity instanceof EntityPlayer)) {
-                EntityPlayer player = (EntityPlayer) Minecraft.getMinecraft().renderViewEntity;
+            if ((mc.renderViewEntity instanceof EntityPlayer)) {
+                EntityPlayer player = (EntityPlayer) mc.renderViewEntity;
+
                 GuiScreen gui = mc.currentScreen;
-                if (((gui instanceof GuiContainer)) && (((GuiScreen.isShiftKeyDown()) && (!Config.showTags)) || ((!GuiScreen.isShiftKeyDown()) && (Config.showTags) && (!Mouse.isGrabbed())))) {
+                if (((gui instanceof GuiContainer)) && (((GuiScreen.isShiftKeyDown()) && (!Config.showTags)) || ((!GuiScreen.isShiftKeyDown()) && (Config.showTags) && (!Mouse.isGrabbed()))))
                     renderAspectsInGui((GuiContainer) gui, player);
-                }
             }
         }
     }
@@ -81,8 +84,7 @@ public class ClientTickHandler {
                     if (infusedTag != null) {
                         AspectList tags = InfusionHelper.addBlockAspects(stack);
                         if (tags != null) {
-                            int x = var16 + 17;
-                            int y = var17 + 7 - 33;
+                            int x, y;
                             GL11.glDisable(2929);
 
                             int index = 0;
@@ -165,5 +167,4 @@ public class ClientTickHandler {
         par3 -= var5;
         return (par2 >= par1Slot.xDisplayPosition - 1) && (par2 < par1Slot.xDisplayPosition + 16 + 1) && (par3 >= par1Slot.yDisplayPosition - 1) && (par3 < par1Slot.yDisplayPosition + 16 + 1);
     }
-
 }

@@ -26,12 +26,12 @@ public class InfusionCoreRenderer extends TileEntitySpecialRenderer {
 
     static IModelCustom infusionCore = AdvancedModelLoader.loadModel(infusionCore_Model);
 
-    float transSpeed = 0.025F, rotSpeed = 2F, hover, ticks;
+    float rotSpeed = 2F, hover, ticks;
     float rotTarget = 0F;
 
     public static void renderCore(Vector3 pos, Vector3 scale, Vector3 axies, float angle, float hover, float deltaTime) {
         GL11.glPushMatrix();
-        GL11.glTranslated(pos.x, pos.y + hover, pos.z);
+        GL11.glTranslated(pos.x, pos.y + hover + 0.25F, pos.z);
         GL11.glScaled(scale.x, scale.y, scale.z);
         GL11.glRotated(angle, axies.x, axies.y, axies.z);
 
@@ -53,7 +53,7 @@ public class InfusionCoreRenderer extends TileEntitySpecialRenderer {
 
         updateCore(core, deltaTime);
 
-        Vector3 pos = new Vector3(x + 0.5D, y + 0.5D + core.yLevel, z + 0.5D);
+        Vector3 pos = new Vector3(x + 0.5D, y + 0.5D, z + 0.5D);
 
         renderCore(pos, new Vector3(1.4, 1.3, 1.4), core.coreAxies, core.angle, hover, deltaTime);
         renderCore(pos, new Vector3(1, 1.3, 1), core.coreAxies, -core.angle, hover, deltaTime);
@@ -71,7 +71,7 @@ public class InfusionCoreRenderer extends TileEntitySpecialRenderer {
 
         pos.y -= 0.1F;
 
-        GL11.glTranslated(pos.x, pos.y + hover, pos.z);
+        GL11.glTranslated(pos.x, pos.y + hover + 0.25F, pos.z);
         if (item.getItem() instanceof ItemBlock)
             GL11.glScalef(1.5F, 1.5F, 1.5F);
         else
@@ -100,7 +100,6 @@ public class InfusionCoreRenderer extends TileEntitySpecialRenderer {
                 core.coreAxies = new Vector3(0, 1, 0);
             }
 
-            core.yLevel = MathHelper.lerp(core.yLevel, rotTarget, transSpeed * deltaTime, 0.05F);
             core.angle = MathHelper.lerp(core.angle, 360, rotSpeed * deltaTime);
 
             if (core.angle == 360)
@@ -108,9 +107,7 @@ public class InfusionCoreRenderer extends TileEntitySpecialRenderer {
 
             ticks = Minecraft.getMinecraft().renderViewEntity.ticksExisted + deltaTime;
             hover = net.minecraft.util.MathHelper.sin(ticks % 32767.0F / 16.0F) * 0.05F;
-        }else if(core.yLevel != 0 || core.angle != 0) {
-            core.yLevel = MathHelper.lerp(core.yLevel, 0, transSpeed * deltaTime, 0.05F);
+        }else if(core.angle != 0)
             core.angle = MathHelper.lerp(core.angle, 0, rotSpeed * deltaTime);
-        }
     }
 }

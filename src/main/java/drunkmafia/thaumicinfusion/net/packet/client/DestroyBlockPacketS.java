@@ -3,7 +3,7 @@ package drunkmafia.thaumicinfusion.net.packet.client;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import drunkmafia.thaumicinfusion.common.util.helper.BlockHelper;
+import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import io.netty.buffer.ByteBuf;
@@ -48,7 +48,7 @@ public class DestroyBlockPacketS implements IMessage {
             if (message.coordinates == null || ctx.side.isClient()) return null;
             World world = ChannelHandler.getServerWorld(message.coordinates.dim);
             if(world != null)
-                BlockHelper.destroyBlock(world, message.coordinates);
+                TIWorldData.getWorldData(world).removeBlock(message.coordinates, true);
             return null;
         }
     }

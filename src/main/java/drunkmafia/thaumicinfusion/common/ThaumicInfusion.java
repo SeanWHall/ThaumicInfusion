@@ -1,5 +1,6 @@
 package drunkmafia.thaumicinfusion.common;
 
+import cpw.mods.fml.client.GuiIngameModOptions;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -7,6 +8,7 @@ import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.*;
 import cpw.mods.fml.common.network.NetworkRegistry;
+import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import drunkmafia.thaumicinfusion.common.block.TIBlocks;
@@ -14,17 +16,17 @@ import drunkmafia.thaumicinfusion.common.command.TICommand;
 import drunkmafia.thaumicinfusion.common.event.CommonEventContainer;
 import drunkmafia.thaumicinfusion.common.event.TickEventHandler;
 import drunkmafia.thaumicinfusion.common.intergration.ThaumcraftIntergration;
+import drunkmafia.thaumicinfusion.common.lib.ConfigHandler;
 import drunkmafia.thaumicinfusion.common.tab.TITab;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import net.minecraft.command.ServerCommandManager;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.config.Configuration;
 import org.apache.logging.log4j.Logger;
 
 import static drunkmafia.thaumicinfusion.common.lib.ModInfo.*;
 
-@Mod(modid = MODID, name = NAME, version = VERSION, dependencies="required-after:Thaumcraft;", canBeDeactivated = true)
+@Mod(modid = MODID, name = NAME, version = VERSION, dependencies="required-after:Forge@[10.13.2,);required-after:Thaumcraft@[4.2.3.4,)")
 public class ThaumicInfusion {
 
     @Instance(MODID)
@@ -35,23 +37,17 @@ public class ThaumicInfusion {
 
     public boolean isServer;
     public Logger logger;
-    public Configuration config;
 
-    @EventHandler
-    public void constructing(FMLConstructionEvent event){
-        AspectHandler.getInstance().addMod();
-    }
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         logger = event.getModLog();
         isServer = event.getSide().isServer();
-        config = new Configuration(event.getSuggestedConfigurationFile());
+        ConfigHandler.init(event.getSuggestedConfigurationFile());
 
         TITab.init();
         TIBlocks.initBlocks();
-
-        AspectHandler.getInstance().preInit();
+        AspectEffect.init();
     }
 
     @EventHandler
@@ -66,9 +62,8 @@ public class ThaumicInfusion {
 
     @EventHandler
     public void postInit(FMLPostInitializationEvent event){
-        AspectHandler.getInstance().postInit();
+        AspectHandler.postInit();
         ThaumcraftIntergration.init();
-        BlockHandler.generateSafeTiles();
     }
 
     @EventHandler

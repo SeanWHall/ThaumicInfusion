@@ -5,9 +5,12 @@ import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import drunkmafia.thaumicinfusion.common.world.BlockData;
+import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.common.items.ItemEssence;
@@ -89,7 +92,7 @@ public class InfusionHelper {
     private static Class[] getEffectsFromList(Aspect[] list) {
         Class[] effects = new Class[list.length];
         for(int i = 0; i < effects.length; i++)
-            effects[i] = AspectHandler.getInstance().getEffectFromAspect(list[i]);
+            effects[i] = AspectHandler.getEffectFromAspect(list[i]);
 
         return effects;
     }
@@ -108,8 +111,17 @@ public class InfusionHelper {
         return array;
     }
 
+    public static BlockData getDataFromStack(ItemStack stack, World world, int x, int y, int z) {
+        Class[] classes = getEffectsFromStack(stack);
+        if(classes != null) {
+            return new BlockData(new WorldCoord(x, y, z, world.provider.dimensionId), classes, getInfusedID(stack), getBlockID(classes));
+        }else return null;
+    }
+
     public static ItemStack getInfusedItemStack(Aspect[] list, ItemStack block, int size, int meta){
-        if(list == null) return null;
+        if(list == null)
+            return null;
+
         Class[] effects = getEffectsFromList(list);
         if(effects.length == 0)
             return null;
@@ -124,10 +136,13 @@ public class InfusionHelper {
 
         infuseTag.setInteger("infusedAspect_Size", effects.length);
         infuseTag.setInteger("infusedID", containingId);
+        infuseTag.setInteger("infusedMETA", meta);
 
         for(int i = 0; i < effects.length; i++) {
-            if(effects[i] == null)
+            if(effects[i] == null) {
+                System.out.println("Effects is null");
                 return null;
+            }
             infuseTag.setString("infusedAspect_" + i, effects[i].getName());
         }
 
@@ -136,6 +151,7 @@ public class InfusionHelper {
 
         tag.setTag("InfuseTag", infuseTag);
         stack.stackTagCompound = tag;
+
         return stack;
     }
 }

@@ -18,14 +18,8 @@ import net.minecraft.world.World;
  * Created by DrunkMafia on 06/11/2014.
  * See http://www.wtfpl.net/txt/copying for licence
  */
-@Effect(aspect = ("tenebrae"), cost = 4, hasCustomBlock = true)
+@Effect(aspect = ("tenebrae"), cost = 4)
 public class Tenebrae extends AspectEffect {
-
-    @Override
-    public InfusedBlock getBlock() {
-        return new InfusedBlock(Material.rock).setPass(0);
-    }
-
     public boolean isLit, oldIsLit;
 
     @SideOnly(Side.CLIENT)

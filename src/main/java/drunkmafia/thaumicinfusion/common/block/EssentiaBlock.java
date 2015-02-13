@@ -3,15 +3,12 @@ package drunkmafia.thaumicinfusion.common.block;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.tab.TITab;
-import drunkmafia.thaumicinfusion.common.util.helper.BlockHelper;
-import drunkmafia.thaumicinfusion.common.world.WorldCoord;
-import drunkmafia.thaumicinfusion.common.world.BlockData;
-import drunkmafia.thaumicinfusion.common.world.BlockSavable;
-import drunkmafia.thaumicinfusion.common.world.EssentiaData;
+import drunkmafia.thaumicinfusion.common.world.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -22,6 +19,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import thaumcraft.api.aspects.Aspect;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +30,7 @@ import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.*;
  * <p/>
  * See http://www.wtfpl.net/txt/copying for licence
  */
-public class EssentiaBlock extends WorldBlockData {
+public class EssentiaBlock extends Block {
 
     public EssentiaBlock() {
         super(Material.rock);
@@ -85,13 +83,13 @@ public class EssentiaBlock extends WorldBlockData {
 
     @Override
     public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {
-         BlockHelper.getData(BlockData.class, world, new WorldCoord(x, y, z));
+        TIWorldData.getData(BlockData.class, world, new WorldCoord(x, y, z));
         world.markBlockRangeForRenderUpdate(x, y, z, x, y, z);
     }
 
     @Override
     public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z, EntityPlayer player) {
-        BlockSavable data = BlockHelper.getData(BlockData.class, world, new WorldCoord(x, y, z));
+        BlockSavable data = TIWorldData.getData(BlockData.class, world, new WorldCoord(x, y, z));
         if(data != null) {
             int meta = world.getBlockMetadata(x, y, z);
             ItemStack stack = new ItemStack(this, 1, meta);
@@ -108,41 +106,46 @@ public class EssentiaBlock extends WorldBlockData {
     }
 
     @Override
-    public void breakBlock(World world, BlockSavable data, int meta) {
-        if(!(data instanceof EssentiaData))
-            return;
-        WorldCoord coord = data.getCoords();
+    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entity, ItemStack stack) {
+        TIWorldData worldData = TIWorldData.getWorldData(world);
+        WorldCoord coord = new WorldCoord(x, y, z, world.provider.dimensionId);
 
-        ItemStack stack = new ItemStack(this, 1, meta);
+        world.setBlockMetadataWithNotify(coord.x, coord.y, coord.z, stack.getItemDamage(), 3);
+        NBTTagCompound tagCompound = stack.getTagCompound();
+        if(tagCompound != null)
+            worldData.addBlock(new EssentiaData(coord, Aspect.getAspect(tagCompound.getString("aspectTag"))));
+    }
+
+    @Override
+    public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune) {
+        EssentiaData data = TIWorldData.getWorldData(world).getBlock(EssentiaData.class, WorldCoord.get(x, y, z));
+
+        int meta = world.getBlockMetadata(x, y, z);
+        ItemStack stack = new ItemStack(TIBlocks.essentiaBlock, 1, meta);
+
         NBTTagCompound tagCompound = new NBTTagCompound();
-        Aspect aspect = ((EssentiaData) data).getAspect();
+        Aspect aspect = data.getAspect();
         tagCompound.setString("aspectTag", aspect.getTag());
         stack.setTagCompound(tagCompound);
         stack.setStackDisplayName(aspect.getName() + (meta != 0 ? (meta == 1 ? " Brick" : " chiseled") : ""));
-        super.dropBlockAsItem(world, coord.x, coord.y, coord.z, stack);
+
+        ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
+        stacks.add(stack);
+        return stacks;
+    }
+
+    @Override
+    public void harvestBlock(World world, EntityPlayer player, int x, int y, int z, int id) {}
+
+    @Override
+    public void onBlockPreDestroy(World world, int x, int y, int z, int meta) {
     }
 
     @SideOnly(Side.CLIENT)
     public int colorMultiplier(IBlockAccess access, int x, int y, int z){
-        EssentiaData data = BlockHelper.getData(EssentiaData.class, access, new WorldCoord(x, y, z));
+        EssentiaData data = TIWorldData.getData(EssentiaData.class, TIWorldData.getWorld(access), new WorldCoord(x, y, z));
         if(data == null || data.getAspect() == null)
             return 0;
         return data.getAspect().getColor();
-    }
-
-    @Override
-    public boolean shouldUsePlaceEvent() {
-        return true;
-    }
-
-    @Override
-    public BlockSavable getData(World world, ItemStack stack, WorldCoord coord) {
-        coord.dim = world.provider.dimensionId;
-        world.setBlockMetadataWithNotify(coord.x, coord.y, coord.z, stack.getItemDamage(), 3);
-        NBTTagCompound tagCompound = stack.getTagCompound();
-        if(tagCompound != null)
-            return new EssentiaData(coord, Aspect.getAspect(tagCompound.getString("aspectTag")));
-        else
-            return null;
     }
 }

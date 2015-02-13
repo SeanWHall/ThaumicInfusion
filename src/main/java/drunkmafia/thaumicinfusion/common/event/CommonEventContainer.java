@@ -1,10 +1,10 @@
 package drunkmafia.thaumicinfusion.common.event;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
-import drunkmafia.thaumicinfusion.common.util.helper.BlockHelper;
+import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
-import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -17,21 +17,21 @@ public class CommonEventContainer {
 
     @SubscribeEvent
     public void onClick(PlayerInteractEvent event) {
-        BlockSavable[] blocks = BlockHelper.getWorldData(event.world).getAllBocks();
-        if(blocks == null || blocks.length == 0)
-            return;
-
-        for(BlockSavable savable : blocks)
-            if(savable instanceof BlockData)
-                for(AspectEffect effect : ((BlockData)savable).getEffects())
+        BlockData[] datas = TIWorldData.getWorldData(event.world).getAllBlocks(BlockData.class);
+        for(BlockData data : datas) {
+            for (AspectEffect effect : data.getEffects()) {
+                try {
                     effect.worldBlockInteracted(event.entityPlayer, event.world, event.x, event.y, event.z, event.face);
+                } catch (Exception e) {
+                    InfusedBlock.handleError(e, event.world, effect.data, true);
+                }
+            }
+        }
     }
 
-
-
     @SubscribeEvent
-    public void load(WorldEvent.Load loadEvent){
-        TIWorldData data = BlockHelper.getWorldData(loadEvent.world);
+    public void load(WorldEvent.Load event){
+        TIWorldData data = TIWorldData.getWorldData(event.world);
         data.postLoad();
     }
 }

@@ -17,7 +17,7 @@ import thaumcraft.common.items.armor.ItemGoggles;
  * <p/>
  * See http://www.wtfpl.net/txt/copying for licence
  */
-@Effect(aspect = ("sensus"), cost = 4, hasCustomBlock = true)
+@Effect(aspect = ("sensus"), cost = 4)
 public class Sensus extends AspectEffect {
 
     boolean shouldRender, oldRender;
@@ -34,11 +34,6 @@ public class Sensus extends AspectEffect {
             oldRender = shouldRender;
             Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.x, pos.y, pos.z);
         }
-    }
-
-    @Override
-    public InfusedBlock getBlock() {
-        return new InfusedBlock(Material.rock).setPass(0);
     }
 
     @Override

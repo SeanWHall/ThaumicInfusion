@@ -3,23 +3,24 @@ package drunkmafia.thaumicinfusion.common.world;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
-import drunkmafia.thaumicinfusion.common.util.helper.BlockHelper;
-import drunkmafia.thaumicinfusion.common.util.classes.SafeClassGenerator;
+import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import thaumcraft.api.aspects.Aspect;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class BlockData extends BlockSavable {
 
     public static long runTime = 0;
 
-    private int containingID, blockID;
+    private int containingID;
     private TileEntity tile;
     public World world;
 
@@ -28,13 +29,12 @@ public class BlockData extends BlockSavable {
     public BlockData() {}
 
     public BlockData(WorldCoord coords, Class[] list, int containingID, int blockID) {
-        super(coords);
-        this.blockID = blockID;
+        super(coords, blockID);
         this.containingID = containingID;
 
 
         for (AspectEffect effect : classesToEffects(list)) {
-            if(!(getContainingBlock() instanceof ITileEntityProvider) && tile == null && effect.getClass().getAnnotation(Effect.class).hasTileEntity())
+            if(tile == null && effect.getClass().getAnnotation(Effect.class).hasTileEntity())
                 tile = effect.getTile();
             dataEffects.add(effect);
         }
@@ -42,44 +42,40 @@ public class BlockData extends BlockSavable {
 
     @Override
     public void dataLoad(World world) {
+        if(world == null)
+            return;
+
         this.world = world;
 
         if(!world.isRemote && BlockHandler.isBlockBlacklisted(getContainingBlock())){
-            BlockHelper.destroyBlock(world, getCoords());
+            TIWorldData.getWorldData(world).removeBlock(getCoords(), true);
             return;
         }
 
         WorldCoord pos = getCoords();
+
+        if(tile != null)
+            world.setTileEntity(pos.x, pos.y, pos.z, tile);
+
         for(int a = 0; a < dataEffects.size(); a++) {
             AspectEffect effect = dataEffects.get(a);
             effect.aspectInit(world, getCoords());
         }
-
-        if(tile == null && getContainingBlock() instanceof ITileEntityProvider)
-            tile = getContainingBlock().createTileEntity(world, world.getBlockMetadata(pos.x, pos.y, pos.z));
-
-        if(tile != null) {
-            if(!(tile instanceof SafeClassGenerator.SafeClass)){
-                TileEntity safeTile = BlockHandler.getSafeTile(tile.getClass());
-                if(safeTile != null){
-                    NBTTagCompound tag = new NBTTagCompound();
-                    tile.writeToNBT(tag);
-                    safeTile.readFromNBT(tag);
-                    tile = safeTile;
-                }
-            }
-            if(tile instanceof SafeClassGenerator.SafeClass)
-                world.setTileEntity(pos.x, pos.y, pos.z, tile);
-            else if(!world.isRemote)
-                BlockHelper.destroyBlock(world, pos);
-        }
-
         init = true;
     }
 
     @Override
+    public void setCoords(WorldCoord newPos) {
+        super.setCoords(newPos);
+        for(AspectEffect effect : dataEffects)
+            effect.setCoords(newPos);
+        if(world != null)
+            TIWorldData.getWorldData(world).markDirty();
+    }
+
+    @Override
     public boolean equals(Object obj) {
-        return obj instanceof BlockData && ((BlockData)obj).blockID == this.blockID && ((BlockData)obj).containingID == containingID;
+        return obj instanceof BlockData && ((BlockSavable)obj).blockID == this.blockID && ((BlockData)obj).containingID == containingID;
     }
 
     public <T extends AspectEffect>T getEffect(Class<T> effect){
@@ -97,7 +93,9 @@ public class BlockData extends BlockSavable {
         AspectEffect[] effects = new AspectEffect[list.length];
         for (int i = 0; i < effects.length; i++) {
             try {
-                effects[i] = (AspectEffect) list[i].newInstance();
+                AspectEffect eff = (AspectEffect) list[i].newInstance();
+                eff.data = this;
+                effects[i] = eff;
             }catch (Exception e){}
         }
         return effects;
@@ -111,9 +109,9 @@ public class BlockData extends BlockSavable {
         if(!BlockHandler.isBlockMethod(methName))
             throw new IllegalArgumentException("Attempted to run a block method outside of one, culprit class: " + lastMethod.getClassName() + " from: " + lastMethod.getMethodName());
         Block block = null;
-        for (AspectEffect dataEffect : dataEffects)
-            if (dataEffect.hasMethod(methName) && dataEffect.isEnabled)
-                block = dataEffect;
+        for (AspectEffect effect : dataEffects)
+            if (effect.hasMethod(methName) && effect.isEnabled)
+                block = effect;
         runTime = time - System.currentTimeMillis();
         return block == null ? getContainingBlock() : block;
     }
@@ -129,9 +127,9 @@ public class BlockData extends BlockSavable {
 
     public AspectEffect runAspectMethod(){
         String methName = Thread.currentThread().getStackTrace()[2].getMethodName();
-        for (AspectEffect dataEffect : dataEffects)
-            if (dataEffect.hasMethod(methName))
-                return dataEffect;
+        for (AspectEffect effect : dataEffects)
+            if (effect.hasMethod(methName))
+                return effect;
         return null;
     }
 
@@ -144,21 +142,16 @@ public class BlockData extends BlockSavable {
 
         for(AspectEffect effect : getEffects()){
             Effect annot = effect.getClass().getAnnotation(Effect.class);
-            if(annot.hasGUI()) {
-                openGUI = true;
-                break;
-            }else
-                openGUI = false;
+            if(openGUI = annot.hasGUI())
+                return true;
         }
-        return openGUI;
+        return false;
     }
+
+    public void setContainingBlock(Block block){containingID = Block.getIdFromBlock(block);}
 
     public Block getContainingBlock() {
         return Block.getBlockById(containingID);
-    }
-
-    public Block getBlock() {
-        return Block.getBlockById(blockID);
     }
 
     public AspectEffect[] getEffects() {
@@ -170,14 +163,13 @@ public class BlockData extends BlockSavable {
         AspectEffect[] effects = getEffects();
         Aspect[] aspects = new Aspect[effects.length];
         for(int i = 0; i < effects.length; i++)
-            aspects[i] = AspectHandler.getInstance().getAspectsFromEffect(effects[i].getClass());
+            aspects[i] = AspectHandler.getAspectsFromEffect(effects[i].getClass());
 
         return aspects;
     }
 
     public void writeNBT(NBTTagCompound tagCompound) {
         super.writeNBT(tagCompound);
-        tagCompound.setInteger("BlockID", blockID);
         tagCompound.setInteger("length", dataEffects.size());
         for (int i = 0; i < dataEffects.size(); i++) {
             NBTTagCompound effectTag = new NBTTagCompound();
@@ -196,7 +188,6 @@ public class BlockData extends BlockSavable {
 
     public void readNBT(NBTTagCompound tagCompound) {
         super.readNBT(tagCompound);
-        blockID = tagCompound.getInteger("BlockID");
         for (int i = 0; i < tagCompound.getInteger("length"); i++)
             dataEffects.add(AspectEffect.loadDataFromNBT(tagCompound.getCompoundTag("effect: " + i)));
         containingID = tagCompound.getInteger("ContainingID");

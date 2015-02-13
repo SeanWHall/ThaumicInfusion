@@ -12,14 +12,14 @@ public class Savable {
     public Savable() {
     }
 
-    public static Savable loadDataFromNBT(NBTTagCompound tag) {
+    public static <T>T loadDataFromNBT(NBTTagCompound tag) {
         if (!tag.hasKey("class")) return null;
         try {
             Class<?> c = Class.forName(tag.getString("class"));
             if (Savable.class.isAssignableFrom(c)) {
                 Savable data = (Savable) c.newInstance();
                 data.readNBT(tag);
-                return data;
+                return (T) data;
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -4,7 +4,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
-import drunkmafia.thaumicinfusion.common.util.helper.BlockHelper;
+import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
@@ -58,8 +58,8 @@ public class Volatus extends AspectEffect {
         for(int y = 0; y < size; y++) {
             int posX = (int) player.posX, posY = (int) (player.posY - y), posZ = (int) player.posZ;
             if(! player.worldObj.isAirBlock(posX, posY, posZ)) {
-                if ( player.worldObj.getBlock(posX, posX, posZ) instanceof InfusedBlock) {
-                    BlockData data = BlockHelper.getData(BlockData.class, player.worldObj, new WorldCoord(posX, posY, posZ));
+                if (player.worldObj.getBlock(posX, posX, posZ) instanceof InfusedBlock) {
+                    BlockData data = TIWorldData.getData(BlockData.class, player.worldObj, new WorldCoord(posX, posY, posZ));
                     if (data != null)
                         return true;
                 }
@@ -75,7 +75,7 @@ public class Volatus extends AspectEffect {
         int curretY = pos.y - 1;
         while(!world.isAirBlock(pos.x, curretY, pos.z)){
             if(world.getBlock(pos.x, curretY, pos.z) instanceof InfusedBlock){
-                BlockData data = BlockHelper.getData(BlockData.class, world, new WorldCoord(pos.x, curretY, pos.z));
+                BlockData data = TIWorldData.getData(BlockData.class, world, new WorldCoord(pos.x, curretY, pos.z));
                 if(data != null && data.hasEffect(Volatus.class)) {
                     ret += defSize;
                     curretY--;

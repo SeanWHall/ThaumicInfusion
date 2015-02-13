@@ -1,9 +1,7 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
-import drunkmafia.thaumicinfusion.common.util.helper.BlockHelper;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import drunkmafia.thaumicinfusion.common.world.BlockData;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 
@@ -25,6 +23,6 @@ public class Perfodio extends AspectEffect {
     }
 
     float getHardness(World world, int x, int y, int z){
-        return BlockHelper.getData(BlockData.class, world, getPos()).getContainingBlock().getBlockHardness(world, x, y, z) / 4;
+        return data.getContainingBlock().getBlockHardness(world, x, y, z) / 4;
     }
 }

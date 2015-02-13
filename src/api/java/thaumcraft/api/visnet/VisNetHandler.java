@@ -15,7 +15,7 @@ import thaumcraft.api.aspects.Aspect;
 
 public class VisNetHandler {
 
-	// / NODE DRAINING
+	// NODE DRAINING
 	/**
 	 * This method drains vis from a relay or source near the passed in
 	 * location. The amount received can be less than the amount requested so
@@ -226,12 +226,19 @@ public class VisNetHandler {
 	private static ArrayList<WeakReference<TileVisNode>> getAllChildren(TileVisNode source, ArrayList<WeakReference<TileVisNode>> list) {
 		for (WeakReference<TileVisNode> child : source.getChildren()) {
 			TileVisNode n = child.get();
-			if (n != null) {
+			
+			if (n != null && n.getWorldObj()!=null && isChunkLoaded(n.getWorldObj(), n.xCoord, n.zCoord)) {
 				list.add(child);
 				list = getAllChildren(n,list);
 			}
 		}
 		return list;
+	}
+	
+	public static boolean isChunkLoaded(World world, int x, int z) {
+		int xx = x >> 4;
+		int zz = z >> 4;
+		return world.getChunkProvider().chunkExists(xx, zz);
 	}
 
 	 public static boolean canNodeBeSeen(TileVisNode source,TileVisNode target)

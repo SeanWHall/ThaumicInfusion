@@ -22,7 +22,7 @@ public class Machina extends AspectEffect {
         WorldCoord pos = getPos();
         isPowered = !world.isBlockIndirectlyGettingPowered(pos.x, pos.y, pos.z);
         if(isPowered != oldIsPowered){
-            for(AspectEffect effect : getData(world).getEffects())
+            for(AspectEffect effect : data.getEffects())
                 if(effect != this)
                     effect.isEnabled = isPowered;
 

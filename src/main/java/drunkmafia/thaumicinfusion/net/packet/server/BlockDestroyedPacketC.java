@@ -3,7 +3,6 @@ package drunkmafia.thaumicinfusion.net.packet.server;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import drunkmafia.thaumicinfusion.common.util.helper.BlockHelper;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
@@ -44,11 +43,8 @@ public class BlockDestroyedPacketC implements IMessage {
             if(coord == null || ctx.side.isServer()) return null;
             CooldownPacket.syncTimeouts.remove(coord);
             World world = ChannelHandler.getClientWorld();
-            TIWorldData data = BlockHelper.getWorldData(world);
-            if(data == null)
-                return null;
 
-            data.removeBlock(coord);
+            TIWorldData.getWorldData(world).removeBlock(coord);
             world.removeTileEntity(coord.x, coord.y, coord.z);
             return null;
         }

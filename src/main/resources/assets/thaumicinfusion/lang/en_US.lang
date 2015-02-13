@@ -22,7 +22,7 @@ tc.research_category.THAUMICINFUSION=Thaumic Infusion
 tc.research_name.BLOCKINFUSION=Block Infusion
 tc.research_text.BLOCKINFUSION=The Procces of fusing aspects to blocks to get an desired effect
 tc.research_page.BLOCKINFUSION.1=Block infusion is one of the lost knowledges of thaumaturgy, it is the process of taking an aspect and infusing it into a catalyst block. The effects are unique to each aspect and must be handled with care, the matrix alone is not powerful enough to withstand the instability of this process. Thus the Infusion Core was created, this core harnesses magic to stabilize every recipe and is able to withstand the infusion process.
-tc.research_page.BLOCKINFUSION.2=To carry out this process, one must replace the center pedestal with the infusion core, the core will stabilize all recipes at the cost of magic, then place the catalyst block within the core and put phials of the aspects you want to infuse in the surrounding pedestals. It will use these phials as markers and drain the amount of essentia needed from the surrounding jars.
+tc.research_page.BLOCKINFUSION.2=To carry out this process, one must replace the center pedestal with the infusion core, the core will add stability to all recipes, then place the catalyst block within the core and put phials of the aspects you want to infuse in the surrounding pedestals. It will use these phials as markers and drain the amount of essentia needed from the surrounding jars, once you've done that one must then hit the core with a want to begin the infusion process.
 
 tc.research_name.ESSENTIABLOCKS=Essentia Block
 tc.research_text.ESSENTIABLOCKS=These blocks are aspects captured in block form
@@ -31,6 +31,13 @@ tc.research_page.ESSENTIABLOCKS.1=Simply aspects solidified as blocks
 tc.research_name.ASPECTEFFECTS=The Effects of Aspects
 tc.research_text.ASPECTEFFECTS=Effects of aspects upon being infused
 
+# Commands
+
+ban.infusion=banblock
+ban.infusion.usage=/banblock Toggles the block in hands ban status
+
+clean.data=cleandata
+clean.data.usage=/cleandata Only run this command when TI blocks are crashing the world, this will remove every TI block in the current dimension. You have been warned!
 
 # Effects Description
 ti.effect_info.VACUOS=Block becomes a disguised inventory
@@ -48,6 +55,7 @@ ti.effect_info.ALIENIS=A strange effect, that seems to cause random teleportatio
 ti.effect_info.TEMPESTAS=Lighting is attracted to this block during storms
 ti.effect_info.VOLATUS=Players are given flight above this block, height is doubled when more are place ontop or below
 ti.effect_info.SPIRITUS=Block seems to be solid but has no collisions, allowing entities to ghost though it
+ti.effect_info.TERRA=Blocks will be effected like gravity, like sand and gravel
 ti.effect_info.FAMES=Eats away at peoples energy and makes them hungry
 ti.effect_info.TENEBRAE=Block is only visible and solid when it's night
 ti.effect_info.BESTIA=Stops the spawning of aggressive mobs ontop of it

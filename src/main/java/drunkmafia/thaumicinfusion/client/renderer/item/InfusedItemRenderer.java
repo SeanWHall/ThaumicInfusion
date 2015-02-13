@@ -42,6 +42,7 @@ public class InfusedItemRenderer implements IItemRenderer {
             GL11.glTranslatef(0.5F, 0.5F, 0.5F);
         else if (type == ItemRenderType.EQUIPPED_FIRST_PERSON)
             GL11.glTranslatef(0.45F, 0.50F, 0.50F);
+
         try {
             RenderManager.instance.itemRenderer.renderItem(player, infused, 0);
         }catch (Exception e){}
