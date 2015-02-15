@@ -1,7 +1,6 @@
 package drunkmafia.thaumicinfusion.common.world;
 
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
-import drunkmafia.thaumicinfusion.common.lib.ConfigHandler;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.CooldownPacket;
 import drunkmafia.thaumicinfusion.net.packet.client.RequestBlockPacketS;
@@ -112,21 +111,6 @@ public class TIWorldData extends WorldSavedData {
         if(savable.getBlock() != null && block != savable.getBlock() && blocksData.containsKey(savable.getCoords())) {
             blocksData.get(pos).remove(savable);
             return;
-        }
-    }
-
-    long start;
-
-    public void cleanAllData(){
-        if(world.isRemote)
-            return;
-        if(System.currentTimeMillis() > start + ConfigHandler.maxTimeout){
-            BlockSavable[][] savables = getAllStoredData();
-            for(BlockSavable[] pos : savables) {
-                if (pos.length > 0)
-                    cleanDataAt(pos[0]);
-            }
-            start = System.currentTimeMillis();
         }
     }
 

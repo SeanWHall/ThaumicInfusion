@@ -11,6 +11,7 @@ import net.minecraft.world.World;
 import thaumcraft.api.aspects.Aspect;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class BlockData extends BlockSavable {
 
@@ -20,6 +21,7 @@ public class BlockData extends BlockSavable {
     private TileEntity tile;
     public World world;
 
+    private HashMap<String, Integer> methodsToBlock = new HashMap<String, Integer>();
     private ArrayList<AspectEffect> dataEffects = new ArrayList<AspectEffect>();
 
     public BlockData() {}
@@ -28,11 +30,13 @@ public class BlockData extends BlockSavable {
         super(coords, blockID);
         this.containingID = containingID;
 
-
         for (AspectEffect effect : classesToEffects(list)) {
             if(tile == null && effect.getClass().getAnnotation(Effect.class).hasTileEntity())
                 tile = effect.getTile();
             dataEffects.add(effect);
+
+            for(String method : effect.methods)
+                methodsToBlock.put(method, dataEffects.indexOf(effect));
         }
     }
 
@@ -42,14 +46,12 @@ public class BlockData extends BlockSavable {
             return;
 
         this.world = world;
-
         if(!world.isRemote && BlockHandler.isBlockBlacklisted(getContainingBlock())){
             TIWorldData.getWorldData(world).removeBlock(getCoords(), true);
             return;
         }
 
         WorldCoord pos = getCoords();
-
         if(tile != null)
             world.setTileEntity(pos.x, pos.y, pos.z, tile);
 
@@ -99,17 +101,12 @@ public class BlockData extends BlockSavable {
 
     /** Can only be run within a method from the block class **/
     public Block runBlockMethod(){
-        long time = System.currentTimeMillis();
         StackTraceElement lastMethod = Thread.currentThread().getStackTrace()[2];
-        String methName = lastMethod.getMethodName();
-        if(!BlockHandler.isBlockMethod(methName))
+        if(!BlockHandler.isBlockMethod(lastMethod.getMethodName()))
             throw new IllegalArgumentException("Attempted to run a block method outside of one, culprit class: " + lastMethod.getClassName() + " from: " + lastMethod.getMethodName());
-        Block block = null;
-        for (AspectEffect effect : dataEffects)
-            if (effect.hasMethod(methName) && effect.isEnabled)
-                block = effect;
-        runTime = time - System.currentTimeMillis();
-        return block == null ? getContainingBlock() : block;
+
+        int index = methodsToBlock.get(lastMethod.getMethodName());
+        return index != -1 ? dataEffects.get(index) : getContainingBlock();
     }
 
     public AspectEffect[] runAllAspectMethod(){
