@@ -2,8 +2,8 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.tileentity.PermutatioTile;
-import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -26,7 +26,7 @@ public class Permutatio  extends AspectEffect {
     @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
         if(world.isRemote)
-            return data.getContainingBlock().onBlockActivated(world, x, y, z, player, side, hitX, hitY, hitZ);
+            return data != null ? data.getContainingBlock().onBlockActivated(world, x, y, z, player, side, hitX, hitY, hitZ) : true;
 
         ItemStack wand = player.getCurrentEquippedItem();
         if(wand == null)
@@ -64,19 +64,13 @@ public class Permutatio  extends AspectEffect {
             return;
 
         WorldCoord pos = getPos();
-
         if(x == pos.x && y == pos.y && z == pos.z)
             return;
 
-        ItemStack wand = player.getCurrentEquippedItem();
-        if(wand == null)
-            return;
-
         TileEntity tile = world.getTileEntity(x, y, z);
-        if(tile == null || !(tile instanceof IInventory)) {
-            System.out.println(tile);
+        ItemStack wand = player.getCurrentEquippedItem();
+        if(wand == null || tile == null || !(tile instanceof IInventory))
             return;
-        }
 
         NBTTagCompound compound = wand.stackTagCompound == null ? new NBTTagCompound() : wand.stackTagCompound;
 

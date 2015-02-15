@@ -1,7 +1,7 @@
 package drunkmafia.thaumicinfusion.common.block;
 
+import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.block.tile.InfusionCoreTile;
-import drunkmafia.thaumicinfusion.common.tab.TITab;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
@@ -29,7 +29,7 @@ public class InfusionCoreBlock extends BlockStoneDevice implements IInfusionStab
 
     protected InfusionCoreBlock() {
         setBlockName(infusionCoreBlock_UnlocalizedName);
-        setCreativeTab(TITab.tab);
+        setCreativeTab(ThaumicInfusion.instance.tab);
     }
 
     @Override

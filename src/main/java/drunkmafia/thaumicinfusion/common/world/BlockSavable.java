@@ -9,7 +9,7 @@ import net.minecraft.world.World;
  * <p/>
  * See http://www.wtfpl.net/txt/copying for licence
  */
-public abstract class BlockSavable extends Savable {
+public abstract class BlockSavable implements ISavable {
 
     protected WorldCoord coordinates;
     protected int blockID;
@@ -48,13 +48,11 @@ public abstract class BlockSavable extends Savable {
     }
 
     public void writeNBT(NBTTagCompound tagCompound) {
-        super.writeNBT(tagCompound);
         tagCompound.setInteger("blockID", blockID);
         coordinates.writeNBT(tagCompound);
     }
 
     public void readNBT(NBTTagCompound tagCompound) {
-        super.readNBT(tagCompound);
         blockID = tagCompound.getInteger("blockID");
         coordinates = new WorldCoord();
         coordinates.readNBT(tagCompound);

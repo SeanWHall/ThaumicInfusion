@@ -1,14 +1,10 @@
 package drunkmafia.thaumicinfusion.client.gui;
 
-import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.util.RGB;
-import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import net.minecraft.util.StatCollector;
 import org.lwjgl.opengl.GL11;
 import thaumcraft.api.aspects.Aspect;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by DrunkMafia on 22/07/2014.

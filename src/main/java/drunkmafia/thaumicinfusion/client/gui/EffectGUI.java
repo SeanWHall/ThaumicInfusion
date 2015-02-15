@@ -1,6 +1,5 @@
 package drunkmafia.thaumicinfusion.client.gui;
 
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
 
 /**

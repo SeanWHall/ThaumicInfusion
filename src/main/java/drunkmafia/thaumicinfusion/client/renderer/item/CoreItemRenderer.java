@@ -1,7 +1,5 @@
 package drunkmafia.thaumicinfusion.client.renderer.item;
 
-import drunkmafia.thaumicinfusion.client.ClientProxy;
-import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.IItemRenderer;

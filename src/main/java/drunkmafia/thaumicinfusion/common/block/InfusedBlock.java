@@ -6,16 +6,14 @@ import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.lib.BlockInfo;
 import drunkmafia.thaumicinfusion.common.util.helper.InfusionHelper;
-import drunkmafia.thaumicinfusion.common.world.TIWorldData;
-import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.BlockSavable;
+import drunkmafia.thaumicinfusion.common.world.TIWorldData;
+import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.client.DestroyBlockPacketS;
 import drunkmafia.thaumicinfusion.net.packet.client.RequestBlockPacketS;
-import drunkmafia.thaumicinfusion.net.packet.server.EntitySyncPacketC;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockPane;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.particle.EffectRenderer;
@@ -45,8 +43,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static net.minecraftforge.common.util.ForgeDirection.*;
-
 public class InfusedBlock extends Block implements IInfusionStabiliser, ITileEntityProvider {
 
     /**
@@ -69,8 +65,7 @@ public class InfusedBlock extends Block implements IInfusionStabiliser, ITileEnt
     }
 
     public boolean isBlockData(BlockSavable savable) {
-        if (savable != null && savable instanceof BlockData) return true;
-        return false;
+        return savable != null && savable instanceof BlockData;
     }
 
     @Override
@@ -103,9 +98,9 @@ public class InfusedBlock extends Block implements IInfusionStabiliser, ITileEnt
                 world.playSoundEffect((double)((float)x + 0.5F), (double)((float)y + 0.5F), (double)((float)z + 0.5F), stepSound.getBreakSound(), (stepSound.getVolume() + 1.0F) / 2.0F, stepSound.getPitch() * 0.8F);
 
                 float f = 0.7F;
-                double tempX = (double) (world.rand.nextFloat() * f) + (double) (1.0F - f) * 0.5D + x;
-                double tempY = (double) (world.rand.nextFloat() * f) + (double) (1.0F - f) * 0.5D + y;
-                double tempZ = (double) (world.rand.nextFloat() * f) + (double) (1.0F - f) * 0.5D + z;
+                double tempX = world.rand.nextFloat() * f + (double) (1.0F - f) * 0.5D + x;
+                double tempY = world.rand.nextFloat() * f + (double) (1.0F - f) * 0.5D + y;
+                double tempZ = world.rand.nextFloat() * f + (double) (1.0F - f) * 0.5D + z;
 
                 EntityItem entityitem = new EntityItem(world, tempX, tempY, tempZ, InfusionHelper.getInfusedItemStack(data.getAspects(), new ItemStack(data.getContainingBlock()), 1, meta));
                 entityitem.delayBeforeCanPickup = 10;
@@ -182,22 +177,22 @@ public class InfusedBlock extends Block implements IInfusionStabiliser, ITileEnt
                         Random rand = new Random();
 
                         float space = 0.1F;
-                        double x = (double) target.blockX + rand.nextDouble() * (block.getBlockBoundsMaxX() - block.getBlockBoundsMinX() - (double) (space * 2.0F)) + (double) space + block.getBlockBoundsMinX();
-                        double y = (double) target.blockY + rand.nextDouble() * (block.getBlockBoundsMaxY() - block.getBlockBoundsMinY() - (double) (space * 2.0F)) + (double) space + block.getBlockBoundsMinY();
-                        double z = (double) target.blockZ + rand.nextDouble() * (block.getBlockBoundsMaxZ() - block.getBlockBoundsMinZ() - (double) (space * 2.0F)) + (double) space + block.getBlockBoundsMinZ();
+                        double x = target.blockX + rand.nextDouble() * (block.getBlockBoundsMaxX() - block.getBlockBoundsMinX() - (double) (space * 2.0F)) + (double) space + block.getBlockBoundsMinX();
+                        double y = target.blockY + rand.nextDouble() * (block.getBlockBoundsMaxY() - block.getBlockBoundsMinY() - (double) (space * 2.0F)) + (double) space + block.getBlockBoundsMinY();
+                        double z = target.blockZ + rand.nextDouble() * (block.getBlockBoundsMaxZ() - block.getBlockBoundsMinZ() - (double) (space * 2.0F)) + (double) space + block.getBlockBoundsMinZ();
 
                         if (target.sideHit == 0)
                             y = (double) target.blockY + block.getBlockBoundsMinY() - (double) space;
                         if (target.sideHit == 1)
-                            y = (double) target.blockY + block.getBlockBoundsMaxY() + (double) space;
+                            y = target.blockY + block.getBlockBoundsMaxY() + (double) space;
                         if (target.sideHit == 2)
                             z = (double) target.blockZ + block.getBlockBoundsMinZ() - (double) space;
                         if (target.sideHit == 3)
-                            z = (double) target.blockZ + block.getBlockBoundsMaxZ() + (double) space;
+                            z = target.blockZ + block.getBlockBoundsMaxZ() + (double) space;
                         if (target.sideHit == 4)
                             x = (double) target.blockX + block.getBlockBoundsMinX() - (double) space;
                         if (target.sideHit == 5)
-                            x = (double) target.blockX + block.getBlockBoundsMaxX() + (double) space;
+                            x = target.blockX + block.getBlockBoundsMaxX() + (double) space;
 
                         effectRenderer.addEffect((new EntityDiggingFX(world, x, y, z, 0.0D, 0.0D, 0.0D, block, world.getBlockMetadata(target.blockX, target.blockY, target.blockZ))).applyColourMultiplier(target.blockX, target.blockY, target.blockZ).multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
                     }

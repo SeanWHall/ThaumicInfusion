@@ -4,9 +4,10 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.world.BlockData;
+import drunkmafia.thaumicinfusion.common.world.SavableHelper;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
-import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
@@ -35,7 +36,7 @@ public class EffectSyncPacketC  implements IMessage {
             NBTTagCompound tag = new PacketBuffer(buf).readNBTTagCompoundFromBuffer();
             if (tag != null) {
                 tagCompound = tag;
-                effect = AspectEffect.loadDataFromNBT(tag);
+                effect = SavableHelper.loadDataFromNBT(tag);
             }
         } catch (Exception e) {}
     }
@@ -43,11 +44,9 @@ public class EffectSyncPacketC  implements IMessage {
     @Override
     public void toBytes(ByteBuf buf) {
         try {
-            if (effect != null) {
-                NBTTagCompound tag = new NBTTagCompound();
-                effect.writeNBT(tag);
-                new PacketBuffer(buf).writeNBTTagCompoundToBuffer(tag);
-            }
+            if (effect != null)
+                new PacketBuffer(buf).writeNBTTagCompoundToBuffer(SavableHelper.saveDataToNBT(effect));
+
         } catch (Exception e) {}
     }
 

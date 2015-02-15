@@ -2,7 +2,7 @@ package drunkmafia.thaumicinfusion.common.block;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import drunkmafia.thaumicinfusion.common.tab.TITab;
+import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.world.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -34,7 +34,7 @@ public class EssentiaBlock extends Block {
 
     public EssentiaBlock() {
         super(Material.rock);
-        setCreativeTab(TITab.tab);
+        setCreativeTab(ThaumicInfusion.instance.tab);
         setBlockName(essentiaBlock_UnlocalizedName);
         setHardness(1.5F);
         setLightLevel(1F);

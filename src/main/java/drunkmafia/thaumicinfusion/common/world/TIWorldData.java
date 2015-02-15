@@ -11,8 +11,6 @@ import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.ChunkCache;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
@@ -183,6 +181,8 @@ public class TIWorldData extends WorldSavedData {
     }
 
     public static TIWorldData getWorldData(World world) {
+        if(world == null)
+            return null;
         String worldName = world.getWorldInfo().getWorldName() + "_" + world.provider.dimensionId + "_TIWorldData";
         WorldSavedData worldData = world.perWorldStorage.loadData(TIWorldData.class, worldName);
         if (worldData != null) {
@@ -211,18 +211,17 @@ public class TIWorldData extends WorldSavedData {
     }
 
     public static World getWorld(IBlockAccess blockAccess) {
-        if(ThaumicInfusion.instance.isServer)
-            return blockAccess instanceof World ? (World) blockAccess : ((ChunkCache)blockAccess).worldObj;
-        else
-            return ChannelHandler.getClientWorld();
+        World world = ThaumicInfusion.instance.side.isServer() ? blockAccess instanceof World ? (World) blockAccess : null : ChannelHandler.getClientWorld();
+        if(world == null)
+            ThaumicInfusion.getLogger().warn(blockAccess + " could not be casted to a world, blocks may lose functionality");
+        return world;
     }
 
     @Override
     public void readFromNBT(NBTTagCompound tag) {
         for(int i = 0; i < tag.getInteger("Positions"); i++){
             for(int p = 0; p < tag.getInteger("Pos: " + i); p++){
-                NBTTagCompound dataTag = tag.getCompoundTag("Pos: " + i + " Tag: " + p);
-                BlockSavable data = Savable.loadDataFromNBT(dataTag);
+                BlockSavable data = SavableHelper.loadDataFromNBT(tag.getCompoundTag("Pos: " + i + " Tag: " + p));
 
                 if(blocksData.containsKey(data.getCoords())) {
                     blocksData.get(data.getCoords()).add(data);
@@ -241,11 +240,8 @@ public class TIWorldData extends WorldSavedData {
         tag.setInteger("Positions", storedData.length);
         for(int i = 0; i < storedData.length; i++){
             tag.setInteger("Pos: " + i, storedData[i].length);
-            for(int p = 0; p < storedData[i].length; p++){
-                NBTTagCompound dataTag = new NBTTagCompound();
-                storedData[i][p].writeNBT(dataTag);
-                tag.setTag("Pos: " + i + " Tag: " + p, dataTag);
-            }
+            for(int p = 0; p < storedData[i].length; p++)
+                tag.setTag("Pos: " + i + " Tag: " + p, SavableHelper.saveDataToNBT(storedData[i][p]));
         }
     }
 }

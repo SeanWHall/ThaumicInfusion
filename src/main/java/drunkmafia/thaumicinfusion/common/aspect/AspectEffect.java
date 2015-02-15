@@ -8,11 +8,10 @@ import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.effect.vanilla.*;
 import drunkmafia.thaumicinfusion.common.aspect.entity.InfusedBlockFalling;
 import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
-import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
-import drunkmafia.thaumicinfusion.common.world.TIWorldData;
-import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
+import drunkmafia.thaumicinfusion.common.world.ISavable;
+import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.RenderBlocks;
@@ -20,12 +19,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -34,7 +31,7 @@ import java.util.List;
  * See http://www.wtfpl.net/txt/copying for licence
  */
 @Effect(aspect = "default", cost = 0)
-public class AspectEffect extends Block {
+public class AspectEffect extends Block implements ISavable {
 
     private static HashMap<Class, ArrayList<String>> phasedMethods = new HashMap<Class, ArrayList<String>>();
     private List<String> methods;
@@ -135,20 +132,6 @@ public class AspectEffect extends Block {
 
     public void updateBlock(World world){}
 
-    public static AspectEffect loadDataFromNBT(NBTTagCompound tag) {
-        if (!tag.hasKey("class")) return null;
-        try {
-            Class<?> c = Class.forName(tag.getString("class"));
-            if (AspectEffect.class.isAssignableFrom(c)) {
-                AspectEffect data = (AspectEffect) c.newInstance();
-                data.readNBT(tag);
-                return data;
-            }
-        } catch (Exception e) {
-        }
-        return null;
-    }
-
     public boolean hasMethod(String methName){
         return methods.contains(methName);
     }
@@ -163,7 +146,6 @@ public class AspectEffect extends Block {
     }
 
     public void writeNBT(NBTTagCompound tagCompound) {
-        tagCompound.setString("class", this.getClass().getCanonicalName());
         if(pos != null)
             pos.writeNBT(tagCompound);
     }

@@ -3,18 +3,14 @@ package drunkmafia.thaumicinfusion.common.world;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
-import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.block.Block;
-import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
 import thaumcraft.api.aspects.Aspect;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 public class BlockData extends BlockSavable {
 
@@ -171,11 +167,8 @@ public class BlockData extends BlockSavable {
     public void writeNBT(NBTTagCompound tagCompound) {
         super.writeNBT(tagCompound);
         tagCompound.setInteger("length", dataEffects.size());
-        for (int i = 0; i < dataEffects.size(); i++) {
-            NBTTagCompound effectTag = new NBTTagCompound();
-            dataEffects.get(i).writeNBT(effectTag);
-            tagCompound.setTag("effect: " + i, effectTag);
-        }
+        for (int i = 0; i < dataEffects.size(); i++)
+            tagCompound.setTag("effect: " + i, SavableHelper.saveDataToNBT(dataEffects.get(i)));
 
         tagCompound.setInteger("ContainingID", containingID);
 
@@ -189,7 +182,7 @@ public class BlockData extends BlockSavable {
     public void readNBT(NBTTagCompound tagCompound) {
         super.readNBT(tagCompound);
         for (int i = 0; i < tagCompound.getInteger("length"); i++)
-            dataEffects.add(AspectEffect.loadDataFromNBT(tagCompound.getCompoundTag("effect: " + i)));
+            dataEffects.add((AspectEffect)SavableHelper.loadDataFromNBT(tagCompound.getCompoundTag("effect: " + i)));
         containingID = tagCompound.getInteger("ContainingID");
 
         if(tagCompound.hasKey("Tile"))

@@ -1,13 +1,16 @@
 package drunkmafia.thaumicinfusion.common;
 
-import cpw.mods.fml.client.GuiIngameModOptions;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.*;
+import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPostInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
+import cpw.mods.fml.relauncher.Side;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
@@ -17,9 +20,11 @@ import drunkmafia.thaumicinfusion.common.event.CommonEventContainer;
 import drunkmafia.thaumicinfusion.common.event.TickEventHandler;
 import drunkmafia.thaumicinfusion.common.intergration.ThaumcraftIntergration;
 import drunkmafia.thaumicinfusion.common.lib.ConfigHandler;
-import drunkmafia.thaumicinfusion.common.tab.TITab;
+import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import net.minecraft.command.ServerCommandManager;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.Item;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.MinecraftForge;
 import org.apache.logging.log4j.Logger;
@@ -35,17 +40,22 @@ public class ThaumicInfusion {
     @SidedProxy(clientSide = CLIENT_PROXY_PATH, serverSide = COMMON_PROXY_PATH)
     public static CommonProxy proxy;
 
-    public boolean isServer;
+    public Side side;
     public Logger logger;
 
+    public CreativeTabs tab = new CreativeTabs(ModInfo.CREATIVETAB_UNLOCAL) {
+        @Override
+        public Item getTabIconItem() {
+            return Item.getItemFromBlock(TIBlocks.infusionCoreBlock);
+        }
+    };
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         logger = event.getModLog();
-        isServer = event.getSide().isServer();
+        side = event.getSide();
         ConfigHandler.init(event.getSuggestedConfigurationFile());
 
-        TITab.init();
         TIBlocks.initBlocks();
         AspectEffect.init();
     }
