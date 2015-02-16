@@ -345,10 +345,14 @@ public class InfusedBlock extends Block implements IInfusionStabiliser, ITileEnt
     public void setBlockBoundsBasedOnState(IBlockAccess access, int x, int y, int z) {
         BlockData blockData = TIWorldData.getData(BlockData.class, TIWorldData.getWorld(access), new WorldCoord(x, y, z));
         if (isBlockData(blockData)) {
-            Block block = blockData.runBlockMethod();
-            block.setBlockBoundsBasedOnState(access, x, y, z);
+            try {
+                Block block = blockData.runBlockMethod();
+                block.setBlockBoundsBasedOnState(access, x, y, z);
 
-            this.setBlockBounds((float) block.getBlockBoundsMinX(), (float) block.getBlockBoundsMinY(), (float) block.getBlockBoundsMinZ(), (float) block.getBlockBoundsMaxX(), (float) block.getBlockBoundsMaxY(), (float) block.getBlockBoundsMaxZ());
+                this.setBlockBounds((float) block.getBlockBoundsMinX(), (float) block.getBlockBoundsMinY(), (float) block.getBlockBoundsMinZ(), (float) block.getBlockBoundsMaxX(), (float) block.getBlockBoundsMaxY(), (float) block.getBlockBoundsMaxZ());
+            }catch (Exception e) {
+                handleError(e, TIWorldData.getWorld(access), blockData, true);
+            }
         }
     }
 
@@ -381,7 +385,7 @@ public class InfusedBlock extends Block implements IInfusionStabiliser, ITileEnt
         BlockData blockData = TIWorldData.getData(BlockData.class, world, new WorldCoord(x, y, z));
         if (isBlockData(blockData)) {
             try {
-                blockData.getContainingBlock().onNeighborBlockChange(world, x, y, z, block);
+                blockData.runBlockMethod().onNeighborBlockChange(world, x, y, z, block);
             } catch (Exception e) {
                 handleError(e, world, blockData, true);
             }
@@ -694,6 +698,14 @@ public class InfusedBlock extends Block implements IInfusionStabiliser, ITileEnt
         if (isBlockData(blockData))
             return blockData.runBlockMethod().isBedFoot(access, x, y, z);
         return false;
+    }
+
+    @Override
+    public int getBedDirection(IBlockAccess world, int x, int y, int z) {
+        BlockData blockData = TIWorldData.getData(BlockData.class, TIWorldData.getWorld(world), new WorldCoord(x, y, z));
+        if (isBlockData(blockData))
+            return blockData.runBlockMethod().getBedDirection(world, x, y, z);
+        return 0;
     }
 
     @Override

@@ -12,16 +12,15 @@ import thaumcraft.api.aspects.Aspect;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class BlockData extends BlockSavable {
-
-    public static long runTime = 0;
 
     private int containingID;
     private TileEntity tile;
     public World world;
 
-    private HashMap<String, Integer> methodsToBlock = new HashMap<String, Integer>();
+    private Map<String, Integer> methodsToBlock = new HashMap<String, Integer>();
     private ArrayList<AspectEffect> dataEffects = new ArrayList<AspectEffect>();
 
     public BlockData() {}
@@ -34,9 +33,6 @@ public class BlockData extends BlockSavable {
             if(tile == null && effect.getClass().getAnnotation(Effect.class).hasTileEntity())
                 tile = effect.getTile();
             dataEffects.add(effect);
-
-            for(String method : effect.methods)
-                methodsToBlock.put(method, dataEffects.indexOf(effect));
         }
     }
 
@@ -58,6 +54,9 @@ public class BlockData extends BlockSavable {
         for(int a = 0; a < dataEffects.size(); a++) {
             AspectEffect effect = dataEffects.get(a);
             effect.aspectInit(world, getCoords());
+
+            for(String method : effect.getMethods())
+                methodsToBlock.put(method, dataEffects.indexOf(effect));
         }
         init = true;
     }
@@ -103,10 +102,10 @@ public class BlockData extends BlockSavable {
     public Block runBlockMethod(){
         StackTraceElement lastMethod = Thread.currentThread().getStackTrace()[2];
         if(!BlockHandler.isBlockMethod(lastMethod.getMethodName()))
-            throw new IllegalArgumentException("Attempted to run a block method outside of one, culprit class: " + lastMethod.getClassName() + " from: " + lastMethod.getMethodName());
+            throw new IllegalArgumentException("Attempted to run a block method outside of a block class, culprit class: " + lastMethod.getClassName() + " from: " + lastMethod.getMethodName());
 
-        int index = methodsToBlock.get(lastMethod.getMethodName());
-        return index != -1 ? dataEffects.get(index) : getContainingBlock();
+        Integer index = methodsToBlock.get(lastMethod.getMethodName());
+        return index != null ? dataEffects.get(index) : getContainingBlock();
     }
 
     public AspectEffect[] runAllAspectMethod(){

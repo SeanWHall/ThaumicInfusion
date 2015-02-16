@@ -1,11 +1,11 @@
 package drunkmafia.thaumicinfusion.common.world;
 
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
+import drunkmafia.thaumicinfusion.common.util.helper.ReflectionHelper;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.CooldownPacket;
 import drunkmafia.thaumicinfusion.net.packet.client.RequestBlockPacketS;
 import drunkmafia.thaumicinfusion.net.packet.server.BlockDestroyedPacketC;
-import gnu.trove.map.hash.THashMap;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.init.Blocks;
@@ -17,6 +17,7 @@ import net.minecraftforge.common.DimensionManager;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -27,11 +28,11 @@ import java.util.Map;
 public class TIWorldData extends WorldSavedData {
 
     public World world;
-    private THashMap<WorldCoord, ArrayList<BlockSavable>> blocksData;
+    private Map<WorldCoord, ArrayList<BlockSavable>> blocksData;
 
     public TIWorldData(String mapname) {
         super(mapname);
-        blocksData = new THashMap<WorldCoord, ArrayList<BlockSavable>>();
+        blocksData = new HashMap<WorldCoord, ArrayList<BlockSavable>>();
         setDirty(true);
     }
 
@@ -183,8 +184,8 @@ public class TIWorldData extends WorldSavedData {
     public static <T>T getData(Class<T> type, World world, WorldCoord coords) {
         if(world == null)
             return null;
-        coords.dim = world.provider.dimensionId;
 
+        coords.dim = world.provider.dimensionId;
         T data = getWorldData(world).getBlock(type, coords);
 
         if (data == null && world.isRemote) {
@@ -195,7 +196,7 @@ public class TIWorldData extends WorldSavedData {
     }
 
     public static World getWorld(IBlockAccess blockAccess) {
-        World world = ThaumicInfusion.instance.side.isServer() ? blockAccess instanceof World ? (World) blockAccess : null : ChannelHandler.getClientWorld();
+        World world = ThaumicInfusion.instance.side.isServer() ? blockAccess instanceof World ? (World) blockAccess : ReflectionHelper.getObjFromField(World.class, blockAccess) : ChannelHandler.getClientWorld();
         if(world == null)
             ThaumicInfusion.getLogger().warn(blockAccess + " could not be casted to a world, blocks may lose functionality");
         return world;

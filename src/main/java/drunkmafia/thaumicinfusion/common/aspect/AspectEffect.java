@@ -34,7 +34,6 @@ import java.util.List;
 public class AspectEffect extends Block implements ISavable {
 
     private static HashMap<Class, ArrayList<String>> phasedMethods = new HashMap<Class, ArrayList<String>>();
-    private List<String> methods;
 
     public BlockData data;
     protected WorldCoord pos;
@@ -43,9 +42,7 @@ public class AspectEffect extends Block implements ISavable {
 
     public AspectEffect() {
         super(Material.air);
-        if(!phasedMethods.containsKey(getClass()))
-            phaseForMethods();
-        this.methods = phasedMethods.get(getClass());
+
     }
 
     public static void init(){
@@ -133,7 +130,13 @@ public class AspectEffect extends Block implements ISavable {
     public void updateBlock(World world){}
 
     public boolean hasMethod(String methName){
-        return methods.contains(methName);
+        return getMethods().contains(methName);
+    }
+
+    public List<String> getMethods(){
+        if(!phasedMethods.containsKey(getClass()))
+            phaseForMethods();
+        return phasedMethods.get(getClass());
     }
 
     public void phaseForMethods(){
