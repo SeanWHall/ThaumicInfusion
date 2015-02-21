@@ -79,3 +79,4 @@ ti.effect_info.PERFODIO=Blocks hardness and resistance are halved
 ti.effect_info.MACHINA=If a redstone signal is applied, all effects infused will be toggled
 ti.effect_info.AER=Players that stand ontop of this block will be given a jump boost
 ti.effect_info.ARBOR=Block simply becomes a half slab
+ti.effect_info.HUMANUS=Block becomes a bed
