@@ -1,5 +1,6 @@
 package drunkmafia.thaumicinfusion.common.block;
 
+import com.google.common.collect.Lists;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.lib.ConfigHandler;
 import net.minecraft.block.Block;
@@ -19,7 +20,7 @@ import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.infusedBlock_Unloc
  * <p/>
  * See http://www.wtfpl.net/txt/copying for licence
  */
-public class BlockHandler {
+public final class BlockHandler {
 
     private static ArrayList<String> blockMethods;
     private static ArrayList<String> blacklistedBlocks = new ArrayList<String>();
@@ -40,6 +41,13 @@ public class BlockHandler {
             Method[] methods = InfusedBlock.class.getMethods();
             for(Method method : methods)
                 blockMethods.add(method.getName());
+
+            Class[] blocks = BlockHandler.getAllBlocks();
+            for(Class block : blocks)
+                for(Class inter : block.getInterfaces())
+                    for(Method method : inter.getMethods())
+                        blockMethods.add(method.getName());
+
         }
         return blockMethods.contains(methName);
     }
@@ -52,7 +60,7 @@ public class BlockHandler {
         Iterator blocksIter = Block.blockRegistry.iterator();
         while (blocksIter.hasNext()) {
             Block block = (Block) blocksIter.next();
-            if (config.get("Blocks", block.getLocalizedName(), isTile(block)).getBoolean())
+            if (config.get("Blocks", block.getLocalizedName(), false).getBoolean())
                 blacklistedBlocks.add(block.getUnlocalizedName().toLowerCase());
         }
 
@@ -101,5 +109,13 @@ public class BlockHandler {
             blocks[i] = (InfusedBlock) set[i].getValue();
 
         return blocks;
+    }
+
+    public static Class<? extends Block>[] getAllBlocks(){
+        ArrayList<Block> blocks = Lists.newArrayList(Block.blockRegistry.iterator());
+        Class<? extends Block>[] classes = new Class[blocks.size()];
+        for(int i = 0 ; i < classes.length; i++)
+            classes[i] = blocks.get(i).getClass();
+        return classes;
     }
 }

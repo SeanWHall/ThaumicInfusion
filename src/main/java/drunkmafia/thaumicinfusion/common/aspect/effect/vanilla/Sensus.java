@@ -8,6 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+import thaumcraft.api.IGoggles;
+import thaumcraft.api.nodes.IRevealer;
 import thaumcraft.common.items.armor.ItemGoggles;
 
 /**
@@ -38,6 +40,6 @@ public class Sensus extends AspectEffect {
     @SideOnly(Side.CLIENT)
     public boolean shouldRender(World world, int x, int y, int z, RenderBlocks blocks) {
         ItemStack stack = Minecraft.getMinecraft().thePlayer.inventory.armorInventory[3];
-        return stack != null && stack.getItem() instanceof ItemGoggles;
+        return stack != null && (stack.getItem() instanceof IRevealer || stack.getItem() instanceof IGoggles);
     }
 }

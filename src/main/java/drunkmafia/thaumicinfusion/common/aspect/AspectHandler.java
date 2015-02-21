@@ -57,9 +57,9 @@ public final class AspectHandler {
                         block.setBlockName(BlockInfo.infusedBlock_UnlocalizedName + "." + annotation.aspect());
 
                         if (!BlockHandler.hasBlock(block.getUnlocalizedName())) {
-                            BlockHandler.addBlock(block.getUnlocalizedName(), block);
                             logger.info("Registering Block: " + block.getUnlocalizedName());
                             GameRegistry.registerBlock(block, ItemInfused.class, "reg_InfusedBlock" + annotation.aspect());
+                            BlockHandler.addBlock(block.getUnlocalizedName(), block);
                         }
                     }
 

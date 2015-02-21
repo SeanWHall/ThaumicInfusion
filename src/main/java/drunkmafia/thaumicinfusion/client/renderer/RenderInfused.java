@@ -6,18 +6,14 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
+import drunkmafia.thaumicinfusion.common.util.RGB;
+import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
-import drunkmafia.thaumicinfusion.common.world.BlockData;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderBlocks;
-import net.minecraft.init.Blocks;
 import net.minecraft.world.IBlockAccess;
-import org.lwjgl.opengl.GL11;
-import thaumcraft.api.aspects.Aspect;
-import thaumcraft.client.ClientProxy;
-import thaumcraft.common.Thaumcraft;
 
 /**
  * Created by DrunkMafia on 25/07/2014.
@@ -39,8 +35,15 @@ public class RenderInfused implements ISimpleBlockRenderingHandler {
         for (AspectEffect effects : data.getEffects())
             if (!effects.shouldRender(Minecraft.getMinecraft().theWorld, x, y, z, renderBlocks))
                 return false;
+
         try {
-            return renderBlocks.renderBlockByRenderType(data.getContainingBlock(), x, y, z);
+            Block dataBlock = data.getContainingBlock();
+            if(dataBlock.getRenderType() == 0 && block.colorMultiplier(access, x, y, z) != 16777215) {
+                RGB rgb = new RGB(block.colorMultiplier(access, x, y, z));
+                return renderBlocks.renderStandardBlockWithColorMultiplier(dataBlock, x, y, z, rgb.getR(), rgb.getG(), rgb.getB());
+            }else {
+                return renderBlocks.renderBlockByRenderType(dataBlock, x, y, z);
+            }
         }catch (Exception e){}
         return false;
     }

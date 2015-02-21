@@ -3,7 +3,9 @@ package drunkmafia.thaumicinfusion.common.world;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
+import drunkmafia.thaumicinfusion.common.util.SafeClassGenerator;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import javassist.ClassPool;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -15,6 +17,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BlockData extends BlockSavable {
+
+    private static SafeClassGenerator tileGenerator;
 
     private int containingID;
     private TileEntity tile;
@@ -32,6 +36,7 @@ public class BlockData extends BlockSavable {
         for (AspectEffect effect : classesToEffects(list)) {
             if(tile == null && effect.getClass().getAnnotation(Effect.class).hasTileEntity())
                 tile = effect.getTile();
+            effect.data = this;
             dataEffects.add(effect);
         }
     }
@@ -48,12 +53,26 @@ public class BlockData extends BlockSavable {
         }
 
         WorldCoord pos = getCoords();
-        if(tile != null)
+
+        if(tileGenerator == null) {
+            tileGenerator = new SafeClassGenerator(ClassPool.getDefault());
+            tileGenerator.lowestSuper(tileGenerator.getCtClass(Object.class));
+        }
+
+        TileEntity blockTile = getContainingBlock().createTileEntity(world, world.getBlockMetadata(pos.x, pos.y, pos.z));
+
+        if(tile != null) {
             world.setTileEntity(pos.x, pos.y, pos.z, tile);
+        }else if(blockTile != null){
+            tile = tileGenerator.getSafeObjClass(blockTile.getClass(), new String[]{"writeToNBT", "readFromNBT"});
+            if(tile != null)
+                world.setTileEntity(pos.x, pos.y, pos.z, tile);
+        }
 
         for(int a = 0; a < dataEffects.size(); a++) {
             AspectEffect effect = dataEffects.get(a);
             effect.aspectInit(world, getCoords());
+            effect.data = this;
 
             for(String method : effect.getMethods())
                 methodsToBlock.put(method, dataEffects.indexOf(effect));

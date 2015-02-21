@@ -3,7 +3,6 @@ package drunkmafia.thaumicinfusion.common.block;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
-import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.lib.BlockInfo;
 import drunkmafia.thaumicinfusion.common.util.helper.InfusionHelper;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
@@ -36,14 +35,13 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.util.ForgeDirection;
 import org.apache.logging.log4j.Logger;
-import thaumcraft.api.crafting.IInfusionStabiliser;
 import thaumcraft.common.items.wands.ItemWandCasting;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class InfusedBlock extends Block implements IInfusionStabiliser, ITileEntityProvider {
+public class InfusedBlock extends Block implements ITileEntityProvider {
 
     /**
      * =================================================
@@ -52,6 +50,7 @@ public class InfusedBlock extends Block implements IInfusionStabiliser, ITileEnt
      */
 
     public static int renderType = -1;
+    public boolean isOpaque = false;
 
     public InfusedBlock(Material mat) {
         super(mat);
@@ -61,6 +60,11 @@ public class InfusedBlock extends Block implements IInfusionStabiliser, ITileEnt
 
     public InfusedBlock setSlipperiness(float slipperiness) {
         this.slipperiness = slipperiness;
+        return this;
+    }
+
+    public InfusedBlock setOpaque(boolean val){
+        this.opaque = val;
         return this;
     }
 
@@ -151,7 +155,7 @@ public class InfusedBlock extends Block implements IInfusionStabiliser, ITileEnt
     }
 
     public boolean isOpaqueCube() {
-        return false;
+        return isOpaque;
     }
 
     @SideOnly(Side.CLIENT)
@@ -312,7 +316,9 @@ public class InfusedBlock extends Block implements IInfusionStabiliser, ITileEnt
                 return true;
             }
             try {
-                return blockData.runBlockMethod().onBlockActivated(world, x, y, z, player, side, hitX, hitY, hitZ);
+                Block block = blockData.runBlockMethod();
+                System.out.println(block);
+                return block.onBlockActivated(world, x, y, z, player, side, hitX, hitY, hitZ);
             } catch (Exception e) {
                 handleError(e, world, blockData, true);
             }
@@ -661,6 +667,19 @@ public class InfusedBlock extends Block implements IInfusionStabiliser, ITileEnt
     }
 
     @Override
+    public int colorMultiplier(IBlockAccess access, int x, int y, int z) {
+        BlockData blockData = TIWorldData.getData(BlockData.class, TIWorldData.getWorld(access), new WorldCoord(x, y, z));
+        if (isBlockData(blockData)) {
+            try {
+                return blockData.runBlockMethod().colorMultiplier(access, x, y, z);
+            } catch (Exception e) {
+                handleError(e, TIWorldData.getWorld(access), blockData, true);
+            }
+        }
+        return 0;
+    }
+
+    @Override
     public boolean isWood(IBlockAccess access, int x, int y, int z) {
         BlockData blockData = TIWorldData.getData(BlockData.class, TIWorldData.getWorld(access), new WorldCoord(x, y, z));
         if (isBlockData(blockData))
@@ -867,30 +886,6 @@ public class InfusedBlock extends Block implements IInfusionStabiliser, ITileEnt
                 return blockData.getContainingBlock().canBlockStay(world, x, y, z);
             } catch (Exception e) {
                 handleError(e, world, blockData, true);
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public boolean canStabaliseInfusion(World world, int x, int y, int z) {
-        BlockData blockData = TIWorldData.getData(BlockData.class, world, new WorldCoord(x, y, z));
-        if (isBlockData(blockData)) {
-            Block block = blockData.getContainingBlock();
-
-            for (AspectEffect effect : blockData.getEffects()) {
-                if (effect instanceof IInfusionStabiliser) {
-                    block = effect;
-                    break;
-                }
-            }
-
-            if (block instanceof IInfusionStabiliser) {
-                try {
-                    return ((IInfusionStabiliser) block).canStabaliseInfusion(world, x, y, z);
-                } catch (Exception e) {
-                    handleError(e, world, blockData, true);
-                }
             }
         }
         return false;

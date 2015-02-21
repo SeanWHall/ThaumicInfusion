@@ -55,7 +55,6 @@ public class ThaumicInfusion {
         logger = event.getModLog();
         side = event.getSide();
         ConfigHandler.init(event.getSuggestedConfigurationFile());
-
         TIBlocks.initBlocks();
         AspectEffect.init();
     }
