@@ -65,7 +65,7 @@ public final class BlockHandler {
         }
 
         config.save();
-        ThaumicInfusion.instance.logger.info("Blacklisted: " + blacklistedBlocks.size() + " out of " + Block.blockRegistry.getKeys().size());
+        ThaumicInfusion.getLogger().info("Blacklisted: " + blacklistedBlocks.size() + " out of " + Block.blockRegistry.getKeys().size());
     }
 
     public static boolean isBlockBlacklisted(Block block){

@@ -117,11 +117,10 @@ public class InfusedBlock extends Block implements ITileEntityProvider {
     public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase ent, ItemStack stack) {
         if (world.isRemote)
             RequestBlockPacketS.syncTimeouts.remove(new WorldCoord(x, y, z));
-        TIWorldData worldData = TIWorldData.getWorldData(world);
-        BlockData data = InfusionHelper.getDataFromStack(stack, world, x, y, z);
 
-        if(worldData.getBlock(BlockData.class, data.getCoords()) == null)
-            TIWorldData.getWorldData(world).addBlock(data);
+        BlockData data = InfusionHelper.getDataFromStack(stack, world, x, y, z);
+        if(data != null)
+            TIWorldData.getWorldData(world).addBlock(data, true);
     }
 
     @Override

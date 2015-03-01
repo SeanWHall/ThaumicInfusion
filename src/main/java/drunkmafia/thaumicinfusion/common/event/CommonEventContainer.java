@@ -1,7 +1,6 @@
 package drunkmafia.thaumicinfusion.common.event;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
@@ -32,6 +31,7 @@ public class CommonEventContainer {
     @SubscribeEvent
     public void load(WorldEvent.Load event){
         TIWorldData data = TIWorldData.getWorldData(event.world);
+
         data.postLoad();
     }
 }

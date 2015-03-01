@@ -104,15 +104,8 @@ public class TIWorldData extends WorldSavedData {
         WorldCoord pos = savable.getCoords();
         Block block = world.getBlock(pos.x, pos.y, pos.z);
 
-        if(block == null) {
+        if(block == null || savable.getBlock() != null && block != savable.getBlock() && blocksData.containsKey(savable.getCoords()))
             removeBlock(pos, true);
-            return;
-        }
-
-        if(savable.getBlock() != null && block != savable.getBlock() && blocksData.containsKey(savable.getCoords())) {
-            blocksData.get(pos).remove(savable);
-            return;
-        }
     }
 
     public BlockSavable[] getAllDatasAt(WorldCoord coords){
@@ -124,15 +117,16 @@ public class TIWorldData extends WorldSavedData {
 
     public <T>T getBlock(Class<T> type, WorldCoord coords) {
         ArrayList<BlockSavable> datas = blocksData.get(coords);
-        if(datas == null)
-            return null;
-
-        for(BlockSavable block : datas) {
-            if (type.isAssignableFrom(block.getClass())) {
-                cleanDataAt(block);
-                return (T) block;
+        if(datas != null) {
+            for (BlockSavable block : datas) {
+                if (type.isAssignableFrom(block.getClass())) {
+                    return (T) block;
+                }
             }
         }
+
+        if(world != null && !world.isRemote)
+            world.setBlock(coords.x, coords.y, coords.z, Blocks.air);
         return null;
     }
 
@@ -228,5 +222,13 @@ public class TIWorldData extends WorldSavedData {
             for(int p = 0; p < storedData[i].length; p++)
                 tag.setTag("Pos: " + i + " Tag: " + p, SavableHelper.saveDataToNBT(storedData[i][p]));
         }
+    }
+
+    public static boolean hasWorldData(int x, int y, int z){
+        return true;
+    }
+
+    public static Block getBlock(int x, int y, int z){
+        return Blocks.diamond_block;
     }
 }

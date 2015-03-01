@@ -6,7 +6,6 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
-import drunkmafia.thaumicinfusion.common.item.ItemInfused;
 import drunkmafia.thaumicinfusion.common.lib.BlockInfo;
 import drunkmafia.thaumicinfusion.common.lib.ConfigHandler;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
@@ -31,7 +30,7 @@ public final class AspectHandler {
     private static HashMap<Aspect, Aspect[]> opposites = new HashMap<Aspect, Aspect[]>();
 
     public static void registerEffect(Class<? extends AspectEffect> effect){
-        Logger logger = ThaumicInfusion.instance.logger;
+        Logger logger = ThaumicInfusion.getLogger();
         if(isInCorretState(LoaderState.PREINITIALIZATION)) {
             logger.warn("Aspect registering cannot be called outside the pre init event");
             return;
@@ -56,11 +55,8 @@ public final class AspectHandler {
                         InfusedBlock block = effectInstace.getBlock();
                         block.setBlockName(BlockInfo.infusedBlock_UnlocalizedName + "." + annotation.aspect());
 
-                        if (!BlockHandler.hasBlock(block.getUnlocalizedName())) {
-                            logger.info("Registering Block: " + block.getUnlocalizedName());
-                            GameRegistry.registerBlock(block, ItemInfused.class, "reg_InfusedBlock" + annotation.aspect());
-                            BlockHandler.addBlock(block.getUnlocalizedName(), block);
-                        }
+                        if (!BlockHandler.hasBlock(block.getUnlocalizedName()))
+                            BlockHandler.addBlock(block.getUnlocalizedName(), (InfusedBlock) GameRegistry.registerBlock(block, "reg_InfusedBlock" + annotation.aspect()));
                     }
 
                     if (annotation.hasTileEntity()) {
@@ -79,7 +75,7 @@ public final class AspectHandler {
     }
 
     public static void postInit(){
-        Logger logger = ThaumicInfusion.instance.logger;
+        Logger logger = ThaumicInfusion.getLogger();
         if(isInCorretState(LoaderState.POSTINITIALIZATION)) {
             logger.warn("Post Init cannot be called outside it's state");
             return;

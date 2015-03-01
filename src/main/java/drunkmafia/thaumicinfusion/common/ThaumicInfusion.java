@@ -26,7 +26,9 @@ import net.minecraft.command.ServerCommandManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.util.StatCollector;
+import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import static drunkmafia.thaumicinfusion.common.lib.ModInfo.*;
@@ -41,7 +43,6 @@ public class ThaumicInfusion {
     public static CommonProxy proxy;
 
     public Side side;
-    public Logger logger;
 
     public CreativeTabs tab = new CreativeTabs(ModInfo.CREATIVETAB_UNLOCAL) {
         @Override
@@ -52,11 +53,16 @@ public class ThaumicInfusion {
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        logger = event.getModLog();
         side = event.getSide();
         ConfigHandler.init(event.getSuggestedConfigurationFile());
         TIBlocks.initBlocks();
         AspectEffect.init();
+
+        try{
+            Class.forName(World.class.getName());
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     @EventHandler
@@ -85,6 +91,6 @@ public class ThaumicInfusion {
     }
 
     public static Logger getLogger(){
-        return ThaumicInfusion.instance.logger;
+        return LogManager.getLogger(MODID);
     }
 }
