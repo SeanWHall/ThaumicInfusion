@@ -3,6 +3,7 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 /**
@@ -14,5 +15,10 @@ public class Spiritus extends AspectEffect {
 
     public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z) {
         return AxisAlignedBB.getBoundingBox(0, 0, 0, 0, 0, 0);
+    }
+
+    @Override
+    public boolean isBlockSolid(IBlockAccess access, int x, int y, int z, int meta) {
+        return false;
     }
 }

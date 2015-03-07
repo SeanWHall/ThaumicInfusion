@@ -1,10 +1,10 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
-import drunkmafia.thaumicinfusion.common.world.TIWorldData;
-import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
+import drunkmafia.thaumicinfusion.common.world.TIWorldData;
+import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -33,7 +33,6 @@ public class Iter extends AspectEffect {
     public void updateBlock(World world) {
         if(world.isRemote)
             return;
-
         WorldCoord pos = getPos();
 
         if(pos == null || destination == null)
@@ -49,22 +48,22 @@ public class Iter extends AspectEffect {
     @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
         ItemStack wand = player.getCurrentEquippedItem();
-        if(world.isRemote || wand == null)
+        if (world.isRemote || wand == null)
             return wand != null && wand.getItem() instanceof ItemWandCasting;
 
-        if(player.isSneaking()){
+        if (player.isSneaking()) {
             BlockData data = TIWorldData.getData(BlockData.class, getDestinationWorld(), destination);
             destination = null;
-            if(data != null && data.hasEffect(Iter.class))
+            if (data != null && data.hasEffect(Iter.class))
                 data.getEffect(Iter.class).destination = null;
             return true;
         }
 
         NBTTagCompound compound = wand.stackTagCompound == null ? new NBTTagCompound() : wand.stackTagCompound;
-        if(compound.hasKey("id") && compound.getString("id").equals("Iter")){
+        if (compound.hasKey("id") && compound.getString("id").equals("Iter")) {
             destination = new WorldCoord();
             destination.readNBT(compound);
-            if(destination.equals(getPos())) {
+            if (destination.equals(getPos())) {
                 destination = null;
                 return false;
             }
@@ -73,15 +72,15 @@ public class Iter extends AspectEffect {
             wand.stackTagCompound = compound;
 
             BlockData data = TIWorldData.getData(BlockData.class, getDestinationWorld(), destination);
-            if(data == null){
+            if (data == null) {
                 destination = null;
-                return data.getContainingBlock().onBlockActivated(world, x, y, z, player, side, hitX, hitY, hitZ);
+                return false;
             }
 
             Iter destIter = data.getEffect(Iter.class);
-            if(destIter == null) {
+            if (destIter == null) {
                 destination = null;
-            }else {
+            } else {
                 WorldCoord pos = getPos();
                 pos.id = "Dest";
                 pos.dim = world.provider.dimensionId;
@@ -89,13 +88,13 @@ public class Iter extends AspectEffect {
             }
 
             return true;
-        }else {
-            WorldCoord pos = new WorldCoord("Iter", x, y, z);
-            pos.dim = world.provider.dimensionId;
-            pos.writeNBT(compound);
-            wand.stackTagCompound = compound;
-            return true;
         }
+
+        WorldCoord pos = new WorldCoord("Iter", x, y, z);
+        pos.dim = world.provider.dimensionId;
+        pos.writeNBT(compound);
+        wand.stackTagCompound = compound;
+        return true;
     }
 
     World getDestinationWorld(){

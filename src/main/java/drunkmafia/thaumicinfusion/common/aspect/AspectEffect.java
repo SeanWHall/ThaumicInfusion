@@ -1,24 +1,18 @@
 package drunkmafia.thaumicinfusion.common.aspect;
 
 import cpw.mods.fml.common.registry.EntityRegistry;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import drunkmafia.thaumicinfusion.client.gui.EffectGUI;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.effect.vanilla.*;
 import drunkmafia.thaumicinfusion.common.aspect.entity.InfusedBlockFalling;
-import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.ISavable;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 
 import java.lang.reflect.Method;
@@ -36,9 +30,8 @@ public class AspectEffect extends Block implements ISavable {
     private static HashMap<Class, ArrayList<String>> phasedMethods = new HashMap<Class, ArrayList<String>>();
 
     public BlockData data;
-    protected WorldCoord pos;
-
     public boolean isEnabled = true;
+    protected WorldCoord pos;
 
     public AspectEffect() {
         super(Material.air);
@@ -49,15 +42,12 @@ public class AspectEffect extends Block implements ISavable {
         AspectHandler.registerEffect(AspectEffect.class);
         AspectHandler.registerEffect(Aer.class);
         AspectHandler.registerEffect(Alienis.class);
-        AspectHandler.registerEffect(Aqua.class);
         AspectHandler.registerEffect(Arbor.class);
         AspectHandler.registerEffect(Bestia.class);
         AspectHandler.registerEffect(Cognitio.class);
-        AspectHandler.registerEffect(Corpus.class);
         AspectHandler.registerEffect(Exanimis.class);
         AspectHandler.registerEffect(Fabrico.class);
         AspectHandler.registerEffect(Fames.class);
-        AspectHandler.registerEffect(Gelum.class);
         AspectHandler.registerEffect(Humanus.class);
         AspectHandler.registerEffect(Ignis.class);
         AspectHandler.registerEffect(Infernus.class);
@@ -76,13 +66,9 @@ public class AspectEffect extends Block implements ISavable {
         AspectHandler.registerEffect(Potentia.class);
         AspectHandler.registerEffect(Praecantatio.class);
         AspectHandler.registerEffect(Sano.class);
-        AspectHandler.registerEffect(Sensus.class);
         AspectHandler.registerEffect(Spiritus.class);
-        AspectHandler.registerEffect(Superbia.class);
         AspectHandler.registerEffect(Tempestas.class);
-        AspectHandler.registerEffect(Tenebrae.class);
         AspectHandler.registerEffect(Terra.class);
-        AspectHandler.registerEffect(Telum.class);
         AspectHandler.registerEffect(Tutamen.class);
         AspectHandler.registerEffect(Vacuos.class);
         AspectHandler.registerEffect(Venenum.class);
@@ -111,17 +97,7 @@ public class AspectEffect extends Block implements ISavable {
         return true;
     }
 
-    @SideOnly(Side.CLIENT)
-    public EffectGUI getGUI(){return null;}
-
     public TileEntity getTile(){return null;}
-
-    @SideOnly(Side.CLIENT)
-    public boolean shouldRender(World world, int x, int y, int z, RenderBlocks renderBlocks){
-        return true;
-    }
-
-    public void blockHighlight(World world, int x, int y, int z, EntityPlayer player, MovingObjectPosition pos, float partialTicks){}
 
     public void worldBlockInteracted(EntityPlayer player, World world, int x, int y, int z, int face) {}
 

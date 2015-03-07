@@ -2,6 +2,7 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
@@ -35,5 +36,16 @@ public class Aer extends AspectEffect {
 
             cooldown = System.currentTimeMillis();
         }
+
+
+    }
+
+    @Override
+    public void onBlockAdded(World world, int x, int y, int z) {
+        getMaterial(world, x, y, z);
+    }
+
+    public Material getMaterial(World world, int x, int y, int z) {
+        return getMaterial();
     }
 }

@@ -13,6 +13,7 @@ import net.minecraft.world.IBlockAccess;
 @Effect(aspect = ("lux"), cost = 1)
 public class Lux extends AspectEffect {
 
+    @Override
     public int getLightValue(IBlockAccess world, int x, int y, int z){
         return 14;
     }

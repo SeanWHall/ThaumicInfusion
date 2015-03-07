@@ -1,18 +1,13 @@
 package drunkmafia.thaumicinfusion.common.aspect.entity;
 
-import drunkmafia.thaumicinfusion.common.util.helper.InfusionHelper;
-import drunkmafia.thaumicinfusion.common.world.BlockData;
-import drunkmafia.thaumicinfusion.common.world.SavableHelper;
-import drunkmafia.thaumicinfusion.common.world.TIWorldData;
-import drunkmafia.thaumicinfusion.common.world.WorldCoord;
-import drunkmafia.thaumicinfusion.net.ChannelHandler;
-import drunkmafia.thaumicinfusion.net.packet.server.BlockSyncPacketC;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
@@ -23,18 +18,19 @@ import net.minecraft.world.World;
  */
 public class InfusedBlockFalling extends Entity {
 
-    private BlockData data;
-    private int meta, blocks;
+    public TileEntity tileEntity;
+    public int meta, blockCount, id;
 
     public InfusedBlockFalling(World world){
         super(world);
     }
 
-    public InfusedBlockFalling(World world, double x, double y, double z, BlockData data, int meta)
+    public InfusedBlockFalling(World world, double x, double y, double z, int id, int meta, TileEntity tileEntity)
     {
         super(world);
-        this.data = data;
+        this.id = id;
         this.meta = meta;
+        this.tileEntity = tileEntity;
         this.preventEntitySpawning = true;
         this.setSize(0.98F, 0.98F);
         this.yOffset = this.height / 2.0F;
@@ -62,15 +58,12 @@ public class InfusedBlockFalling extends Entity {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;
-        ++this.blocks;
+        ++this.blockCount;
         this.motionY -= 0.03999999910593033D;
         this.moveEntity(this.motionX, this.motionY, this.motionZ);
         this.motionX *= 0.9800000190734863D;
         this.motionY *= 0.9800000190734863D;
         this.motionZ *= 0.9800000190734863D;
-
-        if(data == null)
-            setDead();
 
         if (!this.worldObj.isRemote)
         {
@@ -87,17 +80,28 @@ public class InfusedBlockFalling extends Entity {
                 {
                     this.setDead();
 
-                    if (this.worldObj.canPlaceEntityOnSide(data.getContainingBlock(), x, y, z, true, 1, null, null) && !BlockFalling.func_149831_e(this.worldObj, x, y - 1, z)) {
-                        data.setCoords(new WorldCoord(x, y, z));
-                        TIWorldData.getWorldData(worldObj).addBlock(data, true);
-                        ChannelHandler.network.sendToDimension(new BlockSyncPacketC(data), worldObj.provider.dimensionId);
-                        worldObj.setBlock(x, y, z, data.getBlock(), meta, 3);
+                    if (this.worldObj.canPlaceEntityOnSide(Block.getBlockById(id), x, y, z, true, 1, null, null) && !BlockFalling.func_149831_e(this.worldObj, x, y - 1, z)) {
+                        worldObj.setBlock(x, y, z, Block.getBlockById(id), meta, 3);
+                        if (tileEntity != null) {
+                            System.out.println("Tile is not null");
 
-                    } else {
+                            tileEntity.xCoord = x;
+                            tileEntity.yCoord = y;
+                            tileEntity.zCoord = z;
+                            tileEntity.setWorldObj(worldObj);
+
+                            if (worldObj.getTileEntity(x, y, z) != null) {
+                                NBTTagCompound tileTag = new NBTTagCompound();
+                                tileEntity.writeToNBT(tileTag);
+                                worldObj.getTileEntity(x, y, z).readFromNBT(tileTag);
+                            } else {
+                                worldObj.setTileEntity(x, y, z, tileEntity);
+                            }
+                        }
+                    } else
                         dropAsItem(x, y, z);
-                    }
                 }
-            } else if (this.blocks > 100 && !this.worldObj.isRemote && (y < 1 || y > 256) || this.blocks > 600) {
+            } else if (this.blockCount > 100 && !this.worldObj.isRemote && (y < 1 || y > 256) || this.blockCount > 600) {
                 dropAsItem(x, y, z);
                 this.setDead();
             }
@@ -110,28 +114,30 @@ public class InfusedBlockFalling extends Entity {
         double tempY = worldObj.rand.nextFloat() * f + (double) (1.0F - f) * 0.5D + y;
         double tempZ = worldObj.rand.nextFloat() * f + (double) (1.0F - f) * 0.5D + z;
 
-        EntityItem entityitem = new EntityItem(worldObj, tempX, tempY, tempZ, InfusionHelper.getInfusedItemStack(data.getAspects(), new ItemStack(data.getContainingBlock()), 1, meta));
+        EntityItem entityitem = new EntityItem(worldObj, tempX, tempY, tempZ, new ItemStack(Block.getBlockById(id), 1, meta));
+
         entityitem.delayBeforeCanPickup = 10;
         worldObj.spawnEntityInWorld(entityitem);
     }
 
 
     protected void writeEntityToNBT(NBTTagCompound nbt){
-        if(data == null)
-            return;
-        nbt.setTag("dataNBT", SavableHelper.saveDataToNBT(data));
+        nbt.setInteger("blockID", id);
         nbt.setInteger("blockMETA", meta);
+
+        if (tileEntity != null) {
+            NBTTagCompound tileTag = new NBTTagCompound();
+            tileEntity.writeToNBT(tileTag);
+            nbt.setTag("tileTAG", tileTag);
+        }
     }
 
     protected void readEntityFromNBT(NBTTagCompound nbt) {
-        if(!nbt.hasKey("dataNBT"))
-            return;
-        data = SavableHelper.loadDataFromNBT(nbt.getCompoundTag("dataNBT"));
+        id = nbt.getInteger("blockID");
         meta = nbt.getInteger("blockMETA");
-    }
 
-    public BlockData getBlockData(){
-        return this.data;
+        if (nbt.hasKey("tileTAG"))
+            tileEntity = TileEntity.createAndLoadEntity(nbt.getCompoundTag("tileTAG"));
     }
 
     public int getMetaData(){

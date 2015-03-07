@@ -4,11 +4,9 @@ import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.util.helper.ReflectionHelper;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.CooldownPacket;
-import drunkmafia.thaumicinfusion.net.packet.client.RequestBlockPacketS;
 import drunkmafia.thaumicinfusion.net.packet.server.BlockDestroyedPacketC;
-import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
-import net.minecraft.init.Blocks;
+import drunkmafia.thaumicinfusion.net.packet.server.BlockSyncPacketC;
+import drunkmafia.thaumicinfusion.net.packet.server.DataRemovePacketC;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -36,14 +34,41 @@ public class TIWorldData extends WorldSavedData {
         setDirty(true);
     }
 
+    public static TIWorldData getWorldData(World world) {
+        if (world == null)
+            return null;
+        String worldName = world.getWorldInfo().getWorldName() + "_" + world.provider.dimensionId + "_TIWorldData";
+        WorldSavedData worldData = world.perWorldStorage.loadData(TIWorldData.class, worldName);
+        if (worldData != null) {
+            ((TIWorldData) worldData).world = world;
+            return (TIWorldData) worldData;
+        } else {
+            worldData = new TIWorldData(worldName);
+            ((TIWorldData) worldData).world = world;
+            world.perWorldStorage.setData(worldName, worldData);
+            return (TIWorldData) world.perWorldStorage.loadData(TIWorldData.class, worldName);
+        }
+    }
+
+    public static <T extends BlockSavable> T getData(Class<T> type, World world, WorldCoord coords) {
+        if (world == null)
+            return null;
+
+        coords.dim = world.provider.dimensionId;
+        return getWorldData(world).getBlock(type, coords);
+    }
+
+    public static World getWorld(IBlockAccess blockAccess) {
+        World world = ThaumicInfusion.instance.side.isServer() ? blockAccess instanceof World ? (World) blockAccess : ReflectionHelper.getObjFromField(World.class, blockAccess) : ChannelHandler.getClientWorld();
+        return world;
+    }
+
     public void addBlock(BlockSavable block, boolean init){
         if(block == null)
             return;
 
         if(world == null)
             world = DimensionManager.getWorld(block.getCoords().dim);
-
-        cleanDataAt(block);
 
         if(init && !block.isInit())
             block.dataLoad(world);
@@ -55,8 +80,11 @@ public class TIWorldData extends WorldSavedData {
             datas.add(block);
             blocksData.put(block.getCoords(), datas);
         }
+
         setDirty(true);
         CooldownPacket.syncTimeouts.remove(block.getCoords());
+        if (!world.isRemote)
+            ChannelHandler.network.sendToAll(new BlockSyncPacketC(block));
     }
 
     public void addBlock(BlockSavable block){
@@ -73,7 +101,6 @@ public class TIWorldData extends WorldSavedData {
 
                 if (!savable.isInit())
                     savable.dataLoad(world);
-                cleanDataAt(savable);
             }
         }
     }
@@ -90,29 +117,15 @@ public class TIWorldData extends WorldSavedData {
 
         setDirty(true);
 
-        world.setBlock(coords.x, coords.y, coords.z, Blocks.air);
-        world.removeTileEntity(coords.x, coords.y, coords.z);
-
         if(sendPacket && !world.isRemote)
             ChannelHandler.network.sendToDimension(new BlockDestroyedPacketC(coords), world.provider.dimensionId);
     }
 
-    public void cleanDataAt(BlockSavable savable){
-        if(blocksData == null || world == null)
-            return;
-
-        WorldCoord pos = savable.getCoords();
-        Block block = world.getChunkFromChunkCoords(pos.x >> 4, pos.z >> 4).getBlock(pos.x & 15, pos.y, pos.z & 15);
-
-        if(block == null || savable.getBlock() != null && block != savable.getBlock() && blocksData.containsKey(savable.getCoords()))
-            removeBlock(pos, true);
-    }
-
-    public BlockSavable[] getAllDatasAt(WorldCoord coords){
+    public ArrayList<BlockSavable> getAllDatasAt(WorldCoord coords) {
         ArrayList<BlockSavable> savables = blocksData.get(coords);
         if(savables != null)
-            return blocksData.get(coords).toArray(new BlockSavable[savables.size()]);
-        return new BlockSavable[0];
+            return savables;
+        return new ArrayList<BlockSavable>();
     }
 
     public <T>T getBlock(Class<T> type, WorldCoord coords) {
@@ -120,11 +133,28 @@ public class TIWorldData extends WorldSavedData {
         if(datas != null) {
             for (BlockSavable block : datas) {
                 if (type.isAssignableFrom(block.getClass())) {
-                    return (T) block;
+                    return type.cast(block);
                 }
             }
         }
         return null;
+    }
+
+    public void removeData(Class<?> type, WorldCoord coords, boolean sendPacket) {
+        ArrayList<BlockSavable> savables = blocksData.get(coords);
+        if (savables == null)
+            return;
+
+        for (int i = 0; i < savables.size(); i++) {
+            if (type.isAssignableFrom(savables.get(i).getClass())) {
+                savables.remove(i);
+                if (sendPacket) {
+                    coords.dim = world.provider.dimensionId;
+                    System.out.println(DimensionManager.getWorld(world.provider.dimensionId) != null);
+                    ChannelHandler.network.sendToAll(new DataRemovePacketC(type, coords));
+                }
+            }
+        }
     }
 
     public BlockSavable[][] getAllStoredData(){
@@ -156,43 +186,6 @@ public class TIWorldData extends WorldSavedData {
         return blocksData.size();
     }
 
-    public static TIWorldData getWorldData(World world) {
-        if(world == null)
-            return null;
-        String worldName = world.getWorldInfo().getWorldName() + "_" + world.provider.dimensionId + "_TIWorldData";
-        WorldSavedData worldData = world.perWorldStorage.loadData(TIWorldData.class, worldName);
-        if (worldData != null) {
-            ((TIWorldData) worldData).world = world;
-            return (TIWorldData) worldData;
-        }else {
-            worldData = new TIWorldData(worldName);
-            ((TIWorldData) worldData).world = world;
-            world.perWorldStorage.setData(worldName, worldData);
-            return (TIWorldData) world.perWorldStorage.loadData(TIWorldData.class, worldName);
-        }
-    }
-
-    public static <T>T getData(Class<T> type, World world, WorldCoord coords) {
-        if(world == null)
-            return null;
-
-        coords.dim = world.provider.dimensionId;
-        T data = getWorldData(world).getBlock(type, coords);
-
-        if (data == null && world.isRemote) {
-            coords.dim = Minecraft.getMinecraft().theWorld.provider.dimensionId;
-            ChannelHandler.network.sendToServer(new RequestBlockPacketS((Class<? extends BlockSavable>) type, coords));
-        }
-        return data;
-    }
-
-    public static World getWorld(IBlockAccess blockAccess) {
-        World world = ThaumicInfusion.instance.side.isServer() ? blockAccess instanceof World ? (World) blockAccess : ReflectionHelper.getObjFromField(World.class, blockAccess) : ChannelHandler.getClientWorld();
-        if(world == null)
-            ThaumicInfusion.getLogger().warn(blockAccess + " could not be casted to a world, blocks may lose functionality");
-        return world;
-    }
-
     @Override
     public void readFromNBT(NBTTagCompound tag) {
         for(int i = 0; i < tag.getInteger("Positions"); i++){
@@ -219,17 +212,5 @@ public class TIWorldData extends WorldSavedData {
             for(int p = 0; p < storedData[i].length; p++)
                 tag.setTag("Pos: " + i + " Tag: " + p, SavableHelper.saveDataToNBT(storedData[i][p]));
         }
-    }
-
-    public static Block block;
-
-    public static boolean hasWorldData(World world, int x, int y, int z){
-        TIWorldData worldData = getWorldData(world);
-        BlockSavable data = worldData.getBlock(BlockSavable.class, new WorldCoord(x, y, z));
-        if(data == null)
-            return false;
-        worldData.cleanDataAt(data);
-        block = data.getBlock();
-        return true;
     }
 }

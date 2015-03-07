@@ -23,6 +23,6 @@ public class Perfodio extends AspectEffect {
     }
 
     float getHardness(World world, int x, int y, int z){
-        return data.getContainingBlock().getBlockHardness(world, x, y, z) / 4;
+        return 100;
     }
 }

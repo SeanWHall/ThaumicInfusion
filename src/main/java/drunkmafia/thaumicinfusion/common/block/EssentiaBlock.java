@@ -3,7 +3,10 @@ package drunkmafia.thaumicinfusion.common.block;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
-import drunkmafia.thaumicinfusion.common.world.*;
+import drunkmafia.thaumicinfusion.common.world.BlockData;
+import drunkmafia.thaumicinfusion.common.world.EssentiaData;
+import drunkmafia.thaumicinfusion.common.world.TIWorldData;
+import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -32,6 +35,11 @@ import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.*;
  */
 public class EssentiaBlock extends Block {
 
+    @SideOnly(Side.CLIENT)
+    private IIcon brick;
+    @SideOnly(Side.CLIENT)
+    private IIcon squarebrick;
+
     public EssentiaBlock() {
         super(Material.rock);
         setCreativeTab(ThaumicInfusion.instance.tab);
@@ -57,11 +65,6 @@ public class EssentiaBlock extends Block {
             }
         }
     }
-
-    @SideOnly(Side.CLIENT)
-    private IIcon brick;
-    @SideOnly(Side.CLIENT)
-    private IIcon squarebrick;
 
     @Override
     @SideOnly(Side.CLIENT)
@@ -89,13 +92,13 @@ public class EssentiaBlock extends Block {
 
     @Override
     public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z, EntityPlayer player) {
-        BlockSavable data = TIWorldData.getData(BlockData.class, world, new WorldCoord(x, y, z));
+        EssentiaData data = TIWorldData.getData(EssentiaData.class, world, new WorldCoord(x, y, z));
         if(data != null) {
             int meta = world.getBlockMetadata(x, y, z);
             ItemStack stack = new ItemStack(this, 1, meta);
             NBTTagCompound tagCompound = new NBTTagCompound();
 
-            Aspect aspect = ((EssentiaData) data).getAspect();
+            Aspect aspect = data.getAspect();
             tagCompound.setString("aspectTag", aspect.getTag());
             stack.setTagCompound(tagCompound);
             stack.setStackDisplayName(aspect.getName() + (meta != 0 ? (meta == 1 ? " Brick" : " chiseled") : ""));
@@ -139,6 +142,8 @@ public class EssentiaBlock extends Block {
 
     @Override
     public void onBlockPreDestroy(World world, int x, int y, int z, int meta) {
+        if (!world.isRemote)
+            TIWorldData.getWorldData(world).removeData(EssentiaData.class, new WorldCoord(x, y, z), true);
     }
 
     @SideOnly(Side.CLIENT)

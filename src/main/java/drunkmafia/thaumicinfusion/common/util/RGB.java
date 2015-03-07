@@ -1,14 +1,13 @@
 package drunkmafia.thaumicinfusion.common.util;
 
+import org.lwjgl.opengl.GL11;
+
 import java.util.Random;
 
 /**
- * Created by DrunkMafia on 19/07/2014.
- * <p/>
- * See http://www.wtfpl.net/txt/copying for licence
+ * Created by Sean on 08/04/2015.
  */
 public class RGB {
-
     private float r, g, b;
 
     public RGB(){
@@ -28,6 +27,16 @@ public class RGB {
         r = (float)(rgb >> 16 & 255) / 255.0F;
         g = (float)(rgb >> 8 & 255) / 255.0F;
         b = (float)(rgb & 255) / 255.0F;
+    }
+
+    public void addRGB(RGB rgb){
+        r += Math.min(255, rgb.r);
+        g += Math.min(255, rgb.g);
+        b += Math.min(255, rgb.b);
+    }
+
+    public void glColor3f(){
+        GL11.glColor3f(r, g, b);
     }
 
     public float getB() {

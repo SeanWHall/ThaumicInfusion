@@ -1,7 +1,5 @@
 package drunkmafia.thaumicinfusion.common.world;
 
-import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
@@ -10,20 +8,17 @@ import net.minecraft.world.World;
  * <p/>
  * See http://www.wtfpl.net/txt/copying for licence
  */
-public abstract class BlockSavable implements ISavable {
+public class BlockSavable implements ISavable {
 
+    public boolean init = false;
     protected WorldCoord coordinates;
-    protected int blockID;
 
     public BlockSavable() {
     }
 
-    public BlockSavable(WorldCoord coordinates, int blockID) {
+    public BlockSavable(WorldCoord coordinates) {
         this.coordinates = coordinates;
-        this.blockID = blockID;
     }
-
-    public boolean init = false;
 
     public void dataLoad(World world){
         init = true;
@@ -33,9 +28,6 @@ public abstract class BlockSavable implements ISavable {
         return init;
     }
 
-    @Override
-    public abstract boolean equals(Object obj);
-
     public WorldCoord getCoords() {
         return coordinates;
     }
@@ -44,17 +36,11 @@ public abstract class BlockSavable implements ISavable {
         coordinates = newPos;
     }
 
-    public Block getBlock(){
-        return Block.getBlockById(blockID);
-    }
-
     public void writeNBT(NBTTagCompound tagCompound) {
-        tagCompound.setInteger("blockID", blockID);
         coordinates.writeNBT(tagCompound);
     }
 
     public void readNBT(NBTTagCompound tagCompound) {
-        blockID = tagCompound.getInteger("blockID");
         coordinates = new WorldCoord();
         coordinates.readNBT(tagCompound);
     }

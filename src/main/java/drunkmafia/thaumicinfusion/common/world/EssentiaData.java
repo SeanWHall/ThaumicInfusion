@@ -1,7 +1,5 @@
 package drunkmafia.thaumicinfusion.common.world;
 
-import drunkmafia.thaumicinfusion.common.block.TIBlocks;
-import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import thaumcraft.api.aspects.Aspect;
 
@@ -16,13 +14,8 @@ public class EssentiaData extends BlockSavable {
 
     public EssentiaData(){}
 
-    @Override
-    public boolean equals(Object obj) {
-        return obj instanceof EssentiaData && ((EssentiaData)obj).aspect == this.aspect;
-    }
-
     public EssentiaData(WorldCoord coordinates, Aspect aspect){
-        super(coordinates, Block.getIdFromBlock(TIBlocks.essentiaBlock));
+        super(coordinates);
         this.aspect = aspect;
     }
 

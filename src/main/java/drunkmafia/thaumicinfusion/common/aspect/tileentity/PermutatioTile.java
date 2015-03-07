@@ -12,7 +12,7 @@ import net.minecraft.tileentity.TileEntity;
  * <p/>
  * See http://www.wtfpl.net/txt/copying for licence
  */
-public class PermutatioTile extends TileEntity implements IInventory {
+public class PermutatioTile extends EffectTile implements IInventory {
 
     public WorldCoord linkedPos;
 

@@ -1,8 +1,8 @@
 package drunkmafia.thaumicinfusion.client.gui;
 
-import drunkmafia.thaumicinfusion.common.util.RGB;
 import org.lwjgl.opengl.GL11;
 import thaumcraft.api.aspects.Aspect;
+import thaumcraft.codechicken.lib.colour.ColourARGB;
 
 import java.util.ArrayList;
 
@@ -82,7 +82,7 @@ public class Slider {
 
         private Slider slider;
         private Aspect aspect;
-        private RGB rgb;
+        private ColourARGB rgb;
         private int posX, posY, u, xSize, ySize;
 
         public SliderSection(Slider slider, Aspect aspect, int posX, int posY, int u, int xSize, int ySize) {
@@ -94,8 +94,8 @@ public class Slider {
             this.xSize = xSize;
             this.ySize = ySize;
 
-            if (aspect != null) rgb = new RGB(aspect.getColor());
-            else rgb = new RGB();
+            if (aspect != null)
+                rgb = new ColourARGB(1, (aspect.getColor() >> 16 & 255) / 255, (aspect.getColor() >> 8 & 255) / 255, (aspect.getColor() & 255) / 255);
         }
 
         public void drawGuiContainerBackgroundLayer(float tpf, int mouseX, int mouseY) {
@@ -103,7 +103,7 @@ public class Slider {
             int maxFrames = 5;
             if (frame >= maxFrames) frame = 1;
 
-            GL11.glColor3f(rgb.getR(), rgb.getG(), rgb.getB());
+            rgb.glColour();
 
             slider.gui.drawTexturedModalRect(posX, posY, u, 122 + (6 * frame), xSize, ySize);
         }

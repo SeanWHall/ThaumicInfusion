@@ -11,7 +11,6 @@ import net.minecraft.util.IIcon;
 import net.minecraftforge.client.IItemRenderer;
 import org.lwjgl.opengl.GL11;
 import thaumcraft.api.aspects.Aspect;
-
 /**
  * Created by DrunkMafia on 01/07/2014.
  * <p/>
@@ -33,6 +32,7 @@ public class EssentiaBlockRenderer implements IItemRenderer {
         NBTTagCompound tag = stack.getTagCompound();
         if (tag == null) return;
 
+
         Block essentiaBlock = TIBlocks.essentiaBlock;
         RenderBlocks renderBlocks = new RenderBlocks();
         Tessellator tessellator = Tessellator.instance;
@@ -51,8 +51,7 @@ public class EssentiaBlockRenderer implements IItemRenderer {
         else
             GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
 
-        RGB rgb = new RGB(Aspect.getAspect(tag.getString("aspectTag")).getColor());
-        GL11.glColor4f(rgb.getR(), rgb.getG(), rgb.getB(), 1.0F);
+        new RGB(Aspect.getAspect(tag.getString("aspectTag")).getColor()).glColor3f();
 
         IIcon icon = renderBlocks.getBlockIconFromSideAndMetadata(essentiaBlock, 0, stack.getItemDamage());
 

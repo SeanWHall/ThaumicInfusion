@@ -26,15 +26,13 @@ import java.util.List;
  */
 public class InfusedBlockGUI extends GuiScreen {
 
+    public int guiLeft, guiTop, xSize, ySize;
     protected BlockData data;
     private World world;
     private ResourceLocation gui = new ResourceLocation(ModInfo.MODID, "textures/gui/InfusedGUI.png");
     private Slider slider;
-
     private AspectEffect currentEffect;
     private EffectGUI effectGUI;
-
-    public int guiLeft, guiTop, xSize, ySize;
 
     public InfusedBlockGUI(WorldCoord coordinates) {
         xSize = 180;
@@ -46,7 +44,7 @@ public class InfusedBlockGUI extends GuiScreen {
 
     public void setupEffect(AspectEffect effect){
         currentEffect = effect;
-        effectGUI = currentEffect.getGUI();
+        //effectGUI = currentEffect.getGUI();
         effectGUI.xSize = xSize;
         effectGUI.ySize = ySize;
         effectGUI.initGui();

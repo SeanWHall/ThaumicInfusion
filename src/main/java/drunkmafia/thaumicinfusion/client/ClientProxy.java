@@ -1,24 +1,17 @@
 package drunkmafia.thaumicinfusion.client;
 
-import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
 import drunkmafia.thaumicinfusion.client.event.ClientEventContainer;
 import drunkmafia.thaumicinfusion.client.event.ClientTickHandler;
+import drunkmafia.thaumicinfusion.client.gui.FocusInfusionGUI;
 import drunkmafia.thaumicinfusion.client.gui.InfusedBlockGUI;
 import drunkmafia.thaumicinfusion.client.renderer.InfusedBlockFallingRenderer;
-import drunkmafia.thaumicinfusion.client.renderer.RenderInfused;
-import drunkmafia.thaumicinfusion.client.renderer.item.CoreItemRenderer;
 import drunkmafia.thaumicinfusion.client.renderer.item.EssentiaBlockRenderer;
-import drunkmafia.thaumicinfusion.client.renderer.item.InfusedItemRenderer;
-import drunkmafia.thaumicinfusion.client.renderer.tile.InfusionCoreRenderer;
 import drunkmafia.thaumicinfusion.common.CommonProxy;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.entity.InfusedBlockFalling;
-import drunkmafia.thaumicinfusion.common.block.BlockHandler;
-import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
 import drunkmafia.thaumicinfusion.common.block.TIBlocks;
-import drunkmafia.thaumicinfusion.common.block.tile.InfusionCoreTile;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -28,19 +21,15 @@ import net.minecraftforge.common.MinecraftForge;
 
 public class ClientProxy extends CommonProxy {
 
+    public static ClientProxy getInstance() {
+        return (ClientProxy) ThaumicInfusion.proxy;
+    }
+
     @Override
     public void initRenderers() {
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(TIBlocks.essentiaBlock), new EssentiaBlockRenderer());
-        MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(TIBlocks.infusionCoreBlock), new CoreItemRenderer());
 
-        InfusedBlock[] blocks = BlockHandler.getBlocks();
-        for (InfusedBlock block : blocks)
-            MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(block), new InfusedItemRenderer());
-
-        RenderingRegistry.registerBlockHandler(new RenderInfused());
         RenderingRegistry.registerEntityRenderingHandler(InfusedBlockFalling.class, new InfusedBlockFallingRenderer());
-
-        ClientRegistry.bindTileEntitySpecialRenderer(InfusionCoreTile.class, new InfusionCoreRenderer());
 
         FMLCommonHandler.instance().bus().register(new ClientTickHandler());
         MinecraftForge.EVENT_BUS.register(new ClientEventContainer());
@@ -51,12 +40,10 @@ public class ClientProxy extends CommonProxy {
         switch (ID) {
             case 0:
                 return new InfusedBlockGUI(new WorldCoord(x, y, z));
+            case 1:
+                return new FocusInfusionGUI(player);
             default:
                 return null;
         }
-    }
-
-    public static ClientProxy getInstance(){
-        return (ClientProxy) ThaumicInfusion.proxy;
     }
 }

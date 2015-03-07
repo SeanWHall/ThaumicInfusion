@@ -1,10 +1,9 @@
 package drunkmafia.thaumicinfusion.common.block;
 
 import cpw.mods.fml.common.registry.GameRegistry;
-import drunkmafia.thaumicinfusion.common.block.tile.InfusionCoreTile;
 import net.minecraft.block.Block;
 
-import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.*;
+import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.essentiaBlock_RegistryName;
 
 /**
  * Created by DrunkMafia on 01/07/2014.
@@ -14,12 +13,10 @@ import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.*;
 public class TIBlocks {
 
     public static Block essentiaBlock;
-    public static Block infusionCoreBlock;
 
     public static void initBlocks() {
         GameRegistry.registerBlock(essentiaBlock = new EssentiaBlock(), essentiaBlock_RegistryName);
-        GameRegistry.registerBlock(infusionCoreBlock = new InfusionCoreBlock(), infusionCoreBlock_RegistryName);
 
-        GameRegistry.registerTileEntity(InfusionCoreTile.class, infusionCoreBlock_TileEntity);
+
     }
 }

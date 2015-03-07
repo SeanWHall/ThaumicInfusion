@@ -1,35 +1,32 @@
 package drunkmafia.thaumicinfusion.common.world;
 
-import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
-import drunkmafia.thaumicinfusion.common.block.BlockHandler;
+import drunkmafia.thaumicinfusion.common.util.IBlockHook;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import org.apache.logging.log4j.Level;
 import thaumcraft.api.aspects.Aspect;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
-public class BlockData extends BlockSavable {
+public class BlockData extends BlockSavable implements IBlockHook {
 
-    private int containingID;
-    private TileEntity tile;
+    public NBTTagCompound tileTag;
     public World world;
-
+    private TileEntity tile;
     private Map<String, Integer> methodsToBlock = new HashMap<String, Integer>();
     private ArrayList<AspectEffect> dataEffects = new ArrayList<AspectEffect>();
 
     public BlockData() {}
 
-    public BlockData(WorldCoord coords, Class[] list, int containingID) {
-        super(coords, containingID);
-        this.containingID = containingID;
+    public BlockData(WorldCoord coords, Class[] list) {
+        super(coords);
 
         for (AspectEffect effect : classesToEffects(list)) {
             if(tile == null && effect.getClass().getAnnotation(Effect.class).hasTileEntity())
@@ -45,16 +42,10 @@ public class BlockData extends BlockSavable {
             return;
 
         this.world = world;
-        if(!world.isRemote && BlockHandler.isBlockBlacklisted(getContainingBlock())){
-            TIWorldData.getWorldData(world).removeBlock(getCoords(), true);
-            return;
-        }
-
         WorldCoord pos = getCoords();
 
-        if(tile != null) {
+        if (tile != null)
             world.setTileEntity(pos.x, pos.y, pos.z, tile);
-        }
 
         for(int a = 0; a < dataEffects.size(); a++) {
             AspectEffect effect = dataEffects.get(a);
@@ -76,9 +67,11 @@ public class BlockData extends BlockSavable {
             TIWorldData.getWorldData(world).markDirty();
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        return obj instanceof BlockData && ((BlockSavable)obj).blockID == this.blockID && ((BlockData)obj).containingID == containingID;
+    public void tickData() {
+        if (tileTag != null && world.getBlock(coordinates.x, coordinates.y, coordinates.z) != null) {
+            world.setTileEntity(coordinates.x, coordinates.y, coordinates.z, TileEntity.createAndLoadEntity(tileTag));
+            tileTag = null;
+        }
     }
 
     public <T extends AspectEffect>T getEffect(Class<T> effect){
@@ -104,66 +97,6 @@ public class BlockData extends BlockSavable {
         return effects;
     }
 
-    /** Can only be run within a method from the block class **/
-    public Block runBlockMethod(){
-        StackTraceElement lastMethod = Thread.currentThread().getStackTrace()[2];
-        if(!BlockHandler.isBlockMethod(lastMethod.getMethodName()))
-            throw new IllegalArgumentException("Attempted to run a block method outside of a block class, culprit class: " + lastMethod.getClassName() + " from: " + lastMethod.getMethodName());
-
-        Integer index = methodsToBlock.get(lastMethod.getMethodName());
-        return index != null ? dataEffects.get(index) : getContainingBlock();
-    }
-
-    @Override
-    public Block getBlock() {
-        StackTraceElement element = Thread.currentThread().getStackTrace()[4];
-        String methodName = BlockHandler.isBlockMethod(element);
-        if(methodName != null){
-            ThaumicInfusion.getLogger().log(Level.DEBUG, "Invoked from: " + element.getMethodName() + " preddicated use: " + methodName);
-            Integer index = methodsToBlock.get(methodName);
-            return index != null ? dataEffects.get(index) : getContainingBlock();
-        }else ThaumicInfusion.getLogger().log(Level.DEBUG, "Invoked from: " + element.getMethodName() + " could not predict the ussage");
-        return getContainingBlock();
-    }
-
-    public AspectEffect[] runAllAspectMethod(){
-        String methName = Thread.currentThread().getStackTrace()[2].getMethodName();
-        ArrayList<AspectEffect> effects = new ArrayList<AspectEffect>();
-        for (AspectEffect dataEffect : dataEffects)
-            if (dataEffect.hasMethod(methName))
-                effects.add(dataEffect);
-        return effects.toArray(new AspectEffect[effects.size()]);
-    }
-
-    public AspectEffect runAspectMethod(){
-        String methName = Thread.currentThread().getStackTrace()[2].getMethodName();
-        for (AspectEffect effect : dataEffects)
-            if (effect.hasMethod(methName))
-                return effect;
-        return null;
-    }
-
-    Boolean openGUI = null;
-
-    public boolean canOpenGUI(){
-        if(openGUI != null)
-            return openGUI;
-
-
-        for(AspectEffect effect : getEffects()){
-            Effect annot = effect.getClass().getAnnotation(Effect.class);
-            if(openGUI = annot.hasGUI())
-                return true;
-        }
-        return false;
-    }
-
-    public void setContainingBlock(Block block){containingID = Block.getIdFromBlock(block);}
-
-    public Block getContainingBlock() {
-        return Block.getBlockById(containingID);
-    }
-
     public AspectEffect[] getEffects() {
         AspectEffect[] classes = new AspectEffect[dataEffects.size()];
         return dataEffects.toArray(classes);
@@ -184,8 +117,6 @@ public class BlockData extends BlockSavable {
         for (int i = 0; i < dataEffects.size(); i++)
             tagCompound.setTag("effect: " + i, SavableHelper.saveDataToNBT(dataEffects.get(i)));
 
-        tagCompound.setInteger("ContainingID", containingID);
-
         if(tile != null){
             NBTTagCompound tileTag = new NBTTagCompound();
             tile.writeToNBT(tileTag);
@@ -197,9 +128,22 @@ public class BlockData extends BlockSavable {
         super.readNBT(tagCompound);
         for (int i = 0; i < tagCompound.getInteger("length"); i++)
             dataEffects.add((AspectEffect)SavableHelper.loadDataFromNBT(tagCompound.getCompoundTag("effect: " + i)));
-        containingID = tagCompound.getInteger("ContainingID");
 
         if(tagCompound.hasKey("Tile"))
             tile = TileEntity.createAndLoadEntity(tagCompound.getCompoundTag("Tile"));
+    }
+
+    @Override
+    public String[] hookMethods() {
+        Set key = methodsToBlock.keySet();
+        return (String[]) key.toArray(new String[key.size()]);
+    }
+
+    @Override
+    public Block getBlock(String method) {
+        Integer index = methodsToBlock.get(method);
+        if (index != null)
+            return dataEffects.get(index);
+        return null;
     }
 }

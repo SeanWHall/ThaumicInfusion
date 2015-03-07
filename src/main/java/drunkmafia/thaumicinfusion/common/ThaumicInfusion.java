@@ -13,7 +13,6 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
-import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import drunkmafia.thaumicinfusion.common.block.TIBlocks;
 import drunkmafia.thaumicinfusion.common.command.TICommand;
 import drunkmafia.thaumicinfusion.common.event.CommonEventContainer;
@@ -27,7 +26,6 @@ import net.minecraft.command.ServerCommandManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.util.StatCollector;
-import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,14 +41,22 @@ public class ThaumicInfusion {
     @SidedProxy(clientSide = CLIENT_PROXY_PATH, serverSide = COMMON_PROXY_PATH)
     public static CommonProxy proxy;
 
-    public Side side;
+    public Side side = Side.CLIENT;
 
     public CreativeTabs tab = new CreativeTabs(ModInfo.CREATIVETAB_UNLOCAL) {
         @Override
         public Item getTabIconItem() {
-            return Item.getItemFromBlock(TIBlocks.infusionCoreBlock);
+            return Item.getItemFromBlock(TIBlocks.essentiaBlock);
         }
     };
+
+    public static String translate(String key, Object... params) {
+        return StatCollector.translateToLocalFormatted(key, params);
+    }
+
+    public static Logger getLogger() {
+        return LogManager.getLogger(MODID);
+    }
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
@@ -64,7 +70,6 @@ public class ThaumicInfusion {
     @EventHandler
     public void init(FMLInitializationEvent event) {
         ChannelHandler.init();
-        BlockHandler.blacklistBlocks();
         NetworkRegistry.INSTANCE.registerGuiHandler(instance, proxy);
         MinecraftForge.EVENT_BUS.register(new CommonEventContainer());
         FMLCommonHandler.instance().bus().register(new TickEventHandler());
@@ -80,13 +85,5 @@ public class ThaumicInfusion {
     @EventHandler
     public void serverStart(FMLServerStartingEvent event){
         TICommand.init((ServerCommandManager)event.getServer().getCommandManager());
-    }
-
-    public static String translate(String key, Object... params) {
-        return StatCollector.translateToLocalFormatted(key, params);
-    }
-
-    public static Logger getLogger(){
-        return LogManager.getLogger(MODID);
     }
 }

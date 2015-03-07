@@ -42,6 +42,7 @@ public class ChannelHandler{
         network.registerMessage(EffectSyncPacketC.Handler.class, EffectSyncPacketC.class, getOrdinal(), C);
         network.registerMessage(PlaySoundPacketC.Handler.class, PlaySoundPacketC.class, getOrdinal(), C);
         network.registerMessage(EntitySyncPacketC.Handler.class, EntitySyncPacketC.class, getOrdinal(), C);
+        network.registerMessage(DataRemovePacketC.Handler.class, DataRemovePacketC.class, getOrdinal(), C);
     }
 
     static int getOrdinal(){

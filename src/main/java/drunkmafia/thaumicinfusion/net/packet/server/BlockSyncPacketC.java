@@ -21,10 +21,10 @@ import net.minecraft.world.World;
  */
 public class BlockSyncPacketC implements IMessage {
 
+    private BlockSavable data;
+
     public BlockSyncPacketC() {
     }
-
-    private BlockSavable data;
 
     public BlockSyncPacketC(BlockSavable data) {
         this.data = data;
@@ -56,7 +56,9 @@ public class BlockSyncPacketC implements IMessage {
             if (data == null || ctx.side.isServer()) return null;
             World world = ChannelHandler.getClientWorld();
             WorldCoord pos = data.getCoords();
-            TIWorldData.getWorldData(world).addBlock(message.data, true);
+            TIWorldData worldData = TIWorldData.getWorldData(world);
+            worldData.removeData(message.data.getClass(), pos, false);
+            worldData.addBlock(message.data, true);
             Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.x, pos.y, pos.z);
             return null;
         }
