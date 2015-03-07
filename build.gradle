@@ -25,6 +25,12 @@ minecraft {
     assetDir = "eclipse/assets"
 }
 
+jar {
+    manifest {
+        attributes 'FMLCorePlugin': 'drunkmafia.thaumicinfusion.common.core.ThaumicInfusionPlugin', 'FMLCorePluginContainsFMLMod': 'true'
+    }
+}
+
 dependencies {
     compile fileTree(dir: 'lib', include: '**/*.jar')
 }
