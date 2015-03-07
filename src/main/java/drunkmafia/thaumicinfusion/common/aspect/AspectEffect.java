@@ -111,10 +111,6 @@ public class AspectEffect extends Block implements ISavable {
         return true;
     }
 
-    public InfusedBlock getBlock(){
-        return new InfusedBlock(Material.rock);
-    }
-
     @SideOnly(Side.CLIENT)
     public EffectGUI getGUI(){return null;}
 

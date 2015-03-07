@@ -22,6 +22,7 @@ import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.infusedBlock_Unloc
  */
 public final class BlockHandler {
 
+    private static ArrayList<MethodInfo> blockInvoktion = new ArrayList<MethodInfo>();
     private static ArrayList<String> blockMethods;
     private static ArrayList<String> blacklistedBlocks = new ArrayList<String>();
     private static HashMap<String, InfusedBlock> infusedBlocks = new HashMap<String, InfusedBlock>();
@@ -38,18 +39,24 @@ public final class BlockHandler {
     public static boolean isBlockMethod(String methName) {
         if(blockMethods == null){
             blockMethods = new ArrayList<String>();
-            Method[] methods = InfusedBlock.class.getMethods();
+            Method[] methods = Block.class.getDeclaredMethods();
+
             for(Method method : methods)
                 blockMethods.add(method.getName());
-
-            Class[] blocks = BlockHandler.getAllBlocks();
-            for(Class block : blocks)
-                for(Class inter : block.getInterfaces())
-                    for(Method method : inter.getMethods())
-                        blockMethods.add(method.getName());
-
         }
         return blockMethods.contains(methName);
+    }
+
+    public static String isBlockMethod(StackTraceElement element){
+        for(MethodInfo info : blockInvoktion){
+            if(info.methodCallerName.equals(element.getMethodName()))
+                return info.methodName;
+        }
+        return null;
+    }
+
+    public static void addInvoktion(MethodInfo info){
+        blockInvoktion.add(info);
     }
 
     public static void blacklistBlocks(){
@@ -91,10 +98,6 @@ public final class BlockHandler {
         config.save();
     }
 
-    public static boolean isTile(Block block){
-        return block instanceof ITileEntityProvider;
-    }
-
     public static boolean hasBlock(String unlocal){
         return infusedBlocks.containsKey(unlocal);
     }
@@ -117,5 +120,9 @@ public final class BlockHandler {
         for(int i = 0 ; i < classes.length; i++)
             classes[i] = blocks.get(i).getClass();
         return classes;
+    }
+
+    public static class MethodInfo {
+        public String methodCallerName, methodName;
     }
 }

@@ -19,6 +19,7 @@ import drunkmafia.thaumicinfusion.common.command.TICommand;
 import drunkmafia.thaumicinfusion.common.event.CommonEventContainer;
 import drunkmafia.thaumicinfusion.common.event.TickEventHandler;
 import drunkmafia.thaumicinfusion.common.intergration.ThaumcraftIntergration;
+import drunkmafia.thaumicinfusion.common.item.TIItems;
 import drunkmafia.thaumicinfusion.common.lib.ConfigHandler;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
@@ -56,13 +57,8 @@ public class ThaumicInfusion {
         side = event.getSide();
         ConfigHandler.init(event.getSuggestedConfigurationFile());
         TIBlocks.initBlocks();
+        TIItems.init();
         AspectEffect.init();
-
-        try{
-            Class.forName(World.class.getName());
-        }catch(Exception e){
-            e.printStackTrace();
-        }
     }
 
     @EventHandler

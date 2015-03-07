@@ -9,7 +9,7 @@ import net.minecraft.world.World;
  * Created by DrunkMafia on 10/11/2014.
  * See http://www.wtfpl.net/txt/copying for licence
  */
-@Effect(aspect = ("spiritus"), cost = 4, hasCustomBlock = true)
+@Effect(aspect = ("spiritus"), cost = 4)
 public class Spiritus extends AspectEffect {
 
     public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z) {

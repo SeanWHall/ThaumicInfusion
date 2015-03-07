@@ -1,6 +1,7 @@
 package drunkmafia.thaumicinfusion.common.world;
 
 import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 

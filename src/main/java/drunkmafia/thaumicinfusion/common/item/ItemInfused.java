@@ -18,11 +18,10 @@ import net.minecraft.world.World;
  * <p/>
  * See http://www.wtfpl.net/txt/copying for licence
  */
-public class ItemInfused extends ItemBlock {
+public class ItemInfused extends Item {
 
-    public ItemInfused(Block block) {
-        super(block);
-        setUnlocalizedName("item." + block.getUnlocalizedName());
+    public ItemInfused() {
+        setUnlocalizedName("item.infused");
     }
 
     @Override
@@ -73,11 +72,8 @@ public class ItemInfused extends ItemBlock {
             stack.stackSize--;
 
             Block worldBlock = world.getBlock(x, y, z);
-            int worldMeta = world.getBlockMetadata(x, y, z);
-
             data = InfusionHelper.getDataFromStack(stack, world, x, y, z);
             data.setContainingBlock(worldBlock);
-            world.setBlock(x, y, z, data.getBlock(), worldMeta, 3);
             TIWorldData.getWorldData(world).addBlock(data, true);
             return true;
         }

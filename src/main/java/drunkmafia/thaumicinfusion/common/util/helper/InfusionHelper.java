@@ -3,6 +3,7 @@ package drunkmafia.thaumicinfusion.common.util.helper;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
+import drunkmafia.thaumicinfusion.common.item.TIItems;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
@@ -45,18 +46,6 @@ public class InfusionHelper {
         if(stack == null || (stack != null && !(Block.getBlockFromItem(stack.getItem()) instanceof InfusedBlock)))
             return false;
         return stack.hasTagCompound();
-    }
-
-    public static int getBlockID(Class[] aspects){
-        int defBlock = Block.getIdFromBlock(BlockHandler.getBlock("default"));
-        for(Class aspect : aspects){
-            if(aspect != null && aspect.isAnnotationPresent(Effect.class)) {
-                Effect annotation = (Effect) aspect.getAnnotation(Effect.class);
-                if(annotation.hasCustomBlock())
-                    return Block.getIdFromBlock(BlockHandler.getBlock(annotation.aspect()));
-            }
-        }
-        return defBlock;
     }
 
     public static int getInfusedID(ItemStack stack){
@@ -113,7 +102,7 @@ public class InfusionHelper {
     public static BlockData getDataFromStack(ItemStack stack, World world, int x, int y, int z) {
         Class[] classes = getEffectsFromStack(stack);
         if(classes != null) {
-            return new BlockData(new WorldCoord(x, y, z, world.provider.dimensionId), classes, getInfusedID(stack), getBlockID(classes));
+            return new BlockData(new WorldCoord(x, y, z, world.provider.dimensionId), classes, getInfusedID(stack));
         }else return null;
     }
 
@@ -125,11 +114,9 @@ public class InfusionHelper {
         if(effects.length == 0)
             return null;
 
-        int blockID = getBlockID(effects), containingId = Block.getIdFromBlock(Block.getBlockFromItem(block.getItem()));
-        if(blockID == -1)
-            return null;
+        int containingId = Block.getIdFromBlock(Block.getBlockFromItem(block.getItem()));
 
-        ItemStack stack = new ItemStack(Block.getBlockById(blockID), size, meta);
+        ItemStack stack = new ItemStack(TIItems.infusedItem, size, meta);
         NBTTagCompound tag = new NBTTagCompound();
         NBTTagCompound infuseTag = new NBTTagCompound();
 

@@ -21,8 +21,6 @@ public @interface Effect {
 
     int cost();
 
-    boolean hasCustomBlock() default false;
-
     boolean hasTileEntity() default false;
 
     boolean hasGUI() default false;

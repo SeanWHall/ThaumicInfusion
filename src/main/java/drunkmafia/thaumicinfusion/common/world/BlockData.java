@@ -1,5 +1,6 @@
 package drunkmafia.thaumicinfusion.common.world;
 
+import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
@@ -8,6 +9,7 @@ import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import org.apache.logging.log4j.Level;
 import thaumcraft.api.aspects.Aspect;
 
 import java.util.ArrayList;
@@ -25,8 +27,8 @@ public class BlockData extends BlockSavable {
 
     public BlockData() {}
 
-    public BlockData(WorldCoord coords, Class[] list, int containingID, int blockID) {
-        super(coords, blockID);
+    public BlockData(WorldCoord coords, Class[] list, int containingID) {
+        super(coords, containingID);
         this.containingID = containingID;
 
         for (AspectEffect effect : classesToEffects(list)) {
@@ -110,6 +112,18 @@ public class BlockData extends BlockSavable {
 
         Integer index = methodsToBlock.get(lastMethod.getMethodName());
         return index != null ? dataEffects.get(index) : getContainingBlock();
+    }
+
+    @Override
+    public Block getBlock() {
+        StackTraceElement element = Thread.currentThread().getStackTrace()[4];
+        String methodName = BlockHandler.isBlockMethod(element);
+        if(methodName != null){
+            ThaumicInfusion.getLogger().log(Level.DEBUG, "Invoked from: " + element.getMethodName() + " preddicated use: " + methodName);
+            Integer index = methodsToBlock.get(methodName);
+            return index != null ? dataEffects.get(index) : getContainingBlock();
+        }else ThaumicInfusion.getLogger().log(Level.DEBUG, "Invoked from: " + element.getMethodName() + " could not predict the ussage");
+        return getContainingBlock();
     }
 
     public AspectEffect[] runAllAspectMethod(){

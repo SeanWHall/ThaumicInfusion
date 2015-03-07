@@ -102,7 +102,7 @@ public class TIWorldData extends WorldSavedData {
             return;
 
         WorldCoord pos = savable.getCoords();
-        Block block = world.getBlock(pos.x, pos.y, pos.z);
+        Block block = world.getChunkFromChunkCoords(pos.x >> 4, pos.z >> 4).getBlock(pos.x & 15, pos.y, pos.z & 15);
 
         if(block == null || savable.getBlock() != null && block != savable.getBlock() && blocksData.containsKey(savable.getCoords()))
             removeBlock(pos, true);
@@ -124,9 +124,6 @@ public class TIWorldData extends WorldSavedData {
                 }
             }
         }
-
-        if(world != null && !world.isRemote)
-            world.setBlock(coords.x, coords.y, coords.z, Blocks.air);
         return null;
     }
 
@@ -224,11 +221,15 @@ public class TIWorldData extends WorldSavedData {
         }
     }
 
-    public static boolean hasWorldData(int x, int y, int z){
-        return true;
-    }
+    public static Block block;
 
-    public static Block getBlock(int x, int y, int z){
-        return Blocks.diamond_block;
+    public static boolean hasWorldData(World world, int x, int y, int z){
+        TIWorldData worldData = getWorldData(world);
+        BlockSavable data = worldData.getBlock(BlockSavable.class, new WorldCoord(x, y, z));
+        if(data == null)
+            return false;
+        worldData.cleanDataAt(data);
+        block = data.getBlock();
+        return true;
     }
 }

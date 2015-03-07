@@ -6,6 +6,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import drunkmafia.thaumicinfusion.common.block.InfusedBlock;
+import drunkmafia.thaumicinfusion.common.item.ItemInfused;
 import drunkmafia.thaumicinfusion.common.lib.BlockInfo;
 import drunkmafia.thaumicinfusion.common.lib.ConfigHandler;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
@@ -51,14 +52,6 @@ public final class AspectHandler {
                 boolean isDef = annotation.aspect().equals("default");
 
                 if(effectInstace.shouldRegister()) {
-                    if (annotation.hasCustomBlock() || isDef) {
-                        InfusedBlock block = effectInstace.getBlock();
-                        block.setBlockName(BlockInfo.infusedBlock_UnlocalizedName + "." + annotation.aspect());
-
-                        if (!BlockHandler.hasBlock(block.getUnlocalizedName()))
-                            BlockHandler.addBlock(block.getUnlocalizedName(), (InfusedBlock) GameRegistry.registerBlock(block, "reg_InfusedBlock" + annotation.aspect()));
-                    }
-
                     if (annotation.hasTileEntity()) {
                         TileEntity tileEntity = effectInstace.getTile();
                         if (tileEntity != null)
