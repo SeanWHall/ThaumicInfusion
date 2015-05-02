@@ -20,9 +20,9 @@ key.essentiaBlock.chiseled=Chiseled
 # Research
 tc.research_category.THAUMICINFUSION=Thaumic Infusion
 tc.research_name.BLOCKINFUSION=Block Infusion
-tc.research_text.BLOCKINFUSION=The Process of fusing aspects to blocks to get an desired effect
+tc.research_text.BLOCKINFUSION=The Procces of fusing aspects to blocks to get an desired effect
 tc.research_page.BLOCKINFUSION.1=Block infusion is one of the lost knowledges of thaumaturgy, it is the process of taking an aspect and infusing it into a catalyst block. The effects are unique to each aspect and must be handled with care, the matrix alone is not powerful enough to withstand the instability of this process. Thus the Infusion Core was created, this core harnesses magic to stabilize every recipe and is able to withstand the infusion process.
-tc.research_page.BLOCKINFUSION.2=To carry out this process, one must replace the center pedestal with the infusion core, the core will add stability to all recipes, then place the catalyst block within the core and put phials of the aspects you want to infuse in the surrounding pedestals. It will use these phials as markers and drain the amount of essentia needed from the surrounding jars, once you've done that one must then hit the core with a wand to begin the infusion process.
+tc.research_page.BLOCKINFUSION.2=To carry out this process, one must replace the center pedestal with the infusion core, the core will add stability to all recipes, then place the catalyst block within the core and put phials of the aspects you want to infuse in the surrounding pedestals. It will use these phials as markers and drain the amount of essentia needed from the surrounding jars, once you've done that one must then hit the core with a want to begin the infusion process.
 
 tc.research_name.ESSENTIABLOCKS=Essentia Block
 tc.research_text.ESSENTIABLOCKS=These blocks are aspects captured in block form
