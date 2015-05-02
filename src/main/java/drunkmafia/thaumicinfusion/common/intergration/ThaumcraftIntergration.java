@@ -3,18 +3,22 @@ package drunkmafia.thaumicinfusion.common.intergration;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.TIBlocks;
+import drunkmafia.thaumicinfusion.common.item.TIItems;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import thaumcraft.api.ThaumcraftApi;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
+import thaumcraft.api.crafting.InfusionRecipe;
 import thaumcraft.api.crafting.ShapedArcaneRecipe;
 import thaumcraft.api.research.ResearchCategories;
 import thaumcraft.api.research.ResearchItem;
 import thaumcraft.api.research.ResearchPage;
 import thaumcraft.common.config.ConfigItems;
+import thaumcraft.common.config.ConfigResearch;
 import thaumcraft.common.items.ItemEssence;
 
 import java.util.ArrayList;
@@ -54,7 +58,9 @@ public class ThaumcraftIntergration {
 
         ResearchCategories.registerCategory("THAUMICINFUSION", new ResourceLocation(ModInfo.MODID, "textures/research/r_ti.png"), new ResourceLocation(ModInfo.MODID, "textures/gui/r_tibg.png"));
 
-        //new ResearchItem("BLOCKINFUSION", "THAUMICINFUSION", new AspectList().add(Aspect.ORDER, 3).add(Aspect.MAGIC, 3), -2, 0, 2, new ItemStack(TIBlocks.infusionCoreBlock)).setPages(new ResearchPage("tc.research_page.BLOCKINFUSION.1"), new ResearchPage(coreRecipe), new ResearchPage("tc.research_page.BLOCKINFUSION.2"), new ResearchPage(core)).registerResearchItem();
+        InfusionRecipe infusionRecipe = ThaumcraftApi.addInfusionCraftingRecipe("FOCUSINFUSION", new ItemStack(ConfigItems.itemFocusWarding), 4, (new AspectList()).add(Aspect.EARTH, 25).add(Aspect.ARMOR, 25).add(Aspect.ORDER, 25).add(Aspect.MIND, 10), new ItemStack(ConfigItems.itemFocusWarding), new ItemStack[]{new ItemStack(ConfigItems.itemResource, 1, 3), new ItemStack(ConfigItems.itemShard, 1, 3), new ItemStack(Items.quartz), new ItemStack(ConfigItems.itemShard, 1, 4), new ItemStack(ConfigItems.itemResource, 1, 3), new ItemStack(ConfigItems.itemShard, 1, 3), new ItemStack(Items.quartz), new ItemStack(ConfigItems.itemShard, 1, 4)});
+
+        new ResearchItem("FOCUSINFUSION", "THAUMICINFUSION", (new AspectList()).add(Aspect.EARTH, 6).add(Aspect.ARMOR, 3).add(Aspect.ORDER, 3).add(Aspect.MIND, 3), -2, 0, 2, new ItemStack(TIItems.focusInfusing)).setPages(new ResearchPage("tc.research_page.FOCUSINFUSION.1"), new ResearchPage("tc.research_page.FOCUSINFUSION.2"), new ResearchPage(infusionRecipe)).registerResearchItem();
         new ResearchItem("ESSENTIABLOCKS", "THAUMICINFUSION", new AspectList().add(Aspect.ORDER, 3).add(Aspect.MAGIC, 3), 2, 0, 2, essentiaBlock).setPages(new ResearchPage("tc.research_page.ESSENTIABLOCKS.1"), new ResearchPage(essentiaRecipe)).registerResearchItem();
 
         new ResearchItem("ASPECTEFFECTS", "THAUMICINFUSION", new AspectList(), 0, 2, 2, new ResourceLocation("thaumcraft", "textures/misc/r_aspects.png")).setPages(getPages()).setAutoUnlock().registerResearchItem();

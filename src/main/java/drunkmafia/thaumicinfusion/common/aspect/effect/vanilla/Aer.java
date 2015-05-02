@@ -39,13 +39,4 @@ public class Aer extends AspectEffect {
 
 
     }
-
-    @Override
-    public void onBlockAdded(World world, int x, int y, int z) {
-        getMaterial(world, x, y, z);
-    }
-
-    public Material getMaterial(World world, int x, int y, int z) {
-        return getMaterial();
-    }
 }

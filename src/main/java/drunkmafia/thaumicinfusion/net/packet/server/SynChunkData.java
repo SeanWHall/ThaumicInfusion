@@ -15,20 +15,17 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.world.World;
 
 /**
- * Created by DrunkMafia on 28/06/2014.
+ * Created by DrunkMafia on 20/06/2014.
  * <p/>
  * See http://www.wtfpl.net/txt/copying for licence
  */
-public class BlockSyncPacketC implements IMessage {
+public class SynChunkData implements IMessage {
 
     private BlockSavable data;
 
-    public BlockSyncPacketC() {
+    public SynChunkData() {
     }
 
-    public BlockSyncPacketC(BlockSavable data) {
-        this.data = data;
-    }
 
     @Override
     public void fromBytes(ByteBuf buf) {
@@ -52,15 +49,7 @@ public class BlockSyncPacketC implements IMessage {
     public static class Handler implements IMessageHandler<BlockSyncPacketC, IMessage> {
         @Override
         public IMessage onMessage(BlockSyncPacketC message, MessageContext ctx) {
-            BlockSavable data = message.data;
-            if (data == null || ctx.side.isServer()) return null;
-            World world = ChannelHandler.getClientWorld();
-            WorldCoord pos = data.getCoords();
-            TIWorldData worldData = TIWorldData.getWorldData(world);
 
-            worldData.removeData(message.data.getClass(), pos, false);
-            worldData.addBlock(message.data, true, false);
-            Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.x, pos.y, pos.z);
             return null;
         }
     }

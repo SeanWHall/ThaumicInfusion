@@ -39,9 +39,9 @@ public class AspectEffect extends Block implements ISavable {
     }
 
     public static void init(){
-        AspectHandler.registerEffect(AspectEffect.class);
         AspectHandler.registerEffect(Aer.class);
         AspectHandler.registerEffect(Alienis.class);
+        AspectHandler.registerEffect(Aqua.class);
         AspectHandler.registerEffect(Arbor.class);
         AspectHandler.registerEffect(Bestia.class);
         AspectHandler.registerEffect(Cognitio.class);
@@ -86,7 +86,7 @@ public class AspectEffect extends Block implements ISavable {
     }
 
     public WorldCoord getPos(){
-        return pos;
+        return pos == null ? new WorldCoord(0, 0, 0) : pos;
     }
 
     public void setCoords(WorldCoord newPos){
@@ -104,22 +104,21 @@ public class AspectEffect extends Block implements ISavable {
     public void updateBlock(World world){}
 
     public boolean hasMethod(String methName){
-        return getMethods().contains(methName);
+        return getMethods(getClass()).contains(methName);
     }
 
-    public List<String> getMethods(){
-        if(!phasedMethods.containsKey(getClass()))
-            phaseForMethods();
-        return phasedMethods.get(getClass());
+    public static List<String> getMethods(Class<? extends AspectEffect> clazz){
+        List<String> methods = phasedMethods.get(clazz);
+        return methods != null ? methods : phaseForMethods(clazz);
     }
 
-    public void phaseForMethods(){
-        Class c = this.getClass();
+    private static List<String> phaseForMethods(Class<? extends AspectEffect> c){
         Method[] effectMethods = c.getDeclaredMethods();
         ArrayList<String> meths = new ArrayList<String>();
         for(Method meth : effectMethods)
             meths.add(meth.getName());
-        phasedMethods.put(getClass(), meths);
+        phasedMethods.put(c, meths);
+        return meths;
     }
 
     public void writeNBT(NBTTagCompound tagCompound) {

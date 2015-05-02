@@ -11,6 +11,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import thaumcraft.api.aspects.Aspect;
+import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.aspects.IEssentiaContainerItem;
 import thaumcraft.common.Thaumcraft;
 
@@ -25,27 +26,31 @@ public class Fabrico extends AspectEffect {
 
     @Override
     public int colorMultiplier(IBlockAccess access, int x, int y, int z) {
-        return aspect != null ? aspect.getColor() : 16777215;
+        return aspect != null ? aspect.getColor() : access.getBlock(x, y, z).getBlockColor();
     }
 
     @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
         ItemStack phial = player.getCurrentEquippedItem();
         if(world.isRemote) {
-            if(phial != null && phial.getItem() instanceof IEssentiaContainerItem && ((IEssentiaContainerItem)phial.getItem()).getAspects(phial).getAspects()[0] != aspect){
-                world.playSound((double)((float)x + 0.5F), (double)((float)y + 0.5F), (double)((float)z + 0.5F), "game.neutral.swim", 0.5F, 1.0F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.3F, false);
+            if(phial != null && phial.getItem() instanceof IEssentiaContainerItem){
+                AspectList aspects = ((IEssentiaContainerItem)phial.getItem()).getAspects(phial);
+                if(aspects != null && aspects.getAspects()[0] != aspect){
+                    world.playSound((double) ((float) x + 0.5F), (double) ((float) y + 0.5F), (double) ((float) z + 0.5F), "game.neutral.swim", 0.5F, 1.0F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.3F, false);
 
-                RGB rgb = new RGB(((IEssentiaContainerItem) phial.getItem()).getAspects(phial).getAspects()[0].getColor());
+                    RGB rgb = new RGB(((IEssentiaContainerItem) phial.getItem()).getAspects(phial).getAspects()[0].getColor());
 
-                for(int i = 0; i < 5; i++)
-                    Thaumcraft.proxy.crucibleBubble(world, x + hitX, y + hitY, z + hitZ, rgb.getR(), rgb.getG(), rgb.getB());
-                return true;
+                    for (int i = 0; i < 5; i++)
+                        Thaumcraft.proxy.crucibleBubble(world, x + hitX, y + hitY, z + hitZ, rgb.getR(), rgb.getG(), rgb.getB());
+                    return true;
+                }
             }
             return false;
         }
 
         if(phial != null && phial.getItem() instanceof IEssentiaContainerItem){
-            aspect = ((IEssentiaContainerItem)phial.getItem()).getAspects(phial).getAspects()[0];
+            AspectList aspects = ((IEssentiaContainerItem)phial.getItem()).getAspects(phial);
+            aspect = aspects != null ? aspects.getAspects()[0] : null;
             ChannelHandler.network.sendToAll(new EffectSyncPacketC(this));
             return true;
         }

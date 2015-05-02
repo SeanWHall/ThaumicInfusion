@@ -6,7 +6,6 @@ import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
-import drunkmafia.thaumicinfusion.net.packet.client.DestroyBlockPacketS;
 import drunkmafia.thaumicinfusion.net.packet.client.RequestBlockPacketS;
 import drunkmafia.thaumicinfusion.net.packet.client.RequestTilePacketS;
 import drunkmafia.thaumicinfusion.net.packet.server.*;
@@ -32,11 +31,8 @@ public class ChannelHandler{
 
         //Server Handled Packets
         network.registerMessage(RequestBlockPacketS.Handler.class, RequestBlockPacketS.class, getOrdinal(), S);
-        network.registerMessage(RequestTilePacketS.Handler.class, RequestTilePacketS.class, getOrdinal(), S);
-        network.registerMessage(DestroyBlockPacketS.Handler.class, DestroyBlockPacketS.class, getOrdinal(), S);
 
         //Client Handled Packets
-        network.registerMessage(BlockDestroyedPacketC.Handler.class, BlockDestroyedPacketC.class, getOrdinal(), C);
         network.registerMessage(BlockSyncPacketC.Handler.class, BlockSyncPacketC.class, getOrdinal(), C);
         network.registerMessage(TileSyncPacketC.Handler.class, TileSyncPacketC.class, getOrdinal(), C);
         network.registerMessage(EffectSyncPacketC.Handler.class, EffectSyncPacketC.class, getOrdinal(), C);

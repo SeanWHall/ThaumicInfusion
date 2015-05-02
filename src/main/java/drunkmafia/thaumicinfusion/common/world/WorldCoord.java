@@ -82,9 +82,9 @@ public class WorldCoord extends WorldCoordinates {
     @Override
     public void writeNBT(NBTTagCompound nbt) {
         nbt.setString("id", id);
-        nbt.setInteger(id + "_x",x);
-        nbt.setInteger(id + "_y",y);
-        nbt.setInteger(id + "_z",z);
+        nbt.setInteger(id + "_x", x);
+        nbt.setInteger(id + "_y", y);
+        nbt.setInteger(id + "_z", z);
         nbt.setInteger(id + "_d", dim);
     }
 

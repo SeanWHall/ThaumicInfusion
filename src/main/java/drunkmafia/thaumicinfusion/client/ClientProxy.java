@@ -3,7 +3,6 @@ package drunkmafia.thaumicinfusion.client;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
 import drunkmafia.thaumicinfusion.client.event.ClientEventContainer;
-import drunkmafia.thaumicinfusion.client.event.ClientTickHandler;
 import drunkmafia.thaumicinfusion.client.gui.FocusInfusionGUI;
 import drunkmafia.thaumicinfusion.client.gui.InfusedBlockGUI;
 import drunkmafia.thaumicinfusion.client.renderer.InfusedBlockFallingRenderer;
@@ -31,19 +30,6 @@ public class ClientProxy extends CommonProxy {
 
         RenderingRegistry.registerEntityRenderingHandler(InfusedBlockFalling.class, new InfusedBlockFallingRenderer());
 
-        FMLCommonHandler.instance().bus().register(new ClientTickHandler());
         MinecraftForge.EVENT_BUS.register(new ClientEventContainer());
-    }
-
-    @Override
-    public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
-        switch (ID) {
-            case 0:
-                return new InfusedBlockGUI(new WorldCoord(x, y, z));
-            case 1:
-                return new FocusInfusionGUI(player);
-            default:
-                return null;
-        }
     }
 }

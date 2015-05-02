@@ -20,6 +20,7 @@ public class BlockData extends BlockSavable implements IBlockHook {
     public NBTTagCompound tileTag;
     public World world;
     private TileEntity tile;
+    private String[] methods = new String[0];
     private Map<String, Integer> methodsToBlock = new HashMap<String, Integer>();
     private ArrayList<AspectEffect> dataEffects = new ArrayList<AspectEffect>();
 
@@ -52,8 +53,11 @@ public class BlockData extends BlockSavable implements IBlockHook {
             effect.aspectInit(world, getCoords());
             effect.data = this;
 
-            for(String method : effect.getMethods())
+            for(String method : AspectEffect.getMethods(effect.getClass()))
                 methodsToBlock.put(method, dataEffects.indexOf(effect));
+
+            Set key = methodsToBlock.keySet();
+            methods = (String[]) key.toArray(new String[key.size()]);
         }
         init = true;
     }
@@ -135,8 +139,7 @@ public class BlockData extends BlockSavable implements IBlockHook {
 
     @Override
     public String[] hookMethods() {
-        Set key = methodsToBlock.keySet();
-        return (String[]) key.toArray(new String[key.size()]);
+        return methods;
     }
 
     @Override

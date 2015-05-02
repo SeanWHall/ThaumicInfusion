@@ -17,12 +17,16 @@ key.infusedBlock.infused=Infused
 key.essentiaBlock.brick=Brick
 key.essentiaBlock.chiseled=Chiseled
 
+# Item
+
+item.FocusInfusion.name=Wand Focus: Infusing
+
 # Research
 tc.research_category.THAUMICINFUSION=Thaumic Infusion
-tc.research_name.BLOCKINFUSION=Block Infusion
-tc.research_text.BLOCKINFUSION=The Procces of fusing aspects to blocks to get an desired effect
-tc.research_page.BLOCKINFUSION.1=Block infusion is one of the lost knowledges of thaumaturgy, it is the process of taking an aspect and infusing it into a catalyst block. The effects are unique to each aspect and must be handled with care, the matrix alone is not powerful enough to withstand the instability of this process. Thus the Infusion Core was created, this core harnesses magic to stabilize every recipe and is able to withstand the infusion process.
-tc.research_page.BLOCKINFUSION.2=To carry out this process, one must replace the center pedestal with the infusion core, the core will add stability to all recipes, then place the catalyst block within the core and put phials of the aspects you want to infuse in the surrounding pedestals. It will use these phials as markers and drain the amount of essentia needed from the surrounding jars, once you've done that one must then hit the core with a want to begin the infusion process.
+tc.research_name.FOCUSINFUSION=Infusion Focus
+tc.research_text.FOCUSINFUSION=A focus that allows the infusion of aspects into the world
+tc.research_page.FOCUSINFUSION.1=After researching for countless hours, you have now unlocked the knowledge of the most power infusion process know the Thaumaturgy. This focus gives you the power to take aspects and infuse them into the world, aspects can occupy block spaces and if they share that space with an existing block then unique effects will occur to that block. What effect is applied depends on the aspect.
+tc.research_page.FOCUSINFUSION.2=To wield this focus correctly one must first shift click a jar that contains the aspect you wish to use. Once you have done this you will be able to know right click on any block to infuse the aspect into that space, multiple aspects can exist in a single space however if they conflict the aspects my corrupt and turn into taint. Shift clicking a block that has aspects in its space will destroy the existing aspects.
 
 tc.research_name.ESSENTIABLOCKS=Essentia Block
 tc.research_text.ESSENTIABLOCKS=These blocks are aspects captured in block form

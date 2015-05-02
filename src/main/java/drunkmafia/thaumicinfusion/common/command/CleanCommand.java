@@ -38,12 +38,6 @@ public class CleanCommand extends CommandBase {
 
         if(players.contains(playerName) && strings.length > 0 && (strings[0].toLowerCase().contains("y") || strings[0].toLowerCase().contains("yes"))){
             TIWorldData data = TIWorldData.getWorldData(world);
-            BlockSavable[][] dataInWorld = data.getAllStoredData();
-            for(BlockSavable[] pos : dataInWorld){
-                if(pos.length > 0) {
-                    data.removeBlock(pos[0].getCoords(), true);
-                }
-            }
             sender.addChatMessage(new ChatComponentText("World data has been wiped in dim: " + world.provider.dimensionId));
             players.remove(playerName);
         }else{

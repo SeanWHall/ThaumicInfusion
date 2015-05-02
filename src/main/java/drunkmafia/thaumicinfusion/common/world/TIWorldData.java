@@ -4,19 +4,15 @@ import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.util.helper.ReflectionHelper;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.CooldownPacket;
-import drunkmafia.thaumicinfusion.net.packet.server.BlockDestroyedPacketC;
 import drunkmafia.thaumicinfusion.net.packet.server.BlockSyncPacketC;
 import drunkmafia.thaumicinfusion.net.packet.server.DataRemovePacketC;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldSavedData;
+import net.minecraft.util.LongHashMap;
+import net.minecraft.world.*;
 import net.minecraftforge.common.DimensionManager;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by DrunkMafia on 18/06/2014.
@@ -26,11 +22,12 @@ import java.util.Map;
 public class TIWorldData extends WorldSavedData {
 
     public World world;
-    private Map<WorldCoord, ArrayList<BlockSavable>> blocksData;
+
+    private LongHashMap blocksData = new LongHashMap();
+    private List<Long> chunkCoords = new ArrayList<Long>();
 
     public TIWorldData(String mapname) {
         super(mapname);
-        blocksData = new HashMap<WorldCoord, ArrayList<BlockSavable>>();
         setDirty(true);
     }
 
@@ -63,154 +60,112 @@ public class TIWorldData extends WorldSavedData {
         return world;
     }
 
-    public void addBlock(BlockSavable block, boolean init){
-        if(block == null)
-            return;
+    public void addBlock(BlockSavable block, boolean init, boolean packet){
+        try {
+            if (block == null)
+                return;
 
-        if(world == null)
-            world = DimensionManager.getWorld(block.getCoords().dim);
+            if (world == null)
+                world = DimensionManager.getWorld(block.getCoords().dim);
 
-        if(init && !block.isInit())
-            block.dataLoad(world);
+            if (init && !block.isInit())
+                block.dataLoad(world);
 
-        if(blocksData.containsKey(block.getCoords()) && !blocksData.get(block.getCoords()).contains(block)) {
-            blocksData.get(block.getCoords()).add(block);
-        }else {
-            ArrayList<BlockSavable> datas = new ArrayList<BlockSavable>();
-            datas.add(block);
-            blocksData.put(block.getCoords(), datas);
+            int chunkX = (block.coordinates.x >> 4);
+            int chunkZ = (block.coordinates.z >> 4);
+
+            long coordHash = ChunkCoordIntPair.chunkXZ2Int(chunkX, chunkZ);
+
+            ChunkData chunkData = (ChunkData) blocksData.getValueByKey(coordHash);
+            if (chunkData == null) {
+                chunkData = new ChunkData(new ChunkCoordIntPair(chunkX, chunkZ));
+                blocksData.add(coordHash, chunkData);
+                chunkCoords.add(coordHash);
+            }
+
+            chunkData.addBlock(block, block.coordinates.x, block.coordinates.y, block.coordinates.z);
+
+            setDirty(true);
+            CooldownPacket.syncTimeouts.remove(block.getCoords());
+            if (!world.isRemote && packet)
+                ChannelHandler.network.sendToAll(new BlockSyncPacketC(block));
+        }catch (Exception e){
+            e.printStackTrace();
         }
-
-        setDirty(true);
-        CooldownPacket.syncTimeouts.remove(block.getCoords());
-        if (!world.isRemote)
-            ChannelHandler.network.sendToAll(new BlockSyncPacketC(block));
     }
 
     public void addBlock(BlockSavable block){
-        addBlock(block, false);
+        addBlock(block, false, false);
     }
 
     public void postLoad(){
-        for(BlockSavable[] blocks : getAllStoredData()) {
-            for(BlockSavable savable : blocks) {
-                if (world == null)
-                    world = DimensionManager.getWorld(savable.getCoords().dim);
-                else
-                    savable.coordinates.dim = world.provider.dimensionId;
+        for(BlockSavable savable : getAllStoredData()) {
+            if (world == null)
+                world = DimensionManager.getWorld(savable.getCoords().dim);
+            else
+                savable.coordinates.dim = world.provider.dimensionId;
 
-                if (!savable.isInit())
-                    savable.dataLoad(world);
-            }
+            if (!savable.isInit())
+                savable.dataLoad(world);
         }
-    }
-
-    public void removeBlock(WorldCoord coords){
-        removeBlock(coords, false);
-    }
-
-    public void removeBlock(WorldCoord coords, boolean sendPacket) {
-        if(coords == null || !blocksData.containsKey(coords))
-            return;
-
-        blocksData.remove(coords);
-
-        setDirty(true);
-
-        if(sendPacket && !world.isRemote)
-            ChannelHandler.network.sendToDimension(new BlockDestroyedPacketC(coords), world.provider.dimensionId);
-    }
-
-    public ArrayList<BlockSavable> getAllDatasAt(WorldCoord coords) {
-        ArrayList<BlockSavable> savables = blocksData.get(coords);
-        if(savables != null)
-            return savables;
-        return new ArrayList<BlockSavable>();
     }
 
     public <T>T getBlock(Class<T> type, WorldCoord coords) {
-        ArrayList<BlockSavable> datas = blocksData.get(coords);
-        if(datas != null) {
-            for (BlockSavable block : datas) {
-                if (type.isAssignableFrom(block.getClass())) {
-                    return type.cast(block);
-                }
-            }
-        }
-        return null;
+        ChunkData chunkData = (ChunkData) blocksData.getValueByKey(ChunkCoordIntPair.chunkXZ2Int(coords.x >> 4, coords.z >> 4));
+        return chunkData != null ? chunkData.getBlock(type, coords.x, coords.y, coords.z) : null;
     }
 
     public void removeData(Class<?> type, WorldCoord coords, boolean sendPacket) {
-        ArrayList<BlockSavable> savables = blocksData.get(coords);
-        if (savables == null)
-            return;
-
-        for (int i = 0; i < savables.size(); i++) {
-            if (type.isAssignableFrom(savables.get(i).getClass())) {
-                savables.remove(i);
-                if (sendPacket) {
-                    coords.dim = world.provider.dimensionId;
-                    System.out.println(DimensionManager.getWorld(world.provider.dimensionId) != null);
-                    ChannelHandler.network.sendToAll(new DataRemovePacketC(type, coords));
-                }
+        ChunkData chunkData = (ChunkData) blocksData.getValueByKey(ChunkCoordIntPair.chunkXZ2Int(coords.x >> 4, coords.z >> 4));
+        if(chunkData != null) {
+            setDirty(true);
+            chunkData.removeBlock(coords.x, coords.y, coords.z);
+            if (sendPacket) {
+                coords.dim = world.provider.dimensionId;
+                System.out.println(DimensionManager.getWorld(world.provider.dimensionId) != null);
+                ChannelHandler.network.sendToAll(new DataRemovePacketC(type, coords));
             }
         }
     }
 
-    public BlockSavable[][] getAllStoredData(){
-        Map.Entry<WorldCoord, ArrayList<BlockSavable>>[] entries = blocksData.entrySet().toArray(new Map.Entry[blocksData.size()]);
-        BlockSavable[][] savables = new BlockSavable[entries.length][0];
-        for(int i = 0; i < savables.length; i++){
-            ArrayList<BlockSavable> stored = entries[i].getValue();
-            savables[i] = new BlockSavable[stored.size()];
-            for(int s = 0; s < stored.size(); s++)
-                savables[i][s] = stored.get(s);
-        }
-        return savables;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T extends BlockSavable>T[] getAllBlocks(Class<T> type){
-        BlockSavable[][] blocks = getAllStoredData();
-        ArrayList<T> blocksOfType = new ArrayList<T>();
-        for(BlockSavable[] blocksAtPos : blocks){
-            for(BlockSavable block : blocksAtPos) {
-                if (type.isInstance(block))
-                    blocksOfType.add(type.cast(block));
+    public BlockSavable[] getAllStoredData(){
+        ArrayList<BlockSavable> savables = new ArrayList<BlockSavable>();
+        for(long coord : chunkCoords){
+            ChunkData data = (ChunkData) blocksData.getValueByKey(coord);
+            if(data != null) {
+                for(BlockSavable block : data.getAllBlocks())
+                    savables.add(block);
             }
         }
-        return blocksOfType.toArray((T[]) Array.newInstance(type, blocksOfType.size()));
-    }
-
-    public int size(){
-        return blocksData.size();
+        return savables.toArray(new BlockSavable[savables.size()]);
     }
 
     @Override
     public void readFromNBT(NBTTagCompound tag) {
-        for(int i = 0; i < tag.getInteger("Positions"); i++){
-            for(int p = 0; p < tag.getInteger("Pos: " + i); p++){
-                BlockSavable data = SavableHelper.loadDataFromNBT(tag.getCompoundTag("Pos: " + i + " Tag: " + p));
+        int size = tag.getInteger("Chunks");
 
-                if(blocksData.containsKey(data.getCoords())) {
-                    blocksData.get(data.getCoords()).add(data);
-                }else {
-                    ArrayList<BlockSavable> datas = new ArrayList<BlockSavable>();
-                    datas.add(data);
-                    blocksData.put(data.getCoords(), datas);
-                }
+        for(int i = 0; i < size; i++){
+            if(!tag.hasKey("Chunk:" + i))
+                continue;
+
+            ChunkData chunkData = SavableHelper.loadDataFromNBT(tag.getCompoundTag("Chunk:" + i));
+            if(chunkData != null){
+                long hashCoord = ChunkCoordIntPair.chunkXZ2Int(chunkData.chunkPos.chunkXPos, chunkData.chunkPos.chunkXPos);
+                chunkCoords.add(hashCoord);
+                blocksData.add(hashCoord, chunkData);
             }
         }
     }
 
     @Override
     public void writeToNBT(NBTTagCompound tag) {
-        BlockSavable[][] storedData = getAllStoredData();
-        tag.setInteger("Positions", storedData.length);
-        for(int i = 0; i < storedData.length; i++){
-            tag.setInteger("Pos: " + i, storedData[i].length);
-            for(int p = 0; p < storedData[i].length; p++)
-                tag.setTag("Pos: " + i + " Tag: " + p, SavableHelper.saveDataToNBT(storedData[i][p]));
+        tag.setInteger("Chunks", chunkCoords.size());
+        System.out.println("Chunks: " + chunkCoords.size());
+        for(int i = 0; i < chunkCoords.size(); i++){
+            ChunkData chunkData = (ChunkData) blocksData.getValueByKey(chunkCoords.get(i));
+            if(chunkData == null)
+                continue;
+            tag.setTag("Chunk:" + i, SavableHelper.saveDataToNBT(chunkData));
         }
     }
 }

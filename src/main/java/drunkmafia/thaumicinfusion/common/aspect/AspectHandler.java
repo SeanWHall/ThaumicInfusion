@@ -4,6 +4,7 @@ import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.LoaderState;
 import cpw.mods.fml.common.registry.GameRegistry;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
+import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import drunkmafia.thaumicinfusion.common.lib.ConfigHandler;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
@@ -43,8 +44,6 @@ public final class AspectHandler {
                     return;
                 }
 
-                logger.info("Registering Effect: " + annotation.aspect());
-
                 boolean isDef = annotation.aspect().equals("default");
 
                 if(effectInstace.shouldRegister()) {
@@ -54,11 +53,13 @@ public final class AspectHandler {
                             GameRegistry.registerTileEntity(tileEntity.getClass(), "tile_InfusedBlock" + annotation.aspect());
                     }
 
+                    GameRegistry.registerBlock(effectInstace, "reg_InfusedBlock" + annotation.aspect());
+
                     if (!isDef)
                         effectsToRegister.add(effect);
                 }
-            }catch (Exception e){
-                e.printStackTrace();
+            }catch (Throwable e){
+                ThaumicInfusion.getLogger().error("Aspect: " + effect.getSimpleName() + " has caused an exception!", e);
             }
         }
     }

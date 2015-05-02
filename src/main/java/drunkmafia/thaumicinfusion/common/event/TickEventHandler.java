@@ -6,6 +6,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
+import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.World;
@@ -21,9 +22,9 @@ public class TickEventHandler {
     @SideOnly(Side.CLIENT)
     public void clientTick(TickEvent.ClientTickEvent event){
         World world = Minecraft.getMinecraft().theWorld;
-        if (world != null) {
+        if (world != null)
             tickWorld(world);
-        }
+
     }
 
     @SubscribeEvent
@@ -32,11 +33,13 @@ public class TickEventHandler {
     }
 
     void tickWorld(World world){
-        BlockData[] datas = TIWorldData.getWorldData(world).getAllBlocks(BlockData.class);
-        for(BlockData data : datas) {
-            data.tickData();
-            for (AspectEffect effect : data.getEffects()) {
-                effect.updateBlock(world);
+        BlockSavable[] datas = TIWorldData.getWorldData(world).getAllStoredData();
+        for(BlockSavable savable : datas) {
+            if(savable instanceof BlockData) {
+                BlockData data = (BlockData) savable;
+                data.tickData();
+                for (AspectEffect effect : data.getEffects())
+                    effect.updateBlock(world);
             }
         }
     }
