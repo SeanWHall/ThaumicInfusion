@@ -17,9 +17,7 @@ import java.util.Set;
 
 public class BlockData extends BlockSavable implements IBlockHook {
 
-    public NBTTagCompound tileTag;
     public World world;
-    private TileEntity tile;
     private String[] methods = new String[0];
     private Map<String, Integer> methodsToBlock = new HashMap<String, Integer>();
     private ArrayList<AspectEffect> dataEffects = new ArrayList<AspectEffect>();
@@ -30,8 +28,6 @@ public class BlockData extends BlockSavable implements IBlockHook {
         super(coords);
 
         for (AspectEffect effect : classesToEffects(list)) {
-            if(tile == null && effect.getClass().getAnnotation(Effect.class).hasTileEntity())
-                tile = effect.getTile();
             effect.data = this;
             dataEffects.add(effect);
         }
@@ -44,9 +40,6 @@ public class BlockData extends BlockSavable implements IBlockHook {
 
         this.world = world;
         WorldCoord pos = getCoords();
-
-        if (tile != null)
-            world.setTileEntity(pos.x, pos.y, pos.z, tile);
 
         for(int a = 0; a < dataEffects.size(); a++) {
             AspectEffect effect = dataEffects.get(a);
@@ -69,13 +62,6 @@ public class BlockData extends BlockSavable implements IBlockHook {
             effect.setCoords(newPos);
         if(world != null)
             TIWorldData.getWorldData(world).markDirty();
-    }
-
-    public void tickData() {
-        if (tileTag != null && world.getBlock(coordinates.x, coordinates.y, coordinates.z) != null) {
-            world.setTileEntity(coordinates.x, coordinates.y, coordinates.z, TileEntity.createAndLoadEntity(tileTag));
-            tileTag = null;
-        }
     }
 
     public <T extends AspectEffect>T getEffect(Class<T> effect){
@@ -120,21 +106,12 @@ public class BlockData extends BlockSavable implements IBlockHook {
         tagCompound.setInteger("length", dataEffects.size());
         for (int i = 0; i < dataEffects.size(); i++)
             tagCompound.setTag("effect: " + i, SavableHelper.saveDataToNBT(dataEffects.get(i)));
-
-        if(tile != null){
-            NBTTagCompound tileTag = new NBTTagCompound();
-            tile.writeToNBT(tileTag);
-            tagCompound.setTag("Tile", tileTag);
-        }
     }
 
     public void readNBT(NBTTagCompound tagCompound) {
         super.readNBT(tagCompound);
         for (int i = 0; i < tagCompound.getInteger("length"); i++)
             dataEffects.add((AspectEffect)SavableHelper.loadDataFromNBT(tagCompound.getCompoundTag("effect: " + i)));
-
-        if(tagCompound.hasKey("Tile"))
-            tile = TileEntity.createAndLoadEntity(tagCompound.getCompoundTag("Tile"));
     }
 
     @Override

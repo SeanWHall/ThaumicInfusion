@@ -97,8 +97,6 @@ public class AspectEffect extends Block implements ISavable {
         return true;
     }
 
-    public TileEntity getTile(){return null;}
-
     public void worldBlockInteracted(EntityPlayer player, World world, int x, int y, int z, int face) {}
 
     public void updateBlock(World world){}

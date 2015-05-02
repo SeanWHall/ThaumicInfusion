@@ -47,12 +47,6 @@ public final class AspectHandler {
                 boolean isDef = annotation.aspect().equals("default");
 
                 if(effectInstace.shouldRegister()) {
-                    if (annotation.hasTileEntity()) {
-                        TileEntity tileEntity = effectInstace.getTile();
-                        if (tileEntity != null)
-                            GameRegistry.registerTileEntity(tileEntity.getClass(), "tile_InfusedBlock" + annotation.aspect());
-                    }
-
                     GameRegistry.registerBlock(effectInstace, "reg_InfusedBlock" + annotation.aspect());
 
                     if (!isDef)
@@ -135,21 +129,6 @@ public final class AspectHandler {
                     }
                 }
             }
-        }
-        return true;
-    }
-
-    public static boolean canInfuse(Block block, Aspect[] aspects){
-        if(!(block instanceof ITileEntityProvider))
-            return true;
-
-        for(Aspect aspect : aspects){
-            Class<? extends AspectEffect> effect = getEffectFromAspect(aspect);
-            if(effect == null)
-                return false;
-            Effect annot = effect.getAnnotation(Effect.class);
-            if(annot.hasTileEntity())
-                return false;
         }
         return true;
     }
