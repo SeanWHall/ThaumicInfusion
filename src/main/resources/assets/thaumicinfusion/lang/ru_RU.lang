@@ -1,0 +1,86 @@
+#ru_RU
+
+# Creative Tab
+itemGroup.thaumicinfusion=Thaumic Infusion
+
+# Blocks
+tile.local_infusionCore.name=Ядро наполнения
+tile.local_infused.default=Наполненный блок
+tile.local_infused.aqua=Наполненный блок
+tile.local_infused.gelum=Наполненный блок
+tile.local_infused.limus=Наполненный блок
+tile.local_infused.sensus=Наполненный блок
+tile.local_infused.spiritus=Наполненный блок
+
+tile.local_essentia.name=Блок эссенции
+key.infusedBlock.infused=Наполненный
+key.essentiaBlock.brick=Кирпич
+key.essentiaBlock.chiseled=Резной
+
+# Item
+
+item.FocusInfusion.name=Набалдашник: Наполнение
+
+# Research
+tc.research_category.THAUMICINFUSION=Thaumic Infusion
+tc.research_name.FOCUSINFUSION=Набалдашник наполнения
+tc.research_text.FOCUSINFUSION=Набалдашник, который позволяет наполнять мир аспектами
+tc.research_page.FOCUSINFUSION.1=После бесконечных исследований, Вы открыли самое могущественное знание известное тауматургии - процесс наполнения. Этот набалдашник даёт Вам силу, способную взять аспекты и наполнить ими мир, аспекты могут занимать пространство в блоке, и если они делятся этим пространством с существующим блоком, значит у блока будут появляться уникальные эффекты. Эффект зависит от аспекта.
+tc.research_page.FOCUSINFUSION.2=Чтобы правильно держать этот набалдашник, сначала нужно нажать Shift+ПКМ по банке, которая содержит нужный Вам аспект. После этого, нажмите ПКМ по любому блоку, чтобы заполнить его пространство аспектом, несколько аспектов могут быть в одном пространстве, однако, если они конфликтуют, они могут повредиться и превратиться в порчу. Нажатие Shift+ПКМ по блоку с аспектами в его пространстве уничтожит все аспекты.
+
+tc.research_name.ESSENTIABLOCKS=Блок эссенции
+tc.research_text.ESSENTIABLOCKS=Эти блоки - это аспекты в форме блока
+tc.research_page.ESSENTIABLOCKS.1=Просто аспекты затвердевшие в виде блоков
+
+tc.research_name.ASPECTEFFECTS=Эффекты аспектов
+tc.research_text.ASPECTEFFECTS=Эффекты аспектов после наполнения
+
+# Commands
+
+ban.infusion=banblock
+ban.infusion.usage=/banblock Блокирует блок в руках
+
+clean.data=cleandata
+clean.data.usage=/cleandata Используйте эту команду только тогда, когда блоки TI приводят к вылетам, эта команда удалит все блоки TI в текущем измерение. Вас предупредили!
+
+# Effects Description
+ti.effect_info.VACUOS=Блок становится замаскированным инвентарём
+ti.effect_info.FABRICO=
+ti.effect_info.POTENTIA=Заставляет соседние блоки испускать сигнал красного камня
+ti.effect_info.LUX=Излучает свет, как факел
+ti.effect_info.SANO=Лечит игроков за счёт их голода
+ti.effect_info.PANNUS=Глушит весь урон от падения
+ti.effect_info.AQUA=Блок становится замаскированным источником воды
+ti.effect_info.GELUM=Трение понижается до уровня льда
+ti.effect_info.LIMUS=Блок действует как вода, по которой можно плыть, но не течёт
+ti.effect_info.COGNITIO=Блок становится замаскированным книжным шкафом
+ti.effect_info.ITER=Нажатие ПКМ по двум блокам, которые наполнены аспектом Iter, вызовет невидимый путь между ними
+ti.effect_info.ALIENIS=Странный эффект, который кажется вызывает случайную телепортацию
+ti.effect_info.TEMPESTAS=Освещение привязывается к этому блоку во время штормов
+ti.effect_info.VOLATUS=Игроки могут летать над этим блоком, высота удваивается с увеличением количества блоков сверху
+ti.effect_info.SPIRITUS=Блок кажется твёрдым, но сущности могут проходить сквозь него
+ti.effect_info.TERRA=Блоки будут подвержены гравитации, как песок или гравий
+ti.effect_info.FAMES=Поедает энергию людей и заставляет их ощущать голод
+ti.effect_info.TENEBRAE=Блок можно увидеть и ощутить только ночью
+ti.effect_info.BESTIA=Останавливает появление агрессивных мобов
+ti.effect_info.VITIUM=Останавливает распространение зары рядом с блоком
+ti.effect_info.MESSIS=Блок становится замаскированной пашней
+ti.effect_info.MOTUS=Сущности толкаются в направлении, на которое направлен блок
+ti.effect_info.IGNIS=Блок становится замаскированным камнем Нижнего мира
+ti.effect_info.SENSUS=Игроки могут видеть этот блок только тогда, когда на них надеты очки откровения
+ti.effect_info.ORDO=Добавляет стабильности к ближайшим алтарям наполнения
+ti.effect_info.PERDITIO=Блок становится легко взрываемым, будьте осторожны
+ti.effect_info.TUTAMEN=Блок более устойчив к взрывам и добыванию
+ti.effect_info.VINCULUM=Запирает мобов на 
+ti.effect_info.PERMUTATIO=Нажатие ПКМ по любому инвентарю, а затем по блоку, наполненному аспектом Permutatio, соединит их и блок станет расширенной версией инвентаря
+ti.effect_info.LUCRUM=Медленно притягивает предметы к себе
+ti.effect_info.MORTUUS=Мобы будут чаще появляться на этом блоке ночью
+ti.effect_info.VICTUS=Животные будут чаще появляться на этом блоке днём
+ti.effect_info.PRAECANTATIO=Не очень полезный, но довольно красивый
+ti.effect_info.VITREUS=Свет может проходить через этот блок
+ti.effect_info.VENENUM=Игроки, которые стоят на этом блоке, будут отравляться
+ti.effect_info.PERFODIO=Прочность и сопротивление блоков удвоены
+ti.effect_info.MACHINA=Если применён сигнал красного камня, все наполненные эффекты будут переключены
+ti.effect_info.AER=Игроки, которые стоят на этом блоке, будут прыгать выше
+ti.effect_info.ARBOR=Блок просто становится половинкой плиты
+ti.effect_info.HUMANUS=Блок становится кроватью
