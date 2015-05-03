@@ -1,7 +1,6 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
-import drunkmafia.thaumicinfusion.common.aspect.tileentity.PermutatioTile;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 
 /**

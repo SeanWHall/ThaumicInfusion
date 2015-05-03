@@ -116,7 +116,7 @@ public class ThaumcraftIntergration {
             for (Aspect aspect : aspects.getAspects()) {
                 if (aspect != null) {
                     ResourceLocation location = aspect.getImage();
-                    str += "<IMG>" + location.getResourceDomain() + ":" + location.getResourcePath() + ":0:0:255:255:0.125</IMG>" + aspect.getName() + " Cost: " + AspectHandler.getCostOfEffect(aspect) + " " + ThaumicInfusion.translate("ti.effect_info." + aspect.getName().toUpperCase()) + "\n";
+                    str += "<IMG>" + location.getResourceDomain() + ":" + location.getResourcePath() + ":0:0:255:255:0.125</IMG>" + aspect.getName() + " " + ThaumicInfusion.translate("ti.cost") + ": " + AspectHandler.getCostOfEffect(aspect) + " " + ThaumicInfusion.translate("ti.effect_info." + aspect.getName().toUpperCase()) + "\n";
                 }
             }
             return str;

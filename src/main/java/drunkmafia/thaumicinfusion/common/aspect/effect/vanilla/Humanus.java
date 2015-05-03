@@ -2,6 +2,7 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
@@ -29,6 +30,7 @@ public class Humanus extends AspectEffect {
 
     public int rotation;
 
+    @OverrideBlock
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
         if (world.isRemote)
             return true;
@@ -71,6 +73,7 @@ public class Humanus extends AspectEffect {
         return false;
     }
 
+    @OverrideBlock
     public boolean hasFoot(World world, int x, int y, int z){
         for(int i = 0; i < BlockBed.field_149981_a.length; i++){
             int[] coords = BlockBed.field_149981_a[i];
@@ -86,12 +89,12 @@ public class Humanus extends AspectEffect {
         return false;
     }
 
-    @Override
+    @OverrideBlock
     public int getBedDirection(IBlockAccess world, int x, int y, int z) {
         return rotation + 2;
     }
 
-    @Override
+    @OverrideBlock
     public boolean isBed(IBlockAccess world, int x, int y, int z, EntityLivingBase player) {
         return true;
     }

@@ -160,7 +160,6 @@ public class TIWorldData extends WorldSavedData {
     @Override
     public void writeToNBT(NBTTagCompound tag) {
         tag.setInteger("Chunks", chunkCoords.size());
-        System.out.println("Chunks: " + chunkCoords.size());
         for(int i = 0; i < chunkCoords.size(); i++){
             ChunkData chunkData = (ChunkData) blocksData.getValueByKey(chunkCoords.get(i));
             if(chunkData == null)

@@ -1,6 +1,7 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
@@ -43,7 +44,7 @@ public class Motus extends AspectEffect {
         }
     }
 
-    @Override
+    @OverrideBlock
     public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entity, ItemStack stack) {
         int rot = MathHelper.floor_double((double)(entity.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
         ForgeDirection dir = rot == 0 ? ForgeDirection.SOUTH : rot == 1 ? ForgeDirection.WEST : rot == 2 ? dir = ForgeDirection.NORTH : rot == 3 ? ForgeDirection.EAST : ForgeDirection.UNKNOWN;

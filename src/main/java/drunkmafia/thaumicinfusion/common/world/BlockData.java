@@ -39,8 +39,6 @@ public class BlockData extends BlockSavable implements IBlockHook {
             return;
 
         this.world = world;
-        WorldCoord pos = getCoords();
-
         for(int a = 0; a < dataEffects.size(); a++) {
             AspectEffect effect = dataEffects.get(a);
             effect.aspectInit(world, getCoords());

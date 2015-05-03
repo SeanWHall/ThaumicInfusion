@@ -2,6 +2,7 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.Potion;
@@ -22,7 +23,7 @@ public class Aer extends AspectEffect {
     static long maxCooldown = 2000L;
     long cooldown;
 
-    @Override
+    @OverrideBlock
     public void updateBlock(World world) {
         if(world.isRemote)
             return;

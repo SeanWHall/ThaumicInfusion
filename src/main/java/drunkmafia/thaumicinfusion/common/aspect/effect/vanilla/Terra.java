@@ -3,6 +3,7 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.entity.InfusedBlockFalling;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.server.EntitySyncPacketC;
@@ -18,7 +19,7 @@ import net.minecraft.world.World;
 @Effect(aspect = "terra", cost = 2)
 public class Terra extends AspectEffect{
 
-    @Override
+    @OverrideBlock
     public void updateBlock(World world) {
         if(world.isRemote)
             return;

@@ -2,6 +2,7 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 
@@ -12,12 +13,12 @@ import net.minecraft.world.World;
  */
 @Effect(aspect = "perfodio", cost = 2)
 public class Perfodio extends AspectEffect {
-    @Override
+    @OverrideBlock
     public float getBlockHardness(World world, int x, int y, int z) {
         return getHardness(world, x, y, z);
     }
 
-    @Override
+    @OverrideBlock
     public float getPlayerRelativeBlockHardness(EntityPlayer player, World world, int x, int y, int z) {
         return getHardness(world, x, y, z);
     }

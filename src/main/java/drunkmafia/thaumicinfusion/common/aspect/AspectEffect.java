@@ -5,6 +5,7 @@ import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.effect.vanilla.*;
 import drunkmafia.thaumicinfusion.common.aspect.entity.InfusedBlockFalling;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.ISavable;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
@@ -15,6 +16,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -86,7 +88,11 @@ public class AspectEffect extends Block implements ISavable {
     }
 
     public WorldCoord getPos(){
-        return pos == null ? new WorldCoord(0, 0, 0) : pos;
+        if(pos != null){
+            pos.id = getClass().getSimpleName();
+            return pos;
+        }
+        return null;
     }
 
     public void setCoords(WorldCoord newPos){
@@ -111,10 +117,16 @@ public class AspectEffect extends Block implements ISavable {
     }
 
     private static List<String> phaseForMethods(Class<? extends AspectEffect> c){
-        Method[] effectMethods = c.getDeclaredMethods();
+        Method[] effectMethods = c.getMethods();
         ArrayList<String> meths = new ArrayList<String>();
-        for(Method meth : effectMethods)
-            meths.add(meth.getName());
+        for(Method meth : effectMethods) {
+            if(meth.getDeclaringClass() == Block.class)
+                continue;
+            OverrideBlock block = meth.getAnnotation(OverrideBlock.class);
+            if(block != null)
+                meths.add(meth.getName());
+        }
+        System.out.println(c.getSimpleName() + ": Has " + meths.size() + " Block overrides!");
         phasedMethods.put(c, meths);
         return meths;
     }

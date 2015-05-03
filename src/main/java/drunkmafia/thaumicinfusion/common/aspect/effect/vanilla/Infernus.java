@@ -2,6 +2,7 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.world.World;
@@ -14,17 +15,17 @@ import net.minecraft.world.World;
 @Effect(aspect = ("infernus"), cost = 4)
 public class Infernus extends AspectEffect {
 
-    @Override
+    @OverrideBlock
     public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity ent) {
         setOnFire(ent);
     }
 
-    @Override
+    @OverrideBlock
     public void onFallenUpon(World world, int x, int y, int z, Entity ent, float fall) {
         setOnFire(ent);
     }
 
-    @Override
+    @OverrideBlock
     public void onEntityWalking(World world, int x, int y, int z, Entity ent) {
         setOnFire(ent);
     }

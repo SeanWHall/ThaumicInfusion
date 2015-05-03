@@ -17,6 +17,7 @@ key.infusedBlock.infused=Infused
 key.essentiaBlock.brick=Brick
 key.essentiaBlock.chiseled=Chiseled
 
+
 # Item
 
 item.FocusInfusion.name=Wand Focus: Infusing
@@ -34,6 +35,8 @@ tc.research_page.ESSENTIABLOCKS.1=Simply aspects solidified as blocks
 
 tc.research_name.ASPECTEFFECTS=The Effects of Aspects
 tc.research_text.ASPECTEFFECTS=Effects of aspects upon being infused
+
+ti.cost=Cost
 
 # Commands
 

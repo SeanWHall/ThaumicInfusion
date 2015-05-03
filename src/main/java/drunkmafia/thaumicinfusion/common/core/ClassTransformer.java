@@ -102,7 +102,8 @@ public class ClassTransformer implements IClassTransformer {
                             break;
                         }
                     }
-                    if(!hasThis) continue;
+                    if(!hasThis)
+                        continue;
                 }
 
                 if (Arrays.asList(blacklistMethods).contains(method.name))
@@ -116,7 +117,6 @@ public class ClassTransformer implements IClassTransformer {
                         continue;
 
                     if (isBlockClass) {
-                        System.out.println("Added: " + method.name);
                         blockMethods.add(method.name);
                     }
 

@@ -1,6 +1,7 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.block.Block;
@@ -17,7 +18,7 @@ import java.util.Random;
 @Effect(aspect = "vitium", cost = 1)
 public class Vitium extends AspectEffect {
 
-    @Override
+    @OverrideBlock
     public void aspectInit(World world,WorldCoord pos) {
         super.aspectInit(world, pos);
         if(!world.isRemote)

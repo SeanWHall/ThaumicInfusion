@@ -2,6 +2,7 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
@@ -18,22 +19,22 @@ public class Perditio extends AspectEffect {
 
     Random rand = new Random();
 
-    @Override
+    @OverrideBlock
     public void onFallenUpon(World world, int x, int t, int z, Entity entity, float fall) {
         explode(world);
     }
 
-    @Override
+    @OverrideBlock
     public void onEntityWalking(World world, int x, int y, int z, Entity entity) {
         explode(world);
     }
 
-    @Override
+    @OverrideBlock
     public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) {
         explode(world);
     }
 
-    @Override
+    @OverrideBlock
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
         if(world.isRemote)
             return true;

@@ -37,7 +37,6 @@ public class TickEventHandler {
         for(BlockSavable savable : datas) {
             if(savable instanceof BlockData) {
                 BlockData data = (BlockData) savable;
-                data.tickData();
                 for (AspectEffect effect : data.getEffects())
                     effect.updateBlock(world);
             }

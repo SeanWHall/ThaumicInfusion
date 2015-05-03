@@ -3,6 +3,7 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.RGB;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.server.EffectSyncPacketC;
 import net.minecraft.entity.player.EntityPlayer;
@@ -24,12 +25,12 @@ public class Fabrico extends AspectEffect {
 
     public Aspect aspect;
 
-    @Override
+    @OverrideBlock
     public int colorMultiplier(IBlockAccess access, int x, int y, int z) {
         return aspect != null ? aspect.getColor() : access.getBlock(x, y, z).getBlockColor();
     }
 
-    @Override
+    @OverrideBlock
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
         ItemStack phial = player.getCurrentEquippedItem();
         if(world.isRemote) {

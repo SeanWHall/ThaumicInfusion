@@ -2,6 +2,7 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.world.IBlockAccess;
 
@@ -11,7 +12,7 @@ import net.minecraft.world.IBlockAccess;
  */
 @Effect(aspect = "bestia", cost = 4)
 public class Bestia extends AspectEffect {
-    @Override
+    @OverrideBlock
     public boolean canCreatureSpawn(EnumCreatureType type, IBlockAccess world, int x, int y, int z) {
         return false;
     }

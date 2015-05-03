@@ -45,7 +45,6 @@ public final class BlockHandler {
         if (hook != null) {
             for (String blockMethodName : hook.hookMethods()) {
                 if (methodName.equals(blockMethodName)) {
-
                     BlockHandler.block = hook.getBlock(methodName);
                     return true;
                 }

@@ -2,6 +2,7 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import net.minecraft.block.material.Material;
 import net.minecraft.world.IBlockAccess;
 
@@ -17,7 +18,7 @@ public class Aqua extends AspectEffect {
         return true;
     }
 
-    @Override
+    @OverrideBlock
     public Material getMaterial() {
         return Material.water;
     }
