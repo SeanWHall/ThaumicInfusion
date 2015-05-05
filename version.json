@@ -1,0 +1,17 @@
+{
+	"versionList": [
+		{
+			"mcVersion":"Minecraft 1.7.*",
+			"modVersion":"4",
+			"changeLog": [
+				"Brand new Block System",
+				"New Infusion method",
+				"Stable Build",
+				"& tons more fixes"
+			],
+			"updateURL":"http://www.curse.com/mc-mods/minecraft/220308-thaumic-infusion",
+			"isDirectLink":"false",
+			"newFileName":""
+		}
+	]
+}
