@@ -10,6 +10,9 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +31,7 @@ public class ClassTransformer implements IClassTransformer {
     public static List<String> blockMethods = new ArrayList<String>();
     public static boolean isObf;
     public static String block, world, iBlockAccess, getMaterial, chunk;
+    public static BufferedWriter logger;
     private static Logger log = LogManager.getLogger("TI Transformer");
     private static String[] blacklistMethods = {"getExplosionResistance"};
 
@@ -37,11 +41,13 @@ public class ClassTransformer implements IClassTransformer {
             Field deobfuscatedEnvironment = CoreModManager.class.getDeclaredField("deobfuscatedEnvironment");
             deobfuscatedEnvironment.setAccessible(true);
             isObf = !deobfuscatedEnvironment.getBoolean(null);
+
+            logger = new BufferedWriter(new FileWriter("TI_Transformer_Log.log"));
         }catch (Exception e){
             e.printStackTrace();
         }
 
-        log.info("Thaumic Infusion has detected an " + (isObf ? "Obfuscated " : "Deobfuscated") + " environment");
+        log.info("Thaumic Infusion has detected an " + (isObf ? "Obfuscated" : "Deobfuscated") + " environment!");
         block = isObf ? "aji" : "net/minecraft/block/Block";
         world = isObf ?  "ahb" : "net/minecraft/world/World";
         iBlockAccess = isObf ? "ahl" : "net/minecraft/world/IBlockAccess";
@@ -59,8 +65,8 @@ public class ClassTransformer implements IClassTransformer {
         if(bytecode == null)
             return null;
 
-        bytecode = injectBlockCode(bytecode);
-        searchForBlockCode(bytecode);
+        bytecode = injectBlockCode(bytecode, transformedName);
+        searchForBlockCode(bytecode, transformedName);
 
         if(transformedName.equals("net.minecraft.world.World"))
             bytecode = injectWorldCode(bytecode);
@@ -68,7 +74,7 @@ public class ClassTransformer implements IClassTransformer {
         return bytecode;
     }
 
-    public byte[] injectBlockCode(byte[] bytecode) {
+    public byte[] injectBlockCode(byte[] bytecode, String name) {
         ClassNode classNode = new ClassNode();
         ClassReader classReader = new ClassReader(bytecode);
         classReader.accept(classNode, 0);
@@ -76,8 +82,13 @@ public class ClassTransformer implements IClassTransformer {
         boolean isBlockClass = classNode.name.equals(block);
         if (classNode.name.equals("drunkmafia/thaumicinfusion/common/aspect/AspectEffect") || !classNode.superName.equals(block) && !classNode.name.equals(block) )
             return bytecode;
-
         try {
+            logger.write("==== " + name + " ==== \nFound block Class \n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            int methodNo = 1;
             for (MethodNode method : classNode.methods) {
                 boolean isBlockMethod = isBlockClass;
                 if (!isBlockMethod) {
@@ -113,14 +124,19 @@ public class ClassTransformer implements IClassTransformer {
                     if (worldPars == null)
                         continue;
 
-                    if (isBlockClass)
+                    if (isBlockClass) {
                         blockMethods.add(method.name);
+                        try {
+                            logger.write("Block Method found: " + method.name + " " + method.desc + "\n");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
 
                     InsnList toInsert = new InsnList();
                     worldPars.loadPars(toInsert);
                     toInsert.add(new VarInsnNode(ALOAD, 0));
-                    toInsert.add(new LdcInsnNode(method.name));
-                    toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockHandler", "hasWorldData", "(L" + (worldPars.isBlockAccess ? iBlockAccess : world) + ";IIIL" + block + ";Ljava/lang/String;)Z", false));
+                    toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockHandler", "hasWorldData", "(L" + (worldPars.isBlockAccess ? iBlockAccess : world) + ";IIIL" + block + ";)Z", false));
 
                     LabelNode l1 = new LabelNode();
                     toInsert.add(new JumpInsnNode(IFEQ, l1));
@@ -136,6 +152,12 @@ public class ClassTransformer implements IClassTransformer {
                     toInsert.add(l1);
 
                     method.instructions.insert(toInsert);
+
+                    try {
+                        logger.write(methodNo++ + ") Injected block code into: " + method.name + " " + method.desc + "\n");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         } catch (Exception e) {
@@ -148,21 +170,34 @@ public class ClassTransformer implements IClassTransformer {
         return classWriter.toByteArray();
     }
 
-    public void searchForBlockCode(byte[] bytecode){
+    public void searchForBlockCode(byte[] bytecode, String className) {
         ClassNode classNode = new ClassNode();
         ClassReader classReader = new ClassReader(bytecode);
         classReader.accept(classNode, 0);
 
-        if(classNode.name.equals("drunkmafia/thaumicinfusion/common/block/BlockHandler"))
+        if (classNode.name.equals("drunkmafia/thaumicinfusion/common/block/BlockHandler") || !classNode.superName.equals(block))
             return;
+
+        try {
+            logger.write("*** " + className + " ***\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String MATERIAL = isObf ? "o" : "getMaterial";
 
         for(MethodNode method : classNode.methods){
             for(AbstractInsnNode node : method.instructions.toArray()){
                 if(node instanceof MethodInsnNode){
                     MethodInsnNode methodNode = (MethodInsnNode) node;
-                    if(methodNode.name.equals(getMaterial) && classNode.superName.equals(block)) {
-                        BlockHandler.materialInvokers.add(method.name);
-                        break;
+                    if (methodNode.name.equals(MATERIAL)) {
+                        BlockHandler.materialInvokers.add(className);
+                        try {
+                            logger.write("Found " + MATERIAL + " in: " + method.name + "\n");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        return;
                     }
                 }
             }
@@ -184,7 +219,7 @@ public class ClassTransformer implements IClassTransformer {
                 for(AbstractInsnNode node : method.instructions.toArray()){
                     if(node instanceof MethodInsnNode) {
                         MethodInsnNode methodNode = (MethodInsnNode) node;
-                        if(methodNode.name.equals("getBlock")) {
+                        if (methodNode.name.equals(GET_BLOCK) && methodNode.desc.equals(GET_BLOCK_DESC)) {
                             InsnList toInsert = new InsnList();
 
                             toInsert.add(new VarInsnNode(ALOAD, 0));
@@ -198,6 +233,8 @@ public class ClassTransformer implements IClassTransformer {
 
                             method.instructions.insert(methodNode, toInsert);
                             method.instructions.remove(methodNode);
+
+                            log.info("Successfully injected code into the world class");
                         }
                     }
                 }
@@ -207,7 +244,7 @@ public class ClassTransformer implements IClassTransformer {
         ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
         classNode.accept(classWriter);
 
-        log.info("Succesfully injected code into the world class");
+
         return classWriter.toByteArray();
     }
 

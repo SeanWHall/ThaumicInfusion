@@ -27,27 +27,33 @@ public final class BlockHandler {
     public static Block block, getBlock;
     public static ArrayList<String> materialInvokers = new ArrayList<String>();
     public static List<String> blacklistedBlocks = Arrays.asList(BlockAir.class.getName());
-    public static boolean hasWorldData(IBlockAccess access, int x, int y, int z, Block block, String methodName) {
-        return hasWorldData(TIWorldData.getWorld(access), x, y, z, block, methodName);
+
+    public static boolean hasWorldData(IBlockAccess access, int x, int y, int z, Block block) {
+        return hasWorldData(TIWorldData.getWorld(access), x, y, z, block);
     }
 
     /**
      * Checks to see if world data exists at a certain block position, returning true will trigger it to invoke the method that called this method. Via the block method
      */
-    public static boolean hasWorldData(World world, int x, int y, int z, Block block, String methodName) {
+    public static boolean hasWorldData(World world, int x, int y, int z, Block block) {
         if(world == null || block == Blocks.air)
             return false;
 
         IBlockHook hook =  TIWorldData.getWorldData(world).getBlock(IBlockHook.class, new WorldCoord(x, y, z));
 
-        if (hook != null) {
-            for (String blockMethodName : hook.hookMethods(block)) {
-                if (methodName.equals(blockMethodName)) {
-                    BlockHandler.block = hook.getBlock(methodName);
-                    return true;
-                }
+        if (hook == null)
+            return false;
+
+        final StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        String methodName = stackTrace[2].getMethodName().equals("hasWorldData") ? stackTrace[3].getMethodName() : stackTrace[2].getMethodName();
+
+        for (String blockMethodName : hook.hookMethods(block)) {
+            if (methodName.equals(blockMethodName)) {
+                BlockHandler.block = hook.getBlock(blockMethodName);
+                return true;
             }
         }
+
         return false;
     }
 
@@ -60,7 +66,11 @@ public final class BlockHandler {
         if (hook == null)
             return block;
 
-        if (materialInvokers.contains(Thread.currentThread().getStackTrace()[3].getMethodName())) {
+        String className = Thread.currentThread().getStackTrace()[3].getClassName();
+        for (String invokerName : materialInvokers) {
+            if (!className.equals(invokerName))
+                continue;
+
             for (String hookName : hook.hookMethods(block)) {
                 if (hookName.equals(ClassTransformer.getMaterial)) {
                     Block temp = getBlock = hook.getBlock(ClassTransformer.getMaterial);

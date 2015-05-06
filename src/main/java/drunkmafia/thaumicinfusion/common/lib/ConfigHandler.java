@@ -13,9 +13,7 @@ public final class ConfigHandler {
 
     public static Configuration config;
 
-    public static String[] bannedPackagaes;
-
-    public static boolean shouldUseSafeTiles, shouldUseIndepthSearch;
+    public static boolean debug;
 
     public static long maxTimeout;
 
@@ -24,8 +22,7 @@ public final class ConfigHandler {
         config.load();
         
         maxTimeout = config.get("Networking", "Packet Timeout", 10000, "How many times a single block can send a packet per update, the lower the numbers, the faster an infused or essentia block will be update however can cause lag").getInt();
-
-        bannedPackagaes = config.get("Blocks", "Banned Packages", new String[0]).getStringList();
+        //debug = config.get("Misc", "Debug", false, "Debug mode prints information to the log file").getBoolean();
 
         config.save();
     }

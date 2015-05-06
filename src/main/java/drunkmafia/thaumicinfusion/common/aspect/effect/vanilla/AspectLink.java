@@ -28,7 +28,6 @@ public class AspectLink extends AspectEffect {
 
     @OverrideBlock
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
-        System.out.println(side);
         ItemStack wand = player.getCurrentEquippedItem();
         if(world.isRemote || wand == null)
             return wand != null && wand.getItem() instanceof ItemWandCasting;
