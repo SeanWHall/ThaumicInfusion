@@ -8,6 +8,12 @@ import net.minecraft.block.Block;
  * See http://www.wtfpl.net/txt/copying for licence
  */
 public interface IBlockHook {
-    public String[] hookMethods();
-    public Block getBlock(String method);
+    String[] hookMethods(Block block);
+
+    Block getBlock(String method);
+
+    /**
+     * TODO - Add the ability to chose if the effect should stop the orginal block code from running
+     * boolean shouldReturn(String method);
+     */
 }

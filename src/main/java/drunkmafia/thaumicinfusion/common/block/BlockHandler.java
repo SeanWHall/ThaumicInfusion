@@ -1,6 +1,5 @@
 package drunkmafia.thaumicinfusion.common.block;
 
-import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.core.ClassTransformer;
 import drunkmafia.thaumicinfusion.common.util.IBlockHook;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
@@ -15,7 +14,6 @@ import net.minecraft.world.chunk.Chunk;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Stack;
 
 /**
  * Created by DrunkMafia on 04/07/2014.
@@ -43,7 +41,7 @@ public final class BlockHandler {
         IBlockHook hook =  TIWorldData.getWorldData(world).getBlock(IBlockHook.class, new WorldCoord(x, y, z));
 
         if (hook != null) {
-            for (String blockMethodName : hook.hookMethods()) {
+            for (String blockMethodName : hook.hookMethods(block)) {
                 if (methodName.equals(blockMethodName)) {
                     BlockHandler.block = hook.getBlock(methodName);
                     return true;
@@ -62,9 +60,8 @@ public final class BlockHandler {
         if (hook == null)
             return block;
 
-
         if (materialInvokers.contains(Thread.currentThread().getStackTrace()[3].getMethodName())) {
-            for (String hookName : hook.hookMethods()) {
+            for (String hookName : hook.hookMethods(block)) {
                 if (hookName.equals(ClassTransformer.getMaterial)) {
                     Block temp = getBlock = hook.getBlock(ClassTransformer.getMaterial);
                     return temp != null ? temp : block;

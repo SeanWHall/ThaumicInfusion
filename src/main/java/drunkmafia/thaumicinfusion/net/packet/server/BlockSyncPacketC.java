@@ -3,6 +3,7 @@ package drunkmafia.thaumicinfusion.net.packet.server;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import drunkmafia.thaumicinfusion.common.world.SavableHelper;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
@@ -53,7 +54,10 @@ public class BlockSyncPacketC implements IMessage {
         @Override
         public IMessage onMessage(BlockSyncPacketC message, MessageContext ctx) {
             BlockSavable data = message.data;
-            if (data == null || ctx.side.isServer()) return null;
+            if (data == null || ctx.side.isServer()) {
+                ThaumicInfusion.getLogger().info("Null");
+                return null;
+            }
             World world = ChannelHandler.getClientWorld();
             WorldCoord pos = data.getCoords();
             TIWorldData worldData = TIWorldData.getWorldData(world);

@@ -10,4 +10,5 @@ import java.lang.annotation.RetentionPolicy;
  */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface OverrideBlock {
+    boolean shouldRunAsAir() default false;
 }

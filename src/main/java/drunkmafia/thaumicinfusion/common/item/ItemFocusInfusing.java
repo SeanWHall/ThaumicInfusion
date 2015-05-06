@@ -5,45 +5,29 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
-import drunkmafia.thaumicinfusion.common.aspect.effect.vanilla.Lux;
+import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
-import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.PlayerCapabilities;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import thaumcraft.api.BlockCoordinates;
-import thaumcraft.api.IArchitect;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.aspects.IAspectSource;
-import thaumcraft.api.aspects.IEssentiaContainerItem;
-import thaumcraft.api.wands.FocusUpgradeType;
 import thaumcraft.api.wands.ItemFocusBasic;
 import thaumcraft.common.Thaumcraft;
-import thaumcraft.common.blocks.BlockJar;
-import thaumcraft.common.config.ConfigBlocks;
-import thaumcraft.common.items.wands.ItemWandCasting;
-import thaumcraft.common.items.wands.WandManager;
-import thaumcraft.common.items.wands.foci.ItemFocusWarding;
 import thaumcraft.common.lib.network.PacketHandler;
 import thaumcraft.common.lib.network.fx.PacketFXBlockSparkle;
 import thaumcraft.common.tiles.TileJarFillable;
-import thaumcraft.common.tiles.TileWarded;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created by Sean on 04/04/2015.
@@ -63,9 +47,9 @@ public class ItemFocusInfusing extends ItemFocusBasic {
 
     @SideOnly(Side.CLIENT)
     public void registerIcons(IIconRegister ir) {
-        this.depthIcon = ir.registerIcon("thaumcraft:focus_warding_depth");
-        this.icon = ir.registerIcon("thaumcraft:focus_warding");
-        this.iconOrnament = ir.registerIcon("thaumcraft:focus_warding_orn");
+        this.depthIcon = ir.registerIcon(ModInfo.MODID + ":focus_infusion_depth");
+        this.icon = ir.registerIcon(ModInfo.MODID + ":focus_infusion");
+        this.iconOrnament = ir.registerIcon(ModInfo.MODID + ":focus_infusion_orn");
     }
 
     public IIcon getFocusDepthLayerIcon(ItemStack itemstack) {
@@ -93,44 +77,65 @@ public class ItemFocusInfusing extends ItemFocusBasic {
         return 16771535;
     }
 
+    @Override
+    public void addFocusInformation(ItemStack itemstack, EntityPlayer player, List list, boolean par4) {
+        NBTTagCompound wandNBT = itemstack.getTagCompound();
+        if (wandNBT != null) {
+            Aspect aspect = Aspect.getAspect(wandNBT.getString("InfusionAspect"));
+            if (aspect != null)
+                list.add("Infusing Aspect: " + aspect.getName());
+        }
+        super.addFocusInformation(itemstack, player, list, par4);
+    }
+
     public AspectList getVisCost(ItemStack itemstack) {
         return new AspectList();
     }
 
     public ItemStack onFocusRightClick(ItemStack itemstack, World world, EntityPlayer player, MovingObjectPosition mop) {
         player.swingItem();
-        if(!world.isRemote) {
-            if(mop != null && mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
-                NBTTagCompound wandNBT = itemstack.getTagCompound() != null ? itemstack.getTagCompound() : new NBTTagCompound();
-                TileEntity tile = world.getTileEntity(mop.blockX, mop.blockY, mop.blockZ);
-                if (tile != null && tile instanceof TileJarFillable) {
-                    Aspect aspect = ((TileJarFillable)tile).getAspects().getAspects()[0];
-                    if(aspect != null) {
-                        wandNBT.setString("InfusionAspect", aspect.getTag());
-                    }
-                } else if(wandNBT.hasKey("InfusionAspect"))
-                    placeAspect(player, new WorldCoord(mop.blockX, mop.blockY, mop.blockZ), Aspect.getAspect(wandNBT.getString("InfusionAspect")));
 
-                itemstack.setTagCompound(wandNBT);
+        if (mop != null && mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
+            NBTTagCompound wandNBT = itemstack.getTagCompound() != null ? itemstack.getTagCompound() : new NBTTagCompound();
+            TileEntity tile = world.getTileEntity(mop.blockX, mop.blockY, mop.blockZ);
+            if (tile != null && tile instanceof TileJarFillable) {
+                Aspect aspect = ((TileJarFillable) tile).getAspects().getAspects()[0];
+                if (aspect != null)
+                    wandNBT.setString("InfusionAspect", aspect.getTag());
+            } else if (wandNBT.hasKey("InfusionAspect") && !world.isRemote) {
+                Aspect aspect = Aspect.getAspect(wandNBT.getString("InfusionAspect"));
+                if (aspect != null && Thaumcraft.proxy.playerKnowledge.hasDiscoveredAspect(player.getCommandSenderName(), aspect))
+                    placeAspect(player, new WorldCoord(mop.blockX, mop.blockY, mop.blockZ), aspect);
             }
+
+            itemstack.setTagCompound(wandNBT);
         }
         return itemstack;
     }
 
     public void placeAspect(EntityPlayer player, WorldCoord pos, Aspect aspect){
         if(aspect != null) {
-            TIWorldData worldData = TIWorldData.getWorldData(player.worldObj);
+            World world = player.worldObj;
+            TIWorldData worldData = TIWorldData.getWorldData(world);
             WorldCoord coords = new WorldCoord(pos.x, pos.y, pos.z);
             if (player.isSneaking()) {
-                worldData.removeData(BlockData.class, pos, true);
+                BlockData data = worldData.getBlock(BlockData.class, pos);
+                if (data != null) {
+                    AspectList list = new AspectList();
+                    for (Aspect currentAspect : data.getAspects())
+                        list.add(currentAspect, AspectHandler.getCostOfEffect(aspect));
+                    refillJars(player, list);
+
+                    worldData.removeData(BlockData.class, pos, true);
+                }
             } else {
                 BlockData data = worldData.getBlock(BlockData.class, coords);
                 if (data == null) {
                     Class c = AspectHandler.getEffectFromAspect(aspect);
                     if(c == null)
                         return;
-
-                    worldData.addBlock(new BlockData(coords, new Class[]{c}), true, true);
+                    if (drainAspects(player, aspect))
+                        worldData.addBlock(new BlockData(coords, new Class[]{c}), true, true);
                 }else{
                     for(Aspect dataAspect : data.getAspects()){
                         if(dataAspect == aspect){
@@ -168,35 +173,55 @@ public class ItemFocusInfusing extends ItemFocusBasic {
         if(player.capabilities.isCreativeMode)
             return true;
 
-        ItemStack[] inventory = player.inventory.mainInventory;
         int cost = AspectHandler.getCostOfEffect(aspect);
-        for(ItemStack stack : inventory){
-            if(stack.getItem() instanceof IEssentiaContainerItem){
-                AspectList aspects = ((IEssentiaContainerItem) stack.getItem()).getAspects(stack);
-                if(aspects.getAmount(aspect) > cost){
-                    aspects.reduce(aspect, cost);
-                    ((IEssentiaContainerItem) stack.getItem()).setAspects(stack, aspects);
-                    return true;
-                }
-            }
-        }
-
         for(int x = (int) (player.posX - 10); x < player.posX + 10; x++){
             for(int y = (int) (player.posY - 10); y < player.posY + 10; y++){
                 for(int z = (int) (player.posZ - 10); z < player.posZ + 10; z++){
                     TileEntity tileEntity = player.worldObj.getTileEntity(x, y, z);
                     if(tileEntity instanceof IAspectSource){
                         IAspectSource source = (IAspectSource) tileEntity;
-                        AspectList aspects = source.getAspects();
-                        if(aspects.getAmount(aspect) > cost){
-                            aspects.reduce(aspect, cost);
-                            source.setAspects(aspects);
+                        if (source.doesContainerContainAmount(aspect, cost)) {
+                            source.takeFromContainer(aspect, cost);
+                            player.worldObj.playSound((double) ((float) tileEntity.xCoord + 0.5F), (double) ((float) tileEntity.yCoord + 0.5F), (double) ((float) tileEntity.zCoord + 0.5F), "game.neutral.swim", 0.5F, 1.0F + (player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.3F, false);
                             return true;
                         }
                     }
                 }
             }
         }
+
         return false;
+    }
+
+    public boolean refillJars(EntityPlayer player, AspectList aspectList) {
+        if (player.capabilities.isCreativeMode)
+            return true;
+
+        int filled = 0;
+        for (int i = 0; i < aspectList.size(); i++) {
+            boolean foundJar = false;
+            Aspect currentAspect = aspectList.getAspects()[i];
+            for (int x = (int) (player.posX - 10); x < player.posX + 10; x++) {
+                for (int y = (int) (player.posY - 10); y < player.posY + 10; y++) {
+                    for (int z = (int) (player.posZ - 10); z < player.posZ + 10; z++) {
+                        TileEntity tileEntity = player.worldObj.getTileEntity(x, y, z);
+                        if (tileEntity instanceof IAspectSource) {
+                            IAspectSource source = (IAspectSource) tileEntity;
+                            if (source.doesContainerAccept(currentAspect)) {
+                                source.addToContainer(currentAspect, AspectHandler.getCostOfEffect(currentAspect));
+                                filled++;
+                                foundJar = true;
+                                player.worldObj.playSound((double) ((float) tileEntity.xCoord + 0.5F), (double) ((float) tileEntity.yCoord + 0.5F), (double) ((float) tileEntity.zCoord + 0.5F), "game.neutral.swim", 0.5F, 1.0F + (player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.3F, false);
+                                break;
+                            }
+                        }
+                    }
+                    if (foundJar) break;
+                }
+                if (foundJar) break;
+            }
+        }
+
+        return filled == aspectList.size();
     }
 }

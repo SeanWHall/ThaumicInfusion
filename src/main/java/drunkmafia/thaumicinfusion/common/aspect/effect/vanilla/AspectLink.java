@@ -1,24 +1,19 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
-import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
-import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
-import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import thaumcraft.common.items.wands.ItemWandCasting;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by DrunkMafia on 20/06/2014.
@@ -26,10 +21,14 @@ import java.util.ArrayList;
  * See http://www.wtfpl.net/txt/copying for licence
  */
 public class AspectLink extends AspectEffect {
-    WorldCoord destination;
+    ;
+
+    private static Map<Integer, WorldCoord> positions = new HashMap<Integer, WorldCoord>();
+    public WorldCoord destination;
 
     @OverrideBlock
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
+        System.out.println(side);
         ItemStack wand = player.getCurrentEquippedItem();
         if(world.isRemote || wand == null)
             return wand != null && wand.getItem() instanceof ItemWandCasting;
@@ -42,45 +41,21 @@ public class AspectLink extends AspectEffect {
             return true;
         }
 
-        NBTTagCompound compound = wand.stackTagCompound == null ? new NBTTagCompound() : wand.stackTagCompound;
-        if(compound.hasKey("id") && compound.getString("id").equals(getClass().getSimpleName())){
-            destination = new WorldCoord();
-            destination.readNBT(compound);
-            if(destination.equals(getPos())) {
-                destination = null;
-                return false;
-            }
-            destination.removeFromNBT(compound);
-            destination.id = "Dest";
-            wand.stackTagCompound = compound;
+        WorldCoord savedDestination = positions.get(wand.hashCode());
+        if (savedDestination != null) {
+            positions.remove(wand.hashCode());
 
-            BlockData data = TIWorldData.getData(BlockData.class, getDestinationWorld(), destination);
-            if(data == null){
-                destination = null;
-                System.out.println("Dest is null");
-                return false;
-            }
-
-            AspectLink destIter = data.getEffect(getClass());
-            if(destIter == null) {
-                destination = null;
-                System.out.println("NULL");
-            }else {
-                WorldCoord pos = getPos();
-                pos.id = "Dest";
-                pos.dim = world.provider.dimensionId;
-                destIter.destination = pos;
-                System.out.println("Set Destination Pos");
-            }
-
+            BlockData data = TIWorldData.getData(BlockData.class, world, savedDestination);
+            if (data == null) return true;
+            AspectLink link = data.getEffect(getClass());
+            if (link == null || link == this) return true;
+            link.destination = getPos();
+            destination = savedDestination;
+            positions.remove(wand.hashCode());
             return true;
         }
 
-        WorldCoord pos = new WorldCoord(getClass().getSimpleName(), x, y, z);
-        pos.dim = world.provider.dimensionId;
-        pos.writeNBT(compound);
-        wand.stackTagCompound = compound;
-        System.out.println("Saving NBT");
+        positions.put(wand.hashCode(), getPos());
         return true;
     }
 
@@ -93,7 +68,8 @@ public class AspectLink extends AspectEffect {
         if(blockData == null) return destination = null;
 
         AspectLink link = blockData.getEffect(getClass());
-        return link.destination = getPos();
+        link.destination = getPos();
+        return destination;
     }
 
     World getDestinationWorld(){

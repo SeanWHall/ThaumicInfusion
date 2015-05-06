@@ -1,8 +1,8 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
-import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
@@ -40,7 +40,6 @@ public class Lucrum extends AspectEffect {
             }
         }
     }
-
 
     boolean isItemNearBlock(EntityItem item){
         return getPos().getDistanceSquared((int)item.posX, (int)item.posY, (int)item.posZ) < 1;

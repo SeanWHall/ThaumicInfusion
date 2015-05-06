@@ -1,19 +1,15 @@
 package drunkmafia.thaumicinfusion.common.world;
 
+import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.util.IBlockHook;
-import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import thaumcraft.api.aspects.Aspect;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class BlockData extends BlockSavable implements IBlockHook {
 
@@ -41,15 +37,22 @@ public class BlockData extends BlockSavable implements IBlockHook {
         this.world = world;
         for(int a = 0; a < dataEffects.size(); a++) {
             AspectEffect effect = dataEffects.get(a);
+            if (effect == null) {
+                ThaumicInfusion.getLogger().error("NULL EFFECT! An effect has been removed or failed to load, the data at: " + getCoords() + " has been removed!");
+                TIWorldData.getWorldData(world).removeData(BlockData.class, getCoords(), true);
+                return;
+            }
+
             effect.aspectInit(world, getCoords());
             effect.data = this;
 
-            for(String method : AspectEffect.getMethods(effect.getClass()))
+            List<String> effectMethods = AspectEffect.getMethods(effect.getClass());
+            for (String method : effectMethods) {
                 methodsToBlock.put(method, dataEffects.indexOf(effect));
-
-            Set key = methodsToBlock.keySet();
-            methods = (String[]) key.toArray(new String[key.size()]);
+            }
         }
+        Set key = methodsToBlock.keySet();
+        methods = (String[]) key.toArray(new String[key.size()]);
         init = true;
     }
 
@@ -113,7 +116,7 @@ public class BlockData extends BlockSavable implements IBlockHook {
     }
 
     @Override
-    public String[] hookMethods() {
+    public String[] hookMethods(Block block) {
         return methods;
     }
 

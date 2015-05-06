@@ -1,19 +1,12 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
-import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
-import net.minecraftforge.common.DimensionManager;
-import thaumcraft.common.items.wands.ItemWandCasting;
 
 import java.util.ArrayList;
 
@@ -27,25 +20,23 @@ public class Iter extends AspectLink {
     public static long maxCooldown = 5000L;
     long startCooldown;
 
-
     @Override
     public void updateBlock(World world) {
         if(world.isRemote)
             return;
         WorldCoord pos = getPos();
 
-        if(pos == null || startCooldown > System.currentTimeMillis())
+        if (pos == null || startCooldown > System.currentTimeMillis() || world.isAirBlock(pos.x, pos.y, pos.z))
+            return;
+
+        WorldCoord destin = getDestination();
+        if (destin == null || world.isAirBlock(destin.x, destin.y, destin.z))
             return;
 
         AxisAlignedBB bb = AxisAlignedBB.getBoundingBox(pos.x, pos.y, pos.z, pos.x + 1, pos.y + 2, pos.z + 1);
         ArrayList<EntityPlayer> ents = (ArrayList<EntityPlayer>) world.getEntitiesWithinAABB(EntityPlayer.class, bb);
         for(EntityPlayer ent : ents) {
             if (ent.isSneaking()) {
-                WorldCoord destin = getDestination();
-                System.out.println(destin);
-                if(destin == null)
-                    return;
-
                 startCooldown = System.currentTimeMillis() + maxCooldown;
 
                 TIWorldData.getData(BlockData.class, getDestinationWorld(), destin).getEffect(Iter.class).startCooldown = startCooldown;

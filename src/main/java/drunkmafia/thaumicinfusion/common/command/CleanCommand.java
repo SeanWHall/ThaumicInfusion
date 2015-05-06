@@ -5,12 +5,10 @@ import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Created by DrunkMafia on 25/07/2014.
@@ -38,6 +36,9 @@ public class CleanCommand extends CommandBase {
 
         if(players.contains(playerName) && strings.length > 0 && (strings[0].toLowerCase().contains("y") || strings[0].toLowerCase().contains("yes"))){
             TIWorldData data = TIWorldData.getWorldData(world);
+            BlockSavable[] savables = data.getAllStoredData();
+            for (BlockSavable savable : savables) data.removeData(savable.getClass(), savable.getCoords(), true);
+
             sender.addChatMessage(new ChatComponentText("World data has been wiped in dim: " + world.provider.dimensionId));
             players.remove(playerName);
         }else{

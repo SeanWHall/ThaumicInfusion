@@ -3,10 +3,10 @@ package drunkmafia.thaumicinfusion.client.event;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import drunkmafia.thaumicinfusion.common.block.BlockHandler;
-import drunkmafia.thaumicinfusion.common.event.TickEventHandler;
+import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.item.ItemFocusInfusing;
 import drunkmafia.thaumicinfusion.common.util.RGB;
+import drunkmafia.thaumicinfusion.common.util.helper.MathHelper;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
@@ -14,19 +14,22 @@ import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.Facing;
 import net.minecraft.util.IIcon;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.common.util.ForgeDirection;
 import org.lwjgl.opengl.GL11;
 import thaumcraft.api.WorldCoordinates;
 import thaumcraft.api.aspects.Aspect;
+import thaumcraft.api.aspects.AspectList;
+import thaumcraft.client.lib.RenderEventHandler;
 import thaumcraft.client.lib.UtilsFX;
+import thaumcraft.common.Thaumcraft;
 import thaumcraft.common.blocks.BlockCosmeticOpaque;
 import thaumcraft.common.config.ConfigBlocks;
 import thaumcraft.common.items.wands.ItemWandCasting;
@@ -43,7 +46,35 @@ public class ClientEventContainer {
 
     static HashMap<WorldCoordinates, IIcon> iconCache = new HashMap();
 
-    private BlockData currentdata;
+    private BlockData currentdata, lastDataLookedAt;
+
+
+    @SideOnly(Side.CLIENT)
+    @SubscribeEvent
+    public void blockHighlight(DrawBlockHighlightEvent event) {
+        MovingObjectPosition target = event.target;
+        EntityPlayer player = event.player;
+
+        if (player.isSneaking() && player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().getItem() instanceof ItemWandCasting) {
+            ItemWandCasting wand = (ItemWandCasting) player.getCurrentEquippedItem().getItem();
+            if (wand.getFocus(player.getCurrentEquippedItem()) != null && wand.getFocus(player.getCurrentEquippedItem()) instanceof ItemFocusInfusing) {
+                if (lastDataLookedAt == null || lastDataLookedAt.getCoords().x != target.blockX || lastDataLookedAt.getCoords().y != target.blockY || lastDataLookedAt.getCoords().z != target.blockZ)
+                    lastDataLookedAt = TIWorldData.getWorldData(player.worldObj).getBlock(BlockData.class, new WorldCoord(target.blockX, target.blockY, target.blockZ));
+
+                if (lastDataLookedAt != null) {
+                    ForgeDirection dir = MathHelper.sideToDirection(target.sideHit);
+                    AspectList list = new AspectList();
+                    for (Aspect aspect : lastDataLookedAt.getAspects())
+                        list.add(aspect, AspectHandler.getCostOfEffect(aspect));
+
+                    if (RenderEventHandler.tagscale < 0.5F)
+                        RenderEventHandler.tagscale += 0.031F - RenderEventHandler.tagscale / 10.0F;
+
+                    Thaumcraft.instance.renderEventHandler.drawTagsOnContainer((double) ((float) target.blockX + (float) dir.offsetX / 2.0F), (double) ((float) target.blockY + (float) dir.offsetY / 2.0F), (double) ((float) target.blockZ + (float) dir.offsetZ / 2.0F), list, 220, dir, event.partialTicks);
+                }
+            }
+        }
+    }
 
     @SubscribeEvent
     public void renderLast(RenderWorldLastEvent event) {
@@ -82,12 +113,10 @@ public class ClientEventContainer {
                             Tessellator t = Tessellator.instance;
                             renderBlocks.setRenderBounds(-0.0010000000474974513D, -0.0010000000474974513D, -0.0010000000474974513D, 1.0010000467300415D, 1.0010000467300415D, 1.0010000467300415D);
                             Aspect[] aspects = data.getAspects();
+                            if (aspects == null)
+                                return;
 
-                            RGB rgb = new RGB(aspects[0].getColor());
-                            for (int i = 1; i < aspects.length; i++)
-                                rgb.addRGB(new RGB(aspects[i].getColor()));
-
-                            rgb.glColor3f();
+                            new RGB(aspects[0].getColor()).glColor3f();
 
                             t.startDrawingQuads();
                             t.setBrightness(200);
@@ -183,9 +212,9 @@ public class ClientEventContainer {
 
             int idBuilder = 0;
 
-            for (int i = 0; i <= 7; ++i) {
+            for (int i = 0; i <= 7; ++i)
                 idBuilder += bitMatrix[i] ? (i == 0 ? 1 : (i == 1 ? 2 : (i == 2 ? 4 : (i == 3 ? 8 : (i == 4 ? 16 : (i == 5 ? 32 : (i == 6 ? 64 : 128))))))) : 0;
-            }
+
 
             out = (idBuilder <= 255 && idBuilder >= 0) ? BlockCosmeticOpaque.wardedGlassIcon[UtilsFX.connectedTextureRefByID[idBuilder]] : BlockCosmeticOpaque.wardedGlassIcon[0];
             iconCache.put(wc, out);

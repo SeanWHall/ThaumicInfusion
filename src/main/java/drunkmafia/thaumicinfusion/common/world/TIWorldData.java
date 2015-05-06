@@ -8,11 +8,14 @@ import drunkmafia.thaumicinfusion.net.packet.server.BlockSyncPacketC;
 import drunkmafia.thaumicinfusion.net.packet.server.DataRemovePacketC;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.LongHashMap;
-import net.minecraft.world.*;
+import net.minecraft.world.ChunkCoordIntPair;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldSavedData;
 import net.minecraftforge.common.DimensionManager;
 
-import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by DrunkMafia on 18/06/2014.
@@ -71,14 +74,11 @@ public class TIWorldData extends WorldSavedData {
             if (init && !block.isInit())
                 block.dataLoad(world);
 
-            int chunkX = (block.coordinates.x >> 4);
-            int chunkZ = (block.coordinates.z >> 4);
-
-            long coordHash = ChunkCoordIntPair.chunkXZ2Int(chunkX, chunkZ);
+            long coordHash = ChunkCoordIntPair.chunkXZ2Int(block.coordinates.x >> 4, block.coordinates.z >> 4);
 
             ChunkData chunkData = (ChunkData) blocksData.getValueByKey(coordHash);
             if (chunkData == null) {
-                chunkData = new ChunkData(new ChunkCoordIntPair(chunkX, chunkZ));
+                chunkData = new ChunkData(new ChunkCoordIntPair(block.coordinates.x >> 4, block.coordinates.z >> 4));
                 blocksData.add(coordHash, chunkData);
                 chunkCoords.add(coordHash);
             }
@@ -122,7 +122,6 @@ public class TIWorldData extends WorldSavedData {
             chunkData.removeBlock(coords.x, coords.y, coords.z);
             if (sendPacket) {
                 coords.dim = world.provider.dimensionId;
-                System.out.println(DimensionManager.getWorld(world.provider.dimensionId) != null);
                 ChannelHandler.network.sendToAll(new DataRemovePacketC(type, coords));
             }
         }
@@ -150,9 +149,8 @@ public class TIWorldData extends WorldSavedData {
 
             ChunkData chunkData = SavableHelper.loadDataFromNBT(tag.getCompoundTag("Chunk:" + i));
             if(chunkData != null){
-                long hashCoord = ChunkCoordIntPair.chunkXZ2Int(chunkData.chunkPos.chunkXPos, chunkData.chunkPos.chunkXPos);
-                chunkCoords.add(hashCoord);
-                blocksData.add(hashCoord, chunkData);
+                for (BlockSavable data : chunkData.getAllBlocks())
+                    addBlock(data);
             }
         }
     }

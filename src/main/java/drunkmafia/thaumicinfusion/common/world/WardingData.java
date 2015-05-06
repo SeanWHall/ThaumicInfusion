@@ -19,7 +19,7 @@ public class WardingData extends BlockSavable implements IBlockHook {
     }
 
     @Override
-    public String[] hookMethods() {
+    public String[] hookMethods(Block block) {
         return new String[0];
     }
 

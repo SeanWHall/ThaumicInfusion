@@ -1,7 +1,6 @@
 package drunkmafia.thaumicinfusion.common.core;
 
 import cpw.mods.fml.relauncher.CoreModManager;
-import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.apache.logging.log4j.LogManager;
@@ -16,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static drunkmafia.thaumicinfusion.common.lib.ModInfo.MODID;
 import static org.objectweb.asm.Opcodes.*;
 
 
@@ -28,11 +26,10 @@ import static org.objectweb.asm.Opcodes.*;
 public class ClassTransformer implements IClassTransformer {
 
     public static List<String> blockMethods = new ArrayList<String>();
-    private static Logger log = LogManager.getLogger("TI Transformer");;
-    private static String[] blacklistMethods = {"getExplosionResistance"};
     public static boolean isObf;
-
     public static String block, world, iBlockAccess, getMaterial, chunk;
+    private static Logger log = LogManager.getLogger("TI Transformer");
+    private static String[] blacklistMethods = {"getExplosionResistance"};
 
     public ClassTransformer() {
         log.info("Class Transformer starting!");
@@ -116,9 +113,8 @@ public class ClassTransformer implements IClassTransformer {
                     if (worldPars == null)
                         continue;
 
-                    if (isBlockClass) {
+                    if (isBlockClass)
                         blockMethods.add(method.name);
-                    }
 
                     InsnList toInsert = new InsnList();
                     worldPars.loadPars(toInsert);
