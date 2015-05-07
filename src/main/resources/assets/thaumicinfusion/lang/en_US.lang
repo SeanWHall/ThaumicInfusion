@@ -79,3 +79,6 @@ ti.effect_info.VITREUS=Light can pass though this block
 ti.effect_info.VENENUM=Players that stand on top of this block will be poisoned
 ti.effect_info.PERFODIO=Blocks hardness and resistance are halved
 ti.effect_info.AER=Players that stand on top of this block will be given a jump boost
+
+#Mod Effects
+ti.effect_info.INFERNUS=Sets any entity that happens to touch this block on fire.

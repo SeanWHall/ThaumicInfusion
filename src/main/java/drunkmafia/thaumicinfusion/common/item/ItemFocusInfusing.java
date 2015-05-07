@@ -104,8 +104,10 @@ public class ItemFocusInfusing extends ItemFocusBasic {
                     wandNBT.setString("InfusionAspect", aspect.getTag());
             } else if (wandNBT.hasKey("InfusionAspect") && !world.isRemote) {
                 Aspect aspect = Aspect.getAspect(wandNBT.getString("InfusionAspect"));
-                if (aspect != null && Thaumcraft.proxy.playerKnowledge.hasDiscoveredAspect(player.getCommandSenderName(), aspect))
+                if (aspect != null && Thaumcraft.proxy.playerKnowledge.hasDiscoveredAspect(player.getCommandSenderName(), aspect)) {
                     placeAspect(player, new WorldCoord(mop.blockX, mop.blockY, mop.blockZ), aspect);
+                    world.playSoundEffect((double) mop.blockX + 0.5D, (double) mop.blockY + 0.5D, (double) mop.blockZ + 0.5D, "thaumcraft:zap", 0.25F, 1.0F);
+                }
             }
 
             itemstack.setTagCompound(wandNBT);
