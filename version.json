@@ -2,6 +2,18 @@
 	"versionList": [
 		{
 			"mcVersion":"Minecraft 1.7.*",
+			"modVersion":"4.001",
+			"changeLog": [
+				"Hot fix for the infusion recipe",
+				"Added sound to the foci",
+				"Fixed some localizations"
+			],
+			"updateURL":"http://www.curse.com/mc-mods/minecraft/220308-thaumic-infusion",
+			"isDirectLink":"false",
+			"newFileName":""
+		},
+		{
+			"mcVersion":"Minecraft 1.7.*",
 			"modVersion":"4",
 			"changeLog": [
 				"Brand new Block System",
