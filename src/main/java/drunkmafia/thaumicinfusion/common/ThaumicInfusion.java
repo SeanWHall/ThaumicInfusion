@@ -1,6 +1,5 @@
 package drunkmafia.thaumicinfusion.common;
 
-import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -12,7 +11,6 @@ import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.TIBlocks;
 import drunkmafia.thaumicinfusion.common.command.TICommand;
 import drunkmafia.thaumicinfusion.common.event.CommonEventContainer;
-import drunkmafia.thaumicinfusion.common.event.TickEventHandler;
 import drunkmafia.thaumicinfusion.common.intergration.ThaumcraftIntergration;
 import drunkmafia.thaumicinfusion.common.item.TIItems;
 import drunkmafia.thaumicinfusion.common.lib.ConfigHandler;
@@ -70,7 +68,6 @@ public class ThaumicInfusion {
     public void init(FMLInitializationEvent event) {
         ChannelHandler.init();
         MinecraftForge.EVENT_BUS.register(new CommonEventContainer());
-        FMLCommonHandler.instance().bus().register(new TickEventHandler());
         proxy.initRenderers();
     }
 
