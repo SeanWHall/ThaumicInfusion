@@ -12,8 +12,9 @@ import java.util.List;
  * See http://www.wtfpl.net/txt/copying for licence
  */
 public class ChunkData implements ISavable{
-    private List<BlockSavable>[][][] blockdata = new ArrayList[16][256][16];
+
     protected ChunkCoordIntPair chunkPos;
+    private List<BlockSavable>[][][] blockdata = new ArrayList[16][256][16];
 
     public ChunkData(){}
 

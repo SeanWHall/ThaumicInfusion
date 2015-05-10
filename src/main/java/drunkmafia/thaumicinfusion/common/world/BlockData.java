@@ -4,6 +4,7 @@ import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.util.IBlockHook;
+import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
@@ -15,6 +16,7 @@ public class BlockData extends BlockSavable implements IBlockHook {
 
     public World world;
     private String[] methods = new String[0];
+    private Map<String, OverrideBlock> methodsOverrides = new HashMap<String, OverrideBlock>();
     private Map<String, Integer> methodsToBlock = new HashMap<String, Integer>();
     private ArrayList<AspectEffect> dataEffects = new ArrayList<AspectEffect>();
 
@@ -24,6 +26,7 @@ public class BlockData extends BlockSavable implements IBlockHook {
         super(coords);
 
         for (AspectEffect effect : classesToEffects(list)) {
+            if (effect == null) continue;
             effect.data = this;
             dataEffects.add(effect);
         }
@@ -46,9 +49,10 @@ public class BlockData extends BlockSavable implements IBlockHook {
             effect.aspectInit(world, getCoords());
             effect.data = this;
 
-            List<String> effectMethods = AspectEffect.getMethods(effect.getClass());
-            for (String method : effectMethods) {
-                methodsToBlock.put(method, dataEffects.indexOf(effect));
+            List<AspectEffect.MethodInfo> effectMethods = AspectEffect.getMethods(effect.getClass());
+            for (AspectEffect.MethodInfo method : effectMethods) {
+                methodsOverrides.put(method.methodName, method.override);
+                methodsToBlock.put(method.methodName, dataEffects.indexOf(effect));
             }
         }
         Set key = methodsToBlock.keySet();
@@ -126,5 +130,10 @@ public class BlockData extends BlockSavable implements IBlockHook {
         if (index != null)
             return dataEffects.get(index);
         return null;
+    }
+
+    @Override
+    public boolean shouldOverride(String method) {
+        return methodsOverrides.get(method).overrideBlockFunc();
     }
 }
