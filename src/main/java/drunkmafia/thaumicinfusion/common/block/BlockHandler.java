@@ -28,8 +28,8 @@ public final class BlockHandler {
     public static ArrayList<String> materialInvokers = new ArrayList<String>();
     public static List<String> blacklistedBlocks = Arrays.asList(BlockAir.class.getName());
 
-    private static IBlockHook lastHook;
-    private static int lastX, lastY, lastZ;
+    private static IBlockHook lastHook, getHook;
+    private static int lastX, lastY, lastZ, getX, getY, getZ;
     private static String lastMethod;
 
     public static boolean hasWorldData(IBlockAccess access, int x, int y, int z, Block block) {
@@ -46,7 +46,10 @@ public final class BlockHandler {
         lastX = x;
         lastY = y;
         lastZ = z;
-        IBlockHook hook =  TIWorldData.getWorldData(world).getBlock(IBlockHook.class, new WorldCoord(x, y, z));
+
+        IBlockHook hook = getHook;
+        if (getX != x || getY != y || getZ != z)
+            hook = TIWorldData.getWorldData(world).getBlock(IBlockHook.class, new WorldCoord(x, y, z));
 
         if (hook == null)
             return false;
@@ -59,6 +62,7 @@ public final class BlockHandler {
                 BlockHandler.block = hook.getBlock(blockMethodName);
                 lastHook = hook;
                 lastMethod = methodName;
+
                 return true;
             }
         }
@@ -73,18 +77,22 @@ public final class BlockHandler {
         if(world.isRemote || blacklistedBlocks.contains(block.getClass().getName()))
             return block;
 
-        IBlockHook hook = TIWorldData.getWorldData(world).getBlock(IBlockHook.class, new WorldCoord(x, y, z));
-        if (hook == null)
+        getHook = TIWorldData.getWorldData(world).getBlock(IBlockHook.class, new WorldCoord(x, y, z));
+        if (getHook == null)
             return block;
+
+        getX = x;
+        getY = y;
+        getZ = z;
 
         String className = Thread.currentThread().getStackTrace()[3].getClassName();
         for (String invokerName : materialInvokers) {
             if (!className.equals(invokerName))
                 continue;
 
-            for (String hookName : hook.hookMethods(block)) {
+            for (String hookName : getHook.hookMethods(block)) {
                 if (hookName.equals(ClassTransformer.getMaterial)) {
-                    Block temp = getBlock = hook.getBlock(ClassTransformer.getMaterial);
+                    Block temp = getBlock = getHook.getBlock(ClassTransformer.getMaterial);
                     return temp != null ? temp : block;
                 }
             }
