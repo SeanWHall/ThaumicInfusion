@@ -28,6 +28,10 @@ public final class BlockHandler {
     public static ArrayList<String> materialInvokers = new ArrayList<String>();
     public static List<String> blacklistedBlocks = Arrays.asList(BlockAir.class.getName());
 
+    private static IBlockHook lastHook;
+    private static int lastX, lastY, lastZ;
+    private static String lastMethod;
+
     public static boolean hasWorldData(IBlockAccess access, int x, int y, int z, Block block) {
         return hasWorldData(TIWorldData.getWorld(access), x, y, z, block);
     }
@@ -39,6 +43,9 @@ public final class BlockHandler {
         if(world == null || block == Blocks.air)
             return false;
 
+        lastX = x;
+        lastY = y;
+        lastZ = z;
         IBlockHook hook =  TIWorldData.getWorldData(world).getBlock(IBlockHook.class, new WorldCoord(x, y, z));
 
         if (hook == null)
@@ -50,10 +57,14 @@ public final class BlockHandler {
         for (String blockMethodName : hook.hookMethods(block)) {
             if (methodName.equals(blockMethodName)) {
                 BlockHandler.block = hook.getBlock(blockMethodName);
+                lastHook = hook;
+                lastMethod = methodName;
                 return true;
             }
         }
 
+        lastHook = hook;
+        lastMethod = methodName;
         return false;
     }
 
@@ -79,5 +90,17 @@ public final class BlockHandler {
             }
         }
         return block;
+    }
+
+    public static boolean overrideBlockFunctionality(IBlockAccess access, int x, int y, int z) {
+        return overrideBlockFunctionality(TIWorldData.getWorld(access), x, y, z);
+    }
+
+    public static boolean overrideBlockFunctionality(World world, int x, int y, int z) {
+        IBlockHook hook = (lastHook == null || lastX == x || lastY == y || lastZ == z) ? TIWorldData.getWorldData(world).getBlock(IBlockHook.class, new WorldCoord(x, y, z)) : lastHook;
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        String methodName = lastMethod != null ? lastMethod : stackTrace[2].getMethodName().equals("overrideBlockFunctionality") ? stackTrace[3].getMethodName() : stackTrace[2].getMethodName();
+
+        return (!(hook != null && methodName != null)) || hook.shouldOverride(methodName);
     }
 }
