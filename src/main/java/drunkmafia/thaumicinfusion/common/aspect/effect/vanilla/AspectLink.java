@@ -1,17 +1,21 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
-import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
+import cpw.mods.fml.common.network.NetworkRegistry;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
+import drunkmafia.thaumicinfusion.net.ChannelHandler;
+import drunkmafia.thaumicinfusion.net.packet.server.BlockSyncPacketC;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import thaumcraft.common.items.wands.ItemWandCasting;
+import thaumcraft.common.lib.network.PacketHandler;
+import thaumcraft.common.lib.network.fx.PacketFXBlockSparkle;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,11 +53,15 @@ public class AspectLink extends AspectEffect {
             link.destination = pos;
             destination = savedDestination;
             positions.remove(wand.hashCode());
-            ThaumicInfusion.getLogger().info("Set destga");
+
+            world.playSoundEffect((double) x + 0.5D, (double) y + 0.5D, (double) z + 0.5D, "thaumcraft:zap", 0.25F, 1.0F);
+            PacketHandler.INSTANCE.sendToAllAround(new PacketFXBlockSparkle(x, y, z, 16556032), new NetworkRegistry.TargetPoint(player.worldObj.provider.dimensionId, (double) x, (double) y, (double) z, 32.0D));
+            ChannelHandler.network.sendToDimension(new BlockSyncPacketC(TIWorldData.getData(BlockData.class, world, pos)), world.provider.dimensionId);
             return;
         }
 
         positions.put(wand.hashCode(), pos);
+        world.playSoundEffect((double) x + 0.5D, (double) y + 0.5D, (double) z + 0.5D, "thaumcraft:zap", 0.25F, 1.0F);
     }
 
     public WorldCoord getDestination(){
