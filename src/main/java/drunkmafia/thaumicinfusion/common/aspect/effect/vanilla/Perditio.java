@@ -19,22 +19,22 @@ public class Perditio extends AspectEffect {
 
     Random rand = new Random();
 
-    @OverrideBlock
+    @OverrideBlock(overrideBlockFunc = false)
     public void onFallenUpon(World world, int x, int t, int z, Entity entity, float fall) {
         explode(world);
     }
 
-    @OverrideBlock
+    @OverrideBlock(overrideBlockFunc = false)
     public void onEntityWalking(World world, int x, int y, int z, Entity entity) {
         explode(world);
     }
 
-    @OverrideBlock
+    @OverrideBlock(overrideBlockFunc = false)
     public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) {
         explode(world);
     }
 
-    @OverrideBlock
+    @OverrideBlock(overrideBlockFunc = false)
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
         if(world.isRemote)
             return true;

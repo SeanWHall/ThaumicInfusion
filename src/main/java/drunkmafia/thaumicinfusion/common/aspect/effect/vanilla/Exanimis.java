@@ -2,12 +2,15 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
+import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by DrunkMafia on 25/07/2014.
@@ -20,7 +23,15 @@ public class Exanimis extends AspectEffect {
     private List<String> deadPlayers = new ArrayList<String>();
 
     @Override
-    public void updateBlock(World world) {
+    public void aspectInit(World world, WorldCoord pos) {
+        super.aspectInit(world, pos);
+        if (!world.isRemote)
+            updateTick(world, pos.x, pos.y, pos.z, world.rand);
+    }
+
+    @OverrideBlock(overrideBlockFunc = false)
+    public void updateTick(World world, int x, int y, int z, Random random) {
+        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
         if(world.isRemote)
             return;
 

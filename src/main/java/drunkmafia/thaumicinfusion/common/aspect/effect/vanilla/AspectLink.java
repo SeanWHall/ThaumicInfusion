@@ -1,5 +1,6 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
+import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
@@ -21,41 +22,38 @@ import java.util.Map;
  * See http://www.wtfpl.net/txt/copying for licence
  */
 public class AspectLink extends AspectEffect {
-    ;
 
     private static Map<Integer, WorldCoord> positions = new HashMap<Integer, WorldCoord>();
     public WorldCoord destination;
 
-    @OverrideBlock
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
+    @OverrideBlock(overrideBlockFunc = false)
+    public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player) {
         ItemStack wand = player.getCurrentEquippedItem();
-        if(world.isRemote || wand == null)
-            return wand != null && wand.getItem() instanceof ItemWandCasting;
+        if (world.isRemote || wand == null || !(wand.getItem() instanceof ItemWandCasting))
+            return;
 
-        if(player.isSneaking()){
-            BlockData data = TIWorldData.getData(BlockData.class, getDestinationWorld(), destination);
-            destination = null;
-            if(data != null && data.hasEffect(getClass()))
-                data.getEffect(getClass()).destination = null;
-            return true;
-        }
+        WorldCoord pos = getPos();
+        pos.dim = world.provider.dimensionId;
 
         WorldCoord savedDestination = positions.get(wand.hashCode());
         if (savedDestination != null) {
             positions.remove(wand.hashCode());
+            World desinationWorld = DimensionManager.getWorld(pos.dim);
 
-            BlockData data = TIWorldData.getData(BlockData.class, world, savedDestination);
-            if (data == null) return true;
+            BlockData data = TIWorldData.getData(BlockData.class, desinationWorld, savedDestination);
+            if (data == null) return;
+
             AspectLink link = data.getEffect(getClass());
-            if (link == null || link == this) return true;
-            link.destination = getPos();
+            if (link == null || link == this) return;
+
+            link.destination = pos;
             destination = savedDestination;
             positions.remove(wand.hashCode());
-            return true;
+            ThaumicInfusion.getLogger().info("Set destga");
+            return;
         }
 
-        positions.put(wand.hashCode(), getPos());
-        return true;
+        positions.put(wand.hashCode(), pos);
     }
 
     public WorldCoord getDestination(){
@@ -66,9 +64,7 @@ public class AspectLink extends AspectEffect {
         BlockData blockData = TIWorldData.getWorldData(world).getBlock(BlockData.class, destination);
         if(blockData == null) return destination = null;
 
-        AspectLink link = blockData.getEffect(getClass());
-        link.destination = getPos();
-        return destination;
+        return (blockData.getEffect(getClass()) != null ? destination : (destination = null));
     }
 
     World getDestinationWorld(){

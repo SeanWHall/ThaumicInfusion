@@ -1,9 +1,9 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
-import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -21,7 +21,7 @@ public class Alienis extends AspectEffect {
 
     private int size = 10;
 
-    @OverrideBlock
+    @OverrideBlock(overrideBlockFunc = false)
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float htiX, float hitY, float hitZ) {
         if(world.isRemote)
             return true;
@@ -29,19 +29,19 @@ public class Alienis extends AspectEffect {
         return true;
     }
 
-    @OverrideBlock
+    @OverrideBlock(overrideBlockFunc = false)
     public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) {
         if(!world.isRemote && entity instanceof EntityLivingBase)
             warpEntity(world, (EntityLivingBase)entity);
     }
 
-    @OverrideBlock
+    @OverrideBlock(overrideBlockFunc = false)
     public void onEntityWalking(World world, int x, int y, int z, Entity entity) {
         if(!world.isRemote && entity instanceof EntityLivingBase)
             warpEntity(world, (EntityLivingBase)entity);
     }
 
-    @OverrideBlock
+    @OverrideBlock(overrideBlockFunc = false)
     public void onFallenUpon(World world, int x, int y, int z, Entity entity, float dist) {
         if(!world.isRemote && entity instanceof EntityLivingBase)
             warpEntity(world, (EntityLivingBase)entity);

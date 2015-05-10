@@ -1,7 +1,5 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
@@ -14,6 +12,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by DrunkMafia on 12/11/2014.
@@ -25,9 +24,17 @@ public class Volatus extends AspectEffect {
     int defSize = 10;
     boolean isFlying;
 
-    @OverrideBlock
-    @SideOnly(Side.CLIENT)
-    public void updateBlock(World world) {
+    @Override
+    public void aspectInit(World world, WorldCoord pos) {
+        super.aspectInit(world, pos);
+        if (!world.isRemote)
+            updateTick(world, pos.x, pos.y, pos.z, world.rand);
+    }
+
+    @OverrideBlock(overrideBlockFunc = false)
+    public void updateTick(World world, int x, int y, int z, Random random) {
+        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+
         WorldCoord pos = getPos();
 
         if(!world.isRemote && !world.isAirBlock(pos.x, pos.y + 1, pos.z))

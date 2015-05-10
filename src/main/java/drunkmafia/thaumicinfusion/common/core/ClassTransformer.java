@@ -133,6 +133,7 @@ public class ClassTransformer implements IClassTransformer {
                         }
                     }
 
+                    int returnType = Type.getReturnType(method.desc).getOpcode(IRETURN);
                     InsnList toInsert = new InsnList();
                     worldPars.loadPars(toInsert);
                     toInsert.add(new VarInsnNode(ALOAD, 0));
@@ -142,13 +143,33 @@ public class ClassTransformer implements IClassTransformer {
                     toInsert.add(new JumpInsnNode(IFEQ, l1));
                     toInsert.add(new LabelNode());
 
+                    worldPars.loadPars(toInsert);
+                    toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockHandler", "overrideBlockFunctionality", "(L" + (worldPars.isBlockAccess ? iBlockAccess : world) + ";III)Z", false));
+
+                    LabelNode l2 = new LabelNode();
+                    toInsert.add(new JumpInsnNode(IFEQ, l2));
+                    toInsert.add(new LabelNode());
+
                     toInsert.add(new FieldInsnNode(GETSTATIC, "drunkmafia/thaumicinfusion/common/block/BlockHandler", "block", "L" + block +";"));
 
                     for (int i = 0; i < pars.length; i++)
                         toInsert.add(new VarInsnNode(pars[i].getOpcode(ILOAD), i + 1));
 
                     toInsert.add(new MethodInsnNode(INVOKEVIRTUAL, block, method.name, method.desc, false));
-                    toInsert.add(new InsnNode(Type.getReturnType(method.desc).getOpcode(IRETURN)));
+
+                    toInsert.add(new InsnNode(returnType));
+
+                    toInsert.add(l2);
+
+                    toInsert.add(new FieldInsnNode(GETSTATIC, "drunkmafia/thaumicinfusion/common/block/BlockHandler", "block", "L" + block + ";"));
+
+                    for (int i = 0; i < pars.length; i++)
+                        toInsert.add(new VarInsnNode(pars[i].getOpcode(ILOAD), i + 1));
+
+                    toInsert.add(new MethodInsnNode(INVOKEVIRTUAL, block, method.name, method.desc, false));
+                    if (returnType != RETURN)
+                        toInsert.add(new InsnNode(POP));
+
                     toInsert.add(l1);
 
                     method.instructions.insert(toInsert);

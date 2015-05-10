@@ -15,17 +15,17 @@ import net.minecraft.world.World;
 @Effect(aspect = ("infernus"), cost = 4)
 public class Infernus extends AspectEffect {
 
-    @OverrideBlock
+    @OverrideBlock(overrideBlockFunc = false)
     public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity ent) {
         setOnFire(ent);
     }
 
-    @OverrideBlock
+    @OverrideBlock(overrideBlockFunc = false)
     public void onFallenUpon(World world, int x, int y, int z, Entity ent, float fall) {
         setOnFire(ent);
     }
 
-    @OverrideBlock
+    @OverrideBlock(overrideBlockFunc = false)
     public void onEntityWalking(World world, int x, int y, int z, Entity ent) {
         setOnFire(ent);
     }

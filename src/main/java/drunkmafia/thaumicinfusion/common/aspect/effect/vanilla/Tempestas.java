@@ -1,9 +1,9 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
-import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.world.World;
 
@@ -16,7 +16,7 @@ import java.util.Random;
 @Effect(aspect = ("tempestas"), cost = 1)
 public class Tempestas extends AspectEffect {
 
-    @OverrideBlock
+    @OverrideBlock(overrideBlockFunc = false)
     public void aspectInit(World world, WorldCoord pos) {
         super.aspectInit(world, pos);
         if(!world.isRemote)

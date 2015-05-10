@@ -30,8 +30,8 @@ public class Fabrico extends AspectEffect {
         return aspect != null ? aspect.getColor() : access.getBlock(x, y, z).getBlockColor();
     }
 
-    @OverrideBlock
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
+    @OverrideBlock(overrideBlockFunc = false)
+    public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player) {
         ItemStack phial = player.getCurrentEquippedItem();
         if(world.isRemote) {
             if(phial != null && phial.getItem() instanceof IEssentiaContainerItem){
@@ -42,20 +42,17 @@ public class Fabrico extends AspectEffect {
                     RGB rgb = new RGB(((IEssentiaContainerItem) phial.getItem()).getAspects(phial).getAspects()[0].getColor());
 
                     for (int i = 0; i < 5; i++)
-                        Thaumcraft.proxy.crucibleBubble(world, x + hitX, y + hitY, z + hitZ, rgb.getR(), rgb.getG(), rgb.getB());
-                    return true;
+                        Thaumcraft.proxy.crucibleBubble(world, x, y, z, rgb.getR(), rgb.getG(), rgb.getB());
                 }
             }
-            return false;
+            return;
         }
 
         if(phial != null && phial.getItem() instanceof IEssentiaContainerItem){
             AspectList aspects = ((IEssentiaContainerItem)phial.getItem()).getAspects(phial);
             aspect = aspects != null ? aspects.getAspects()[0] : null;
             ChannelHandler.network.sendToAll(new EffectSyncPacketC(this));
-            return true;
         }
-        return false;
     }
 
     @Override

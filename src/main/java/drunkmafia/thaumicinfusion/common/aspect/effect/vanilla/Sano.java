@@ -1,8 +1,9 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
-import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
+import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.FoodStats;
@@ -24,7 +25,7 @@ public class Sano extends AspectEffect {
             updateTick(world, pos.x, pos.y, pos.z, new Random());
     }
 
-    @Override
+    @OverrideBlock(overrideBlockFunc = false)
     public void updateTick(World world, int x, int y, int z, Random random) {
         List<EntityPlayer> players = world.getEntitiesWithinAABB(EntityPlayer.class, AxisAlignedBB.getBoundingBox(x, y, z, x + 1, y + 1, z + 1).expand(15.0D, 15.0D, 15.0D));
         for(EntityPlayer player : players) {

@@ -1,9 +1,9 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
-import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.server.EffectSyncPacketC;
 import net.minecraft.entity.Entity;
@@ -17,6 +17,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by DrunkMafia on 25/07/2014.
@@ -29,7 +30,15 @@ public class Motus extends AspectEffect {
     ForgeDirection direction = ForgeDirection.UNKNOWN;
 
     @Override
-    public void updateBlock(World world) {
+    public void aspectInit(World world, WorldCoord pos) {
+        super.aspectInit(world, pos);
+        if (!world.isRemote)
+            updateTick(world, pos.x, pos.y, pos.z, world.rand);
+    }
+
+    @OverrideBlock(overrideBlockFunc = false)
+    public void updateTick(World world, int x, int y, int z, Random random) {
+        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
         WorldCoord coord = getPos();
         AxisAlignedBB axisalignedbb = AxisAlignedBB.getBoundingBox(coord.x, coord.y, coord.z, coord.x + 1, coord.y + 1.05F, coord.z + 1);
         List list =  world.getEntitiesWithinAABB(Entity.class, axisalignedbb);

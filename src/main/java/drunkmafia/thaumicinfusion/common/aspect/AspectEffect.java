@@ -27,7 +27,7 @@ import java.util.List;
 @Effect(aspect = "default", cost = 0)
 public class AspectEffect extends Block implements ISavable {
 
-    private static HashMap<Class, ArrayList<String>> phasedMethods = new HashMap<Class, ArrayList<String>>();
+    private static HashMap<Class, ArrayList<MethodInfo>> phasedMethods = new HashMap<Class, ArrayList<MethodInfo>>();
 
     public BlockData data;
     protected WorldCoord pos;
@@ -51,11 +51,13 @@ public class AspectEffect extends Block implements ISavable {
         AspectHandler.registerEffect(Iter.class);
         AspectHandler.registerEffect(Lucrum.class);
         AspectHandler.registerEffect(Lux.class);
+        AspectHandler.registerEffect(Machina.class);
         AspectHandler.registerEffect(Messis.class);
         AspectHandler.registerEffect(Mortuus.class);
         AspectHandler.registerEffect(Motus.class);
         AspectHandler.registerEffect(Pannus.class);
         AspectHandler.registerEffect(Perditio.class);
+        AspectHandler.registerEffect(Potentia.class);
         AspectHandler.registerEffect(Permutatio.class);
         AspectHandler.registerEffect(Praecantatio.class);
         AspectHandler.registerEffect(Sano.class);
@@ -73,20 +75,20 @@ public class AspectEffect extends Block implements ISavable {
         EntityRegistry.registerModEntity(InfusedBlockFalling.class, "InfusedBlockFalling", 0, ThaumicInfusion.instance, 80, 3, true);
     }
 
-    public static List<String> getMethods(Class<? extends AspectEffect> clazz) {
-        List<String> methods = phasedMethods.get(clazz);
+    public static List<MethodInfo> getMethods(Class<? extends AspectEffect> clazz) {
+        List<MethodInfo> methods = phasedMethods.get(clazz);
         return methods != null ? methods : phaseForMethods(clazz);
     }
 
-    private static List<String> phaseForMethods(Class<? extends AspectEffect> c) {
+    private static List<MethodInfo> phaseForMethods(Class<? extends AspectEffect> c) {
         Method[] effectMethods = c.getMethods();
-        ArrayList<String> meths = new ArrayList<String>();
+        ArrayList<MethodInfo> meths = new ArrayList<MethodInfo>();
         for (Method meth : effectMethods) {
             if (meth.getDeclaringClass() == Block.class)
                 continue;
             OverrideBlock block = meth.getAnnotation(OverrideBlock.class);
             if (block != null)
-                meths.add(meth.getName());
+                meths.add(new MethodInfo(meth.getName(), block));
         }
 
         phasedMethods.put(c, meths);
@@ -115,8 +117,6 @@ public class AspectEffect extends Block implements ISavable {
 
     public void worldBlockInteracted(EntityPlayer player, World world, int x, int y, int z, int face) {}
 
-    public void updateBlock(World world){}
-
     public boolean hasMethod(String methName){
         return getMethods(getClass()).contains(methName);
     }
@@ -129,5 +129,16 @@ public class AspectEffect extends Block implements ISavable {
     public void readNBT(NBTTagCompound tagCompound) {
         pos = new WorldCoord();
         pos.readNBT(tagCompound);
+    }
+
+    public static class MethodInfo {
+
+        public String methodName;
+        public OverrideBlock override;
+
+        public MethodInfo(String methodName, OverrideBlock override) {
+            this.methodName = methodName;
+            this.override = override;
+        }
     }
 }

@@ -1,12 +1,15 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+
+import java.util.Random;
 
 /**
  * Created by DrunkMafia on 08/10/2014.
@@ -18,7 +21,15 @@ public class Permutatio extends AspectLink {
     private boolean lastRedstoneSignal;
 
     @Override
-    public void updateBlock(World world) {
+    public void aspectInit(World world, WorldCoord pos) {
+        super.aspectInit(world, pos);
+        if (!world.isRemote)
+            updateTick(world, pos.x, pos.y, pos.z, world.rand);
+    }
+
+    @OverrideBlock(overrideBlockFunc = false)
+    public void updateTick(World world, int x, int y, int z, Random random) {
+        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
         if (world.isRemote) return;
 
         WorldCoord pos = getPos();
