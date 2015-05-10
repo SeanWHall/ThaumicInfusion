@@ -9,11 +9,7 @@ import net.minecraft.block.Block;
  */
 public interface IBlockHook {
     String[] hookMethods(Block block);
-
     Block getBlock(String method);
 
-    /**
-     * TODO - Add the ability to chose if the effect should stop the orginal block code from running
-     * boolean shouldReturn(String method);
-     */
+    boolean shouldOverride(String method);
 }
