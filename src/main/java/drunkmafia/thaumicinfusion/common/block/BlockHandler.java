@@ -1,19 +1,12 @@
 package drunkmafia.thaumicinfusion.common.block;
 
-import drunkmafia.thaumicinfusion.common.core.ClassTransformer;
 import drunkmafia.thaumicinfusion.common.util.IBlockHook;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockAir;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.Chunk;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by DrunkMafia on 04/07/2014.
@@ -24,12 +17,10 @@ public final class BlockHandler {
     /**
      * Accessed by block methods to invoke code dynamically
      */
-    public static Block block, getBlock;
-    public static ArrayList<String> materialInvokers = new ArrayList<String>();
-    public static List<String> blacklistedBlocks = Arrays.asList(BlockAir.class.getName());
+    public static Block block;
 
-    private static IBlockHook lastHook, getHook;
-    private static int lastX, lastY, lastZ, getX, getY, getZ;
+    private static IBlockHook lastHook;
+    private static int lastX, lastY, lastZ;
     private static String lastMethod;
 
     public static boolean hasWorldData(IBlockAccess access, int x, int y, int z, Block block) {
@@ -42,14 +33,7 @@ public final class BlockHandler {
     public static boolean hasWorldData(World world, int x, int y, int z, Block block) {
         if(world == null || block == Blocks.air)
             return false;
-
-        lastX = x;
-        lastY = y;
-        lastZ = z;
-
-        IBlockHook hook = getHook;
-        if (getX != x || getY != y || getZ != z)
-            hook = TIWorldData.getWorldData(world).getBlock(IBlockHook.class, new WorldCoord(x, y, z));
+        IBlockHook hook = (x != lastX || y != lastY || z != lastZ) ? TIWorldData.getWorldData(world).getBlock(IBlockHook.class, new WorldCoord(x, y, z)) : lastHook;
 
         if (hook == null)
             return false;
@@ -62,42 +46,13 @@ public final class BlockHandler {
                 BlockHandler.block = hook.getBlock(blockMethodName);
                 lastHook = hook;
                 lastMethod = methodName;
-
+                lastX = x;
+                lastY = y;
+                lastZ = z;
                 return true;
             }
         }
-
-        lastHook = hook;
-        lastMethod = methodName;
         return false;
-    }
-
-    public static Block getBlock(World world, int x, int y, int z, Chunk chunk){
-        Block block = chunk.getBlock(x & 15, y, z & 15);
-        if(world.isRemote || blacklistedBlocks.contains(block.getClass().getName()))
-            return block;
-
-        getHook = TIWorldData.getWorldData(world).getBlock(IBlockHook.class, new WorldCoord(x, y, z));
-        if (getHook == null)
-            return block;
-
-        getX = x;
-        getY = y;
-        getZ = z;
-
-        String className = Thread.currentThread().getStackTrace()[3].getClassName();
-        for (String invokerName : materialInvokers) {
-            if (!className.equals(invokerName))
-                continue;
-
-            for (String hookName : getHook.hookMethods(block)) {
-                if (hookName.equals(ClassTransformer.getMaterial)) {
-                    Block temp = getBlock = getHook.getBlock(ClassTransformer.getMaterial);
-                    return temp != null ? temp : block;
-                }
-            }
-        }
-        return block;
     }
 
     public static boolean overrideBlockFunctionality(IBlockAccess access, int x, int y, int z) {
