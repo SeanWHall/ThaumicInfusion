@@ -5,10 +5,14 @@ import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.pathfinding.PathEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
+import net.minecraftforge.common.config.Configuration;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -18,6 +22,17 @@ import java.util.Random;
  */
 @Effect(aspect = "lucrum", cost = 4)
 public class Lucrum extends AspectEffect {
+
+    private int range = 10, tickTime = 4;
+    private Map<EntityItem, PathEntity> paths = new HashMap<EntityItem, PathEntity>();
+
+    @Override
+    public void readConfig(Configuration config) {
+        super.readConfig(config);
+        range = config.getInt("The range that lucrum can find items to pull", "Lucrum", range, 1, 40, "");
+        tickTime = config.getInt("Tick Time", "Lucrum", tickTime, 1, 20, "Delay before the effect ticks again");
+    }
+
 
     @Override
     public void aspectInit(World world, WorldCoord pos) {

@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
+import net.minecraftforge.common.config.Configuration;
 
 import java.util.List;
 import java.util.Random;
@@ -21,8 +22,15 @@ import java.util.Random;
 @Effect(aspect = "volatus", cost = 4)
 public class Volatus extends AspectEffect {
 
-    int defSize = 10;
+    int defSize = 10, tickTime = 1;
     boolean isFlying;
+
+    @Override
+    public void readConfig(Configuration config) {
+        super.readConfig(config);
+        defSize = config.getInt("Default Flying Range", "Volatus", defSize, 1, 100, "");
+        tickTime = config.getInt("Tick Time", "Volatus", tickTime, 1, 20, "Delay before the effect ticks again");
+    }
 
     @Override
     public void aspectInit(World world, WorldCoord pos) {

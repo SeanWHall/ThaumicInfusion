@@ -9,6 +9,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.World;
+import net.minecraftforge.common.config.Configuration;
 
 import java.util.ArrayList;
 
@@ -20,6 +21,13 @@ import java.util.ArrayList;
 public class Alienis extends AspectEffect {
 
     private int size = 10;
+
+    @Override
+    public void readConfig(Configuration config) {
+        super.readConfig(config);
+        size = config.getInt("Size of random tp", "Alienis", size, 1, 50, "");
+    }
+
 
     @OverrideBlock(overrideBlockFunc = false)
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float htiX, float hitY, float hitZ) {

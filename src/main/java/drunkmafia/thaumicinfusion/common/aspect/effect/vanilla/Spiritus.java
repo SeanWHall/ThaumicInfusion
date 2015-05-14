@@ -19,6 +19,11 @@ public class Spiritus extends AspectEffect {
         return AxisAlignedBB.getBoundingBox(0, 0, 0, 0, 0, 0);
     }
 
+    @Override
+    public boolean isNormalCube(IBlockAccess world, int x, int y, int z) {
+        return true;
+    }
+
     @OverrideBlock
     public boolean isBlockSolid(IBlockAccess access, int x, int y, int z, int meta) {
         return false;
