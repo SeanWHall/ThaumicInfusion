@@ -14,11 +14,14 @@ public class ReflectionHelper {
     public static Map<Class<?>, Map<Class<?>, Field>> fieldCache = new IdentityHashMap<Class<?>, Map<Class<?>, Field>>();
 
     public static Field getField(Class type, Class clazz){
+        Map fields = fieldCache.get(clazz);
+        if (fields != null && fields.containsKey(type))
+            return (Field) fields.get(type);
+
         try{
             for(Field field : clazz.getFields()){
                 if(type.isAssignableFrom(field.getType())){
                     field.setAccessible(true);
-                    Map fields = fieldCache.get(clazz);
 
                     if(fields == null)
                         fields = new IdentityHashMap<Class<?>, Field>();

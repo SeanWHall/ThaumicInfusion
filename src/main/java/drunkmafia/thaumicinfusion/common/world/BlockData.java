@@ -134,6 +134,6 @@ public class BlockData extends BlockSavable implements IBlockHook {
 
     @Override
     public boolean shouldOverride(String method) {
-        return methodsOverrides.get(method).overrideBlockFunc();
+        return methodsOverrides.get(method) != null && methodsOverrides.get(method).overrideBlockFunc();
     }
 }

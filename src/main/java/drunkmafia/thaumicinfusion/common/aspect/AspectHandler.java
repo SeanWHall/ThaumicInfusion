@@ -4,13 +4,8 @@ import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.LoaderState;
 import cpw.mods.fml.common.registry.GameRegistry;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
-import drunkmafia.thaumicinfusion.common.block.BlockHandler;
-import drunkmafia.thaumicinfusion.common.lib.ConfigHandler;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import net.minecraft.block.Block;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.config.Configuration;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
@@ -45,13 +40,15 @@ public final class AspectHandler {
                 }
 
                 boolean isDef = annotation.aspect().equals("default");
-
+                Configuration config = ThaumicInfusion.instance.config;
+                config.load();
+                effectInstace.readConfig(config);
                 if(effectInstace.shouldRegister()) {
                     GameRegistry.registerBlock(effectInstace, "reg_InfusedBlock" + annotation.aspect());
-
                     if (!isDef)
                         effectsToRegister.add(effect);
                 }
+                config.save();
             }catch (Throwable e){
                 ThaumicInfusion.getLogger().error("Aspect: " + effect.getSimpleName() + " has caused an exception!", e);
             }
@@ -65,15 +62,11 @@ public final class AspectHandler {
             return;
         }
 
-        Configuration config = ConfigHandler.config;
-        config.load();
-        config.addCustomCategoryComment("Aspects", "The enabling and disabling of effects - NOTE: These MUST be the same as the server config or MAJOR de-syncs will be caused.");
-
         for(Class<? extends AspectEffect> effect : effectsToRegister){
             Effect annotation = effect.getAnnotation(Effect.class);
             Aspect aspect = Aspect.getAspect(annotation.aspect().toLowerCase());
             if(aspect != null) {
-                if (!registeredEffects.containsKey(aspect) && !registeredEffects.containsValue(effect) && config.get("Aspects", aspect.getName(), true).getBoolean())
+                if (!registeredEffects.containsKey(aspect))
                     registeredEffects.put(aspect, effect);
             }else
                 logger.log(Level.ERROR, "Aspect: " + annotation.aspect() + " does not exist in the instance");
@@ -83,7 +76,6 @@ public final class AspectHandler {
             opposites.put(aspect, calculateEffectOpposites(aspect));
 
 
-        config.save();
         logger.info(registeredEffects.size() + " effects have been binded to their aspect, Failed to find: " + (effectsToRegister.size() - registeredEffects.size()) + " effects aspects.");
         effectsToRegister = null;
     }

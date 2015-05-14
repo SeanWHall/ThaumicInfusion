@@ -1,7 +1,6 @@
 package drunkmafia.thaumicinfusion.common.core;
 
 import cpw.mods.fml.relauncher.CoreModManager;
-import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -66,10 +65,6 @@ public class ClassTransformer implements IClassTransformer {
             return null;
 
         bytecode = injectBlockCode(bytecode, transformedName);
-        searchForBlockCode(bytecode, transformedName);
-
-        if(transformedName.equals("net.minecraft.world.World"))
-            bytecode = injectWorldCode(bytecode);
 
         return bytecode;
     }
@@ -188,84 +183,6 @@ public class ClassTransformer implements IClassTransformer {
 
         ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
         classNode.accept(classWriter);
-        return classWriter.toByteArray();
-    }
-
-    public void searchForBlockCode(byte[] bytecode, String className) {
-        ClassNode classNode = new ClassNode();
-        ClassReader classReader = new ClassReader(bytecode);
-        classReader.accept(classNode, 0);
-
-        if (classNode.name.equals("drunkmafia/thaumicinfusion/common/block/BlockHandler") || !classNode.superName.equals(block))
-            return;
-
-        try {
-            logger.write("*** " + className + " ***\n");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        String MATERIAL = isObf ? "o" : "getMaterial";
-
-        for(MethodNode method : classNode.methods){
-            for(AbstractInsnNode node : method.instructions.toArray()){
-                if(node instanceof MethodInsnNode){
-                    MethodInsnNode methodNode = (MethodInsnNode) node;
-                    if (methodNode.name.equals(MATERIAL)) {
-                        BlockHandler.materialInvokers.add(className);
-                        try {
-                            logger.write("Found " + MATERIAL + " in: " + method.name + "\n");
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        return;
-                    }
-                }
-            }
-        }
-    }
-
-    public byte[] injectWorldCode(byte[] bytecode){
-        log.info("Attempting to inject code into the world class");
-
-        ClassNode classNode = new ClassNode();
-        ClassReader classReader = new ClassReader(bytecode);
-        classReader.accept(classNode, 0);
-
-        final String GET_BLOCK = isObf ? "a" : "getBlock";
-        final String GET_BLOCK_DESC = "(III)L" + block + ";";
-
-        for(MethodNode method : classNode.methods){
-            if(method.name.equals(GET_BLOCK) && method.desc.equals(GET_BLOCK_DESC)){
-                for(AbstractInsnNode node : method.instructions.toArray()){
-                    if(node instanceof MethodInsnNode) {
-                        MethodInsnNode methodNode = (MethodInsnNode) node;
-                        if (methodNode.name.equals(GET_BLOCK) && methodNode.desc.equals(GET_BLOCK_DESC)) {
-                            InsnList toInsert = new InsnList();
-
-                            toInsert.add(new VarInsnNode(ALOAD, 0));
-                            toInsert.add(new VarInsnNode(ILOAD, 1));
-                            toInsert.add(new VarInsnNode(ILOAD, 2));
-                            toInsert.add(new VarInsnNode(ILOAD, 3));
-                            toInsert.add(new VarInsnNode(ALOAD, 4));
-
-                            toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockHandler", "getBlock", "(L" + world + ";IIIL" + chunk + ";)L" + block + ";", false));
-                            toInsert.add(new InsnNode(ARETURN));
-
-                            method.instructions.insert(methodNode, toInsert);
-                            method.instructions.remove(methodNode);
-
-                            log.info("Successfully injected code into the world class");
-                        }
-                    }
-                }
-            }
-        }
-
-        ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
-        classNode.accept(classWriter);
-
-
         return classWriter.toByteArray();
     }
 

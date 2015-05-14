@@ -3,6 +3,7 @@ package drunkmafia.thaumicinfusion.common.aspect;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.effect.vanilla.*;
+import drunkmafia.thaumicinfusion.common.aspect.entity.GreedEntityItem;
 import drunkmafia.thaumicinfusion.common.aspect.entity.InfusedBlockFalling;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
@@ -11,9 +12,11 @@ import drunkmafia.thaumicinfusion.common.world.ISavable;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
+import net.minecraftforge.common.config.Configuration;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -28,9 +31,9 @@ import java.util.List;
 public class AspectEffect extends Block implements ISavable {
 
     private static HashMap<Class, ArrayList<MethodInfo>> phasedMethods = new HashMap<Class, ArrayList<MethodInfo>>();
-
     public BlockData data;
     protected WorldCoord pos;
+    private boolean shouldRegister;
 
     public AspectEffect() {
         super(Material.air);
@@ -40,12 +43,12 @@ public class AspectEffect extends Block implements ISavable {
     public static void init(){
         AspectHandler.registerEffect(Aer.class);
         AspectHandler.registerEffect(Alienis.class);
-        AspectHandler.registerEffect(Aqua.class);
         AspectHandler.registerEffect(Bestia.class);
         AspectHandler.registerEffect(Cognitio.class);
         AspectHandler.registerEffect(Exanimis.class);
         AspectHandler.registerEffect(Fabrico.class);
         AspectHandler.registerEffect(Fames.class);
+        AspectHandler.registerEffect(Humanus.class);
         AspectHandler.registerEffect(Ignis.class);
         AspectHandler.registerEffect(Infernus.class);
         AspectHandler.registerEffect(Iter.class);
@@ -73,6 +76,7 @@ public class AspectEffect extends Block implements ISavable {
         AspectHandler.registerEffect(Volatus.class);
 
         EntityRegistry.registerModEntity(InfusedBlockFalling.class, "InfusedBlockFalling", 0, ThaumicInfusion.instance, 80, 3, true);
+        EntityRegistry.registerModEntity(GreedEntityItem.class, "GreedEntityItem", 1, ThaumicInfusion.instance, 80, 3, true);
     }
 
     public static List<MethodInfo> getMethods(Class<? extends AspectEffect> clazz) {
@@ -95,6 +99,10 @@ public class AspectEffect extends Block implements ISavable {
         return meths;
     }
 
+    public void readConfig(Configuration config) {
+        shouldRegister = config.getBoolean(getClass().getSimpleName(), "Effects", true, "");
+    }
+
     public void aspectInit(World world, WorldCoord pos){
         this.pos = pos;
     }
@@ -113,6 +121,10 @@ public class AspectEffect extends Block implements ISavable {
 
     public boolean shouldRegister(){
         return true;
+    }
+
+    public void interactWithEntity(EntityPlayer player, Entity Target) {
+
     }
 
     public void worldBlockInteracted(EntityPlayer player, World world, int x, int y, int z, int face) {}

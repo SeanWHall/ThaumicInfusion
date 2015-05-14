@@ -21,10 +21,9 @@ import net.minecraft.world.World;
  */
 public class EffectSyncPacketC  implements IMessage {
 
-    public EffectSyncPacketC() {}
-
     private AspectEffect effect;
     private NBTTagCompound tagCompound;
+    public EffectSyncPacketC() {}
 
     public EffectSyncPacketC(AspectEffect effect) {
         this.effect = effect;

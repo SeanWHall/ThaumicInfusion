@@ -5,6 +5,7 @@ import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.*;
+import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
@@ -13,7 +14,6 @@ import drunkmafia.thaumicinfusion.common.command.TICommand;
 import drunkmafia.thaumicinfusion.common.event.CommonEventContainer;
 import drunkmafia.thaumicinfusion.common.intergration.ThaumcraftIntergration;
 import drunkmafia.thaumicinfusion.common.item.TIItems;
-import drunkmafia.thaumicinfusion.common.lib.ConfigHandler;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import net.minecraft.command.ServerCommandManager;
@@ -21,6 +21,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.config.Configuration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -36,7 +37,7 @@ public class ThaumicInfusion {
     public static CommonProxy proxy;
 
     public Side side = Side.CLIENT;
-
+    public Configuration config;
     public CreativeTabs tab = new CreativeTabs(ModInfo.CREATIVETAB_UNLOCAL) {
         @Override
         public Item getTabIconItem() {
@@ -55,7 +56,7 @@ public class ThaumicInfusion {
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         side = event.getSide();
-        ConfigHandler.init(event.getSuggestedConfigurationFile());
+        config = new Configuration(event.getSuggestedConfigurationFile());
 
         TIItems.init();
         TIBlocks.initBlocks();
@@ -75,6 +76,7 @@ public class ThaumicInfusion {
     public void postInit(FMLPostInitializationEvent event){
         AspectHandler.postInit();
         ThaumcraftIntergration.init();
+        NetworkRegistry.INSTANCE.registerGuiHandler(instance, proxy);
     }
 
     @EventHandler

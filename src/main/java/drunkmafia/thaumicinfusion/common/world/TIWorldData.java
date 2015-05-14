@@ -3,7 +3,6 @@ package drunkmafia.thaumicinfusion.common.world;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.util.helper.ReflectionHelper;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
-import drunkmafia.thaumicinfusion.net.packet.CooldownPacket;
 import drunkmafia.thaumicinfusion.net.packet.server.BlockSyncPacketC;
 import drunkmafia.thaumicinfusion.net.packet.server.DataRemovePacketC;
 import net.minecraft.nbt.NBTTagCompound;
@@ -35,7 +34,7 @@ public class TIWorldData extends WorldSavedData {
     }
 
     public static TIWorldData getWorldData(World world) {
-        if (world == null)
+        if (world == null || world.getWorldInfo() == null || world.provider == null)
             return null;
         String worldName = world.getWorldInfo().getWorldName() + "_" + world.provider.dimensionId + "_TIWorldData";
         WorldSavedData worldData = world.perWorldStorage.loadData(TIWorldData.class, worldName);
@@ -59,8 +58,7 @@ public class TIWorldData extends WorldSavedData {
     }
 
     public static World getWorld(IBlockAccess blockAccess) {
-        World world = ThaumicInfusion.instance.side.isServer() ? blockAccess instanceof World ? (World) blockAccess : ReflectionHelper.getObjFromField(World.class, blockAccess) : ChannelHandler.getClientWorld();
-        return world;
+        return ThaumicInfusion.instance.side.isServer() ? blockAccess instanceof World ? (World) blockAccess : ReflectionHelper.getObjFromField(World.class, blockAccess) : ChannelHandler.getClientWorld();
     }
 
     public void addBlock(BlockSavable block, boolean init, boolean packet){
@@ -86,7 +84,6 @@ public class TIWorldData extends WorldSavedData {
             chunkData.addBlock(block, block.coordinates.x, block.coordinates.y, block.coordinates.z);
 
             setDirty(true);
-            CooldownPacket.syncTimeouts.remove(block.getCoords());
             if (!world.isRemote && packet)
                 ChannelHandler.network.sendToAll(new BlockSyncPacketC(block));
         }catch (Exception e){

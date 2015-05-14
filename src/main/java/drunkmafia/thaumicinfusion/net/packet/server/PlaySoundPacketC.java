@@ -3,10 +3,8 @@ package drunkmafia.thaumicinfusion.net.packet.server;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
-import net.minecraft.init.Blocks;
 
 /**
  * Created by DrunkMafia on 25/07/2014.
@@ -15,11 +13,12 @@ import net.minecraft.init.Blocks;
  */
 public class PlaySoundPacketC implements IMessage {
 
-    public PlaySoundPacketC(){}
-
     double x, y, z;
     String sound;
     float vol, pitch;
+
+    public PlaySoundPacketC() {
+    }
 
     public PlaySoundPacketC(double x, double y, double z, String sound, float vol, float pitch){
         this.x = x;

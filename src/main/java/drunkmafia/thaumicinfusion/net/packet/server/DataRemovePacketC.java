@@ -7,7 +7,6 @@ import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.Minecraft;
 import net.minecraft.world.World;
 
 /**
@@ -15,10 +14,11 @@ import net.minecraft.world.World;
  */
 public class DataRemovePacketC implements IMessage {
 
-    public DataRemovePacketC() {}
-
     private Class clazz;
     private WorldCoord coordinates;
+
+    public DataRemovePacketC() {
+    }
 
     public DataRemovePacketC(Class clazz, WorldCoord coordinates) {
         this.clazz = clazz;

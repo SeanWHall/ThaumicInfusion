@@ -10,6 +10,7 @@ import drunkmafia.thaumicinfusion.net.packet.server.BlockSyncPacketC;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.WorldEvent;
 
@@ -18,6 +19,18 @@ import net.minecraftforge.event.world.WorldEvent;
  * See http://www.wtfpl.net/txt/copying for licence
  */
 public class CommonEventContainer {
+
+    @SubscribeEvent
+    public void onEntityInteract(EntityInteractEvent event) {
+        BlockSavable[] datas = TIWorldData.getWorldData(event.entityPlayer.worldObj).getAllStoredData();
+        for (BlockSavable savable : datas) {
+            if (savable instanceof BlockData) {
+                BlockData data = (BlockData) savable;
+                for (AspectEffect effect : data.getEffects())
+                    effect.interactWithEntity(event.entityPlayer, event.target);
+            }
+        }
+    }
 
     @SubscribeEvent
     public void onClick(PlayerInteractEvent event) {

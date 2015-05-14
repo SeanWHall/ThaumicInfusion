@@ -48,6 +48,15 @@ public class ClientEventContainer {
 
     private BlockData currentdata, lastDataLookedAt;
 
+//    public static long hasWorldDataTime;
+//
+//    @SubscribeEvent
+//    public void onDrawDebugText(RenderGameOverlayEvent.Text event) {
+//        World world = Minecraft.getMinecraft().theWorld;
+//        if(Minecraft.getMinecraft().gameSettings.showDebugInfo) {
+//
+//        }
+//    }
 
     @SideOnly(Side.CLIENT)
     @SubscribeEvent

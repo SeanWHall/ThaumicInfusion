@@ -6,8 +6,6 @@ import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
-import drunkmafia.thaumicinfusion.net.packet.client.RequestBlockPacketS;
-import drunkmafia.thaumicinfusion.net.packet.client.RequestTilePacketS;
 import drunkmafia.thaumicinfusion.net.packet.server.*;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -30,7 +28,7 @@ public class ChannelHandler{
         Side S = Side.SERVER, C = Side.CLIENT;
 
         //Server Handled Packets
-        network.registerMessage(RequestBlockPacketS.Handler.class, RequestBlockPacketS.class, getOrdinal(), S);
+
 
         //Client Handled Packets
         network.registerMessage(BlockSyncPacketC.Handler.class, BlockSyncPacketC.class, getOrdinal(), C);
