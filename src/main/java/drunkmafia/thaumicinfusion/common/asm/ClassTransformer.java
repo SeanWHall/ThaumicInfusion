@@ -1,4 +1,4 @@
-package drunkmafia.thaumicinfusion.common.core;
+package drunkmafia.thaumicinfusion.common.asm;
 
 import cpw.mods.fml.relauncher.CoreModManager;
 import net.minecraft.launchwrapper.IClassTransformer;
@@ -42,13 +42,13 @@ public class ClassTransformer implements IClassTransformer {
             isObf = !deobfuscatedEnvironment.getBoolean(null);
 
             logger = new BufferedWriter(new FileWriter("TI_Transformer_Log.log"));
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         log.info("Thaumic Infusion has detected an " + (isObf ? "Obfuscated" : "Deobfuscated") + " environment!");
         block = isObf ? "aji" : "net/minecraft/block/Block";
-        world = isObf ?  "ahb" : "net/minecraft/world/World";
+        world = isObf ? "ahb" : "net/minecraft/world/World";
         iBlockAccess = isObf ? "ahl" : "net/minecraft/world/IBlockAccess";
         getMaterial = isObf ? "func_149688_o" : "getMaterial";
         chunk = isObf ? "apx" : "net/minecraft/world/chunk/Chunk";
@@ -61,7 +61,7 @@ public class ClassTransformer implements IClassTransformer {
 
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytecode) {
-        if(bytecode == null)
+        if (bytecode == null)
             return null;
 
         bytecode = injectBlockCode(bytecode, transformedName);
@@ -75,7 +75,7 @@ public class ClassTransformer implements IClassTransformer {
         classReader.accept(classNode, 0);
 
         boolean isBlockClass = classNode.name.equals(block);
-        if (classNode.name.equals("drunkmafia/thaumicinfusion/common/aspect/AspectEffect") || !classNode.superName.equals(block) && !classNode.name.equals(block) )
+        if (classNode.name.equals("drunkmafia/thaumicinfusion/common/aspect/AspectEffect") || !classNode.superName.equals(block) && !classNode.name.equals(block))
             return bytecode;
         try {
             logger.write("==== " + name + " ==== \nFound block Class \n");
@@ -97,15 +97,15 @@ public class ClassTransformer implements IClassTransformer {
 
                 if (method.localVariables == null || method.localVariables.size() == 0) {
                     continue;
-                }else if(method.localVariables != null && method.localVariables.size() != 0){
+                } else if (method.localVariables != null && method.localVariables.size() != 0) {
                     boolean hasThis = false;
-                    for(LocalVariableNode varible : method.localVariables){
-                        if(varible.name.equals("this")){
+                    for (LocalVariableNode varible : method.localVariables) {
+                        if (varible.name.equals("this")) {
                             hasThis = true;
                             break;
                         }
                     }
-                    if(!hasThis)
+                    if (!hasThis)
                         continue;
                 }
 
@@ -145,7 +145,7 @@ public class ClassTransformer implements IClassTransformer {
                     toInsert.add(new JumpInsnNode(IFEQ, l2));
                     toInsert.add(new LabelNode());
 
-                    toInsert.add(new FieldInsnNode(GETSTATIC, "drunkmafia/thaumicinfusion/common/block/BlockHandler", "block", "L" + block +";"));
+                    toInsert.add(new FieldInsnNode(GETSTATIC, "drunkmafia/thaumicinfusion/common/block/BlockHandler", "block", "L" + block + ";"));
 
                     for (int i = 0; i < pars.length; i++)
                         toInsert.add(new VarInsnNode(pars[i].getOpcode(ILOAD), i + 1));

@@ -1,4 +1,4 @@
-package drunkmafia.thaumicinfusion.common.core;
+package drunkmafia.thaumicinfusion.common.asm;
 
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
@@ -24,11 +24,16 @@ public class ThaumicInfusionPlugin implements IFMLLoadingPlugin {
     }
 
     @Override
-    public String getSetupClass() { return null; }
+    public String getSetupClass() {
+        return null;
+    }
 
     @Override
-    public void injectData(Map<String, Object> data) { }
+    public void injectData(Map<String, Object> data) {
+    }
 
     @Override
-    public String getAccessTransformerClass() { return null; }
+    public String getAccessTransformerClass() {
+        return null;
+    }
 }

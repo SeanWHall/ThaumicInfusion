@@ -83,4 +83,12 @@ public class ThaumicInfusion {
     public void serverStart(FMLServerStartingEvent event){
         TICommand.init((ServerCommandManager) event.getServer().getCommandManager());
     }
+
+    public void test() {
+        try {
+            System.out.println("T");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
