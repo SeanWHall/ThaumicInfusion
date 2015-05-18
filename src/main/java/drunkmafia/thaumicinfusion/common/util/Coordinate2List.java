@@ -1,6 +1,8 @@
 package drunkmafia.thaumicinfusion.common.util;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This works based on a graph design to allow for negative coordinates:
@@ -71,7 +73,7 @@ public class Coordinate2List<T>{
      * @param x pos
      * @param z pos
      */
-    public void set(T element, int x, int z){
+    public T set(T element, int x, int z) {
         boolean xPos = x > 0, zPos = z > 0;
         x = Math.abs(x);
         z = Math.abs(z);
@@ -87,6 +89,8 @@ public class Coordinate2List<T>{
         if(!xPos && zPos) negPos = array;
         if(xPos && !zPos) posNeg = array;
         if(!xPos && !zPos) negNeg = array;
+
+        return array[x][z];
     }
 
     /**
@@ -102,6 +106,21 @@ public class Coordinate2List<T>{
 
         T[][] array = (xPos && zPos) ? posPos : (!xPos && zPos) ? negPos : (xPos && !zPos) ? posNeg : negNeg;
         return (x < array.length && z < array[x].length) ? tClass.cast(array[x][z]) : null;
+    }
+
+    public List<T> toList() {
+        List<T> list = new ArrayList<T>();
+        arrayToList(posPos, list);
+        arrayToList(negNeg, list);
+        arrayToList(negPos, list);
+        arrayToList(posNeg, list);
+        return list;
+    }
+
+    private void arrayToList(T[][] toAdd, List<T> array) {
+        for (int x = 0; x < toAdd.length; x++)
+            for (int z = 0; z < toAdd[x].length; z++)
+                array.add(toAdd[x][z]);
     }
 
     public void cleanAll(){

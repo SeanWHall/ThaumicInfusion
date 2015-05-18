@@ -1,19 +1,19 @@
 package drunkmafia.thaumicinfusion.common.world;
 
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
+import drunkmafia.thaumicinfusion.common.util.Coordinate2List;
 import drunkmafia.thaumicinfusion.common.util.helper.ReflectionHelper;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.server.BlockSyncPacketC;
 import drunkmafia.thaumicinfusion.net.packet.server.DataRemovePacketC;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.LongHashMap;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldSavedData;
 import net.minecraftforge.common.DimensionManager;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -21,32 +21,30 @@ import java.util.List;
  * <p/>
  * See http://www.wtfpl.net/txt/copying for licence
  */
-public class TIWorldData extends WorldSavedData {
+public class TIWorldData implements ISavable {
+
+    public static Coordinate2List<TIWorldData> worldDatas = new Coordinate2List<TIWorldData>(TIWorldData.class);
 
     public World world;
 
-    private LongHashMap blocksData = new LongHashMap();
-    private List<Long> chunkCoords = new ArrayList<Long>();
-
-    public TIWorldData(String mapname) {
-        super(mapname);
-        setDirty(true);
-    }
+    private Coordinate2List<ChunkData> blocksData = new Coordinate2List<ChunkData>(ChunkData.class);
 
     public static TIWorldData getWorldData(World world) {
         if (world == null || world.getWorldInfo() == null || world.provider == null)
             return null;
-        String worldName = world.getWorldInfo().getWorldName() + "_" + world.provider.dimensionId + "_TIWorldData";
-        WorldSavedData worldData = world.perWorldStorage.loadData(TIWorldData.class, worldName);
+
+        int dimensionID = world.provider.dimensionId;
+        TIWorldData worldData = worldDatas.get(dimensionID, 0);
+
         if (worldData != null) {
-            ((TIWorldData) worldData).world = world;
-            return (TIWorldData) worldData;
-        } else {
-            worldData = new TIWorldData(worldName);
-            ((TIWorldData) worldData).world = world;
-            world.perWorldStorage.setData(worldName, worldData);
-            return (TIWorldData) world.perWorldStorage.loadData(TIWorldData.class, worldName);
+            worldData.world = world;
+            return worldData;
         }
+
+        worldData = new TIWorldData();
+        worldData.world = world;
+        worldDatas.set(worldData, dimensionID, 0);
+        return worldData;
     }
 
     public static <T extends BlockSavable> T getData(Class<T> type, World world, WorldCoord coords) {
@@ -72,18 +70,14 @@ public class TIWorldData extends WorldSavedData {
             if (init && !block.isInit())
                 block.dataLoad(world);
 
-            long coordHash = ChunkCoordIntPair.chunkXZ2Int(block.coordinates.x >> 4, block.coordinates.z >> 4);
+            ChunkCoordIntPair chunkPos = new ChunkCoordIntPair(block.coordinates.x >> 4, block.coordinates.z >> 4);
 
-            ChunkData chunkData = (ChunkData) blocksData.getValueByKey(coordHash);
-            if (chunkData == null) {
-                chunkData = new ChunkData(new ChunkCoordIntPair(block.coordinates.x >> 4, block.coordinates.z >> 4));
-                blocksData.add(coordHash, chunkData);
-                chunkCoords.add(coordHash);
-            }
+            ChunkData chunkData = blocksData.get(chunkPos.chunkXPos, chunkPos.chunkZPos);
+            if (chunkData == null)
+                chunkData = blocksData.set(new ChunkData(chunkPos), chunkPos.chunkXPos, chunkPos.chunkZPos);
 
             chunkData.addBlock(block, block.coordinates.x, block.coordinates.y, block.coordinates.z);
 
-            setDirty(true);
             if (!world.isRemote && packet)
                 ChannelHandler.network.sendToAll(new BlockSyncPacketC(block));
         }catch (Exception e){
@@ -108,14 +102,13 @@ public class TIWorldData extends WorldSavedData {
     }
 
     public <T>T getBlock(Class<T> type, WorldCoord coords) {
-        ChunkData chunkData = (ChunkData) blocksData.getValueByKey(ChunkCoordIntPair.chunkXZ2Int(coords.x >> 4, coords.z >> 4));
+        ChunkData chunkData = blocksData.get(coords.x >> 4, coords.z >> 4);
         return chunkData != null ? chunkData.getBlock(type, coords.x, coords.y, coords.z) : null;
     }
 
     public void removeData(Class<?> type, WorldCoord coords, boolean sendPacket) {
-        ChunkData chunkData = (ChunkData) blocksData.getValueByKey(ChunkCoordIntPair.chunkXZ2Int(coords.x >> 4, coords.z >> 4));
+        ChunkData chunkData = blocksData.get(coords.x >> 4, coords.z >> 4);
         if(chunkData != null) {
-            setDirty(true);
             chunkData.removeBlock(coords.x, coords.y, coords.z);
             if (sendPacket) {
                 coords.dim = world.provider.dimensionId;
@@ -126,18 +119,15 @@ public class TIWorldData extends WorldSavedData {
 
     public BlockSavable[] getAllStoredData(){
         ArrayList<BlockSavable> savables = new ArrayList<BlockSavable>();
-        for(long coord : chunkCoords){
-            ChunkData data = (ChunkData) blocksData.getValueByKey(coord);
-            if(data != null) {
-                for(BlockSavable block : data.getAllBlocks())
-                    savables.add(block);
-            }
+        for (ChunkData data : blocksData.toList()) {
+            if (data != null)
+                Collections.addAll(savables, data.getAllBlocks());
         }
         return savables.toArray(new BlockSavable[savables.size()]);
     }
 
     @Override
-    public void readFromNBT(NBTTagCompound tag) {
+    public void readNBT(NBTTagCompound tag) {
         int size = tag.getInteger("Chunks");
 
         for(int i = 0; i < size; i++){
@@ -153,12 +143,12 @@ public class TIWorldData extends WorldSavedData {
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound tag) {
-        tag.setInteger("Chunks", chunkCoords.size());
-        for(int i = 0; i < chunkCoords.size(); i++){
-            ChunkData chunkData = (ChunkData) blocksData.getValueByKey(chunkCoords.get(i));
-            if(chunkData == null)
-                continue;
+    public void writeNBT(NBTTagCompound tag) {
+        List<ChunkData> list = blocksData.toList();
+        tag.setInteger("Chunks", list.size());
+        for (int i = 0; i < list.size(); i++) {
+            ChunkData chunkData = list.get(i);
+            if (chunkData == null) continue;
             tag.setTag("Chunk:" + i, SavableHelper.saveDataToNBT(chunkData));
         }
     }

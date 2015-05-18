@@ -65,8 +65,6 @@ public class BlockData extends BlockSavable implements IBlockHook {
         super.setCoords(newPos);
         for(AspectEffect effect : dataEffects)
             effect.setCoords(newPos);
-        if(world != null)
-            TIWorldData.getWorldData(world).markDirty();
     }
 
     public <T extends AspectEffect>T getEffect(Class<T> effect){
@@ -135,5 +133,10 @@ public class BlockData extends BlockSavable implements IBlockHook {
     @Override
     public boolean shouldOverride(String method) {
         return methodsOverrides.get(method) != null && methodsOverrides.get(method).overrideBlockFunc();
+    }
+
+    @Override
+    public boolean shouldHookWhenAir(String method) {
+        return methodsOverrides.get(method) != null && methodsOverrides.get(method).shouldRunAsAir();
     }
 }
