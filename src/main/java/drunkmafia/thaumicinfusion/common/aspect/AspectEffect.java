@@ -10,6 +10,8 @@ import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.ISavable;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
+import drunkmafia.thaumicinfusion.net.ChannelHandler;
+import drunkmafia.thaumicinfusion.net.packet.server.BlockSyncPacketC;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
@@ -97,6 +99,10 @@ public class AspectEffect extends Block implements ISavable {
 
         phasedMethods.put(c, meths);
         return meths;
+    }
+
+    public void syncBlockData() {
+        ChannelHandler.network.sendToAll(new BlockSyncPacketC(data));
     }
 
     public void readConfig(Configuration config) {
