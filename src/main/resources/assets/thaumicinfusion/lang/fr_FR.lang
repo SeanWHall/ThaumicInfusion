@@ -1,0 +1,86 @@
+#fr_FR
+
+# Creative Tab
+itemGroup.thaumicinfusion=Thaumic Infusion
+
+# Blocks
+tile.local_infusionCore.name=Coeur d'infusion
+tile.local_infused.default=Bloc infusé
+tile.local_infused.aqua=Bloc infusé
+tile.local_infused.gelum=Bloc infusé
+tile.local_infused.limus=Bloc infusé
+tile.local_infused.sensus=Bloc infusé
+tile.local_infused.spiritus=Bloc infusé
+
+tile.local_essentia.name=Bloc d'essentia 
+key.infusedBlock.infused=Infusé
+key.essentiaBlock.brick=Brique
+key.essentiaBlock.chiseled=Ciselé
+
+
+# Item
+
+item.FocusInfusion.name=Foci de baguette: Infusion
+
+# Research
+tc.research_category.THAUMICINFUSION=Thaumic Infusion
+tc.research_name.FOCUSINFUSION=Foci d'infusion
+tc.research_text.FOCUSINFUSION=Un foci qui permet l'infusion d'aspects dans le monde
+tc.research_page.FOCUSINFUSION.1=Après d'innombrables heures de recherche, vous avez maintenant ouvert la connaissance du plus puissant processus d'infusion de Thaumaturgy. Ce foci vous donne le pouvoir de prendre des aspects et de les infuser dans le monde, les aspects peuvent occuper l'espace d'un bloc et s'ils partagent cet espace avec un bloc existant alors des effets uniques apparaissent sur ce bloc. Cet effect appliqué dépend de l'aspect.
+tc.research_page.FOCUSINFUSION.2=Pour manier ce foci correctement vous devez d'abort Maj-cliquer un bocal qui contient l'aspect que vous souhaitez utiliser. Dès que vous avez fait ceci, Vous pourrez savoir cliquer-droit sur n'importe quel bloc pour infuser l'aspect dans cet espace, les aspects multiple peuvent exister dans un même espace cependant, s'ils sont en conflit, les aspects se corrompre et se transformer en corruption. Maj-cliquer un bloc ayant des aspects dans son espace détruira les aspects existant.
+
+tc.research_name.ESSENTIABLOCKS=Bloc d'essentia
+tc.research_text.ESSENTIABLOCKS=Ces blocs sont des aspects capturé sous forme de bloc
+tc.research_page.ESSENTIABLOCKS.1=Simplement des aspects solidifiés comme blocs
+
+tc.research_name.ASPECTEFFECTS=Les Effets des Aspects
+tc.research_text.ASPECTEFFECTS=Effets des aspects en étant infusés
+
+ti.cost=Cost
+
+# Commands
+
+ban.infusion=banblock
+ban.infusion.usage=/banblock Change le statut d'interdiction du bloc en mains
+
+clean.data=cleandata
+clean.data.usage=/cleandata Lancez cette commance seulement si les blocs TI plantent le monde, ceci suprimera tous les blocs TI de la dimension courante. Vous avez été averti !
+
+# Effects Description
+ti.effect_info.EXANIMIS=Si un joueur meurt lorqu'il est sur ce bloc, il réapparaitra ici.
+ti.effect_info.FABRICO=En cliquant droit un bloc avec une fiole, le bloc sera teinté de sa couleur
+ti.effect_info.LUX=Émet de la lumière tout comme une torche
+ti.effect_info.SANO=Recharge la santé des joueur sur la base de leur fain
+ti.effect_info.PANNUS=Étouffe tous les dégâts de chute de n'importe quelle entité
+ti.effect_info.AQUA=Le bloc devient une source d'eau déguisée
+ti.effect_info.GELUM=La friction est diminuée comme sur la glace
+ti.effect_info.COGNITIO=Le bloc devient une librairie déguisée
+ti.effect_info.ITER=Cliquer droit sur deux blocs infusés d'Iter , causera un transport homogène entre eux
+ti.effect_info.ALIENIS=Un effet étrange, Ceci semble provoquer des téléportations aléatoires
+ti.effect_info.TEMPESTAS=La foudre est attirée vers ce bloc durant les tempètes
+ti.effect_info.VOLATUS=Players are given flight above this block, height is doubled when more are place on top or below
+ti.effect_info.SPIRITUS=Block seems to be solid but has no collisions, allowing entities to ghost though it
+ti.effect_info.TERRA=Les blocs seront affecté par la gravité, comme le sable et le gravier
+ti.effect_info.FAMES=Eats away at peoples energy and makes them hungry
+ti.effect_info.BESTIA=Stops the spawning of aggressive mobs on top of it
+ti.effect_info.VITIUM=Stops taint from following near the block
+ti.effect_info.MESSIS=Block becomes a disguised farmland
+ti.effect_info.MOTUS=Entities are pushed in the direction of which it was placed
+ti.effect_info.IGNIS=Block becomes a disguised netherrack
+ti.effect_info.PERDITIO=Block becomes prone to exploding, use with care
+ti.effect_info.TUTAMEN=Block is more resistant to explosions and breaking
+ti.effect_info.VINCULUM=Traps mobs on top of the block
+ti.effect_info.PERMUTATIO=Linking two of these blocks together with a wand, will cause the two blocks to seamless swap when powered by redstone
+ti.effect_info.LUCRUM=Slowly pulls items towards itself
+ti.effect_info.MORTUUS=Mobs are more likely to spawn on top of this block during night
+ti.effect_info.VICTUS=Animals are more likely to spawn on top of this block during day
+ti.effect_info.PRAECANTATIO=Not very useful, but pretty to look at
+ti.effect_info.VITREUS=Light can pass though this block
+ti.effect_info.VENENUM=Players that stand on top of this block will be poisoned
+ti.effect_info.PERFODIO=Blocks hardness and resistance are halved
+ti.effect_info.AER=Les joueur se placant sur le dessus de ce bloc se verront donner un bonus de saut
+ti.effect_info.MACHINA=By linking two of this effect together, it will cause a redstone to be emitted wireless. The signal can be sent both ways
+ti.effect_info.POTENTIA=Le bloc émet simplement un fort signal redstone
+
+#Mod Effects
+ti.effect_info.INFERNUS=Met le feu à toute entité qui arriverait à toucher ce bloc.
