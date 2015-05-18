@@ -16,18 +16,18 @@ buildscript {
 }
 
 apply plugin: 'forge'
-version = "3.966"
+version = "4"
 group= "drunkmafia.thaumicinfusion"
 archivesBaseName = "ThaumicInfusion"
 
 minecraft {
-    version = "1.7.10-10.13.2.1291"
-    assetDir = "eclipse/assets"
+    version = "1.7.10-10.13.3.1403-1.7.10"
+    runDir = "eclipse"
 }
 
 jar {
     manifest {
-        attributes 'FMLCorePlugin': 'drunkmafia.thaumicinfusion.common.core.ThaumicInfusionPlugin', 'FMLCorePluginContainsFMLMod': 'true'
+        attributes 'FMLCorePlugin': 'drunkmafia.thaumicinfusion.common.asm.ThaumicInfusionPlugin', 'FMLCorePluginContainsFMLMod': 'true'
     }
 }
 
