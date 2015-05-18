@@ -5,14 +5,9 @@ itemGroup.thaumicinfusion=Thaumic Infusion
 
 # Blocks
 tile.local_infusionCore.name=Infusion Core
-tile.local_infused.default=Infused Block
-tile.local_infused.aqua=Infused Block
-tile.local_infused.gelum=Infused Block
-tile.local_infused.limus=Infused Block
-tile.local_infused.sensus=Infused Block
-tile.local_infused.spiritus=Infused Block
-
 tile.local_essentia.name=Essentia Block
+tile.local_inscriber.name=Inscriber Block
+
 key.infusedBlock.infused=Infused
 key.essentiaBlock.brick=Brick
 key.essentiaBlock.chiseled=Chiseled
