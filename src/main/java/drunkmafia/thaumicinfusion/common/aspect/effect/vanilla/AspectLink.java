@@ -57,6 +57,7 @@ public class AspectLink extends AspectEffect {
             world.playSoundEffect((double) x + 0.5D, (double) y + 0.5D, (double) z + 0.5D, "thaumcraft:zap", 0.25F, 1.0F);
             PacketHandler.INSTANCE.sendToAllAround(new PacketFXBlockSparkle(x, y, z, 16556032), new NetworkRegistry.TargetPoint(player.worldObj.provider.dimensionId, (double) x, (double) y, (double) z, 32.0D));
             ChannelHandler.network.sendToDimension(new BlockSyncPacketC(TIWorldData.getData(BlockData.class, world, pos)), world.provider.dimensionId);
+            syncBlockData();
             return;
         }
 
@@ -70,7 +71,8 @@ public class AspectLink extends AspectEffect {
             return destination = null;
 
         BlockData blockData = TIWorldData.getWorldData(world).getBlock(BlockData.class, destination);
-        if(blockData == null) return destination = null;
+        if (blockData == null)
+            return destination = null;
 
         return (blockData.getEffect(getClass()) != null ? destination : (destination = null));
     }
@@ -80,23 +82,24 @@ public class AspectLink extends AspectEffect {
     }
 
     @Override
-    public void writeNBT(NBTTagCompound tagCompound) {
-        super.writeNBT(tagCompound);
+    public void writeNBT(NBTTagCompound nbt) {
+        super.writeNBT(nbt);
 
         if(destination == null)
             return;
 
-        destination.writeNBT(tagCompound);
+        nbt.setInteger("dest_x", destination.x);
+        nbt.setInteger("dest_y", destination.y);
+        nbt.setInteger("dest_z", destination.z);
     }
 
     @Override
-    public void readNBT(NBTTagCompound tagCompound) {
-        super.readNBT(tagCompound);
+    public void readNBT(NBTTagCompound nbt) {
+        super.readNBT(nbt);
 
-        if(!tagCompound.hasKey("id"))
-            return;
+        if (!nbt.hasKey("dest_x"))
+            destination = null;
 
-        destination = new WorldCoord();
-        destination.readNBT(tagCompound);
+        destination = new WorldCoord(nbt.getInteger("dest_x"), nbt.getInteger("dest_y"), nbt.getInteger("dest_z"));
     }
 }
