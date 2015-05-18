@@ -12,4 +12,6 @@ public interface IBlockHook {
     Block getBlock(String method);
 
     boolean shouldOverride(String method);
+
+    boolean shouldHookWhenAir(String method);
 }
