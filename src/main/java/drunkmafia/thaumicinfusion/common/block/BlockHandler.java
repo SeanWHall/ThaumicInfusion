@@ -4,6 +4,7 @@ import drunkmafia.thaumicinfusion.common.util.IBlockHook;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -30,7 +31,7 @@ public final class BlockHandler {
      * Checks to see if world data exists at a certain block position, returning true will trigger it to invoke the method that called this method. Via the block method
      */
     public static boolean hasWorldData(World world, int x, int y, int z, Block block) {
-        if (world == null)
+        if (world == null || block == Blocks.air)
             return false;
 
         IBlockHook hook = (x != lastX || y != lastY || z != lastZ) ? TIWorldData.getWorldData(world).getBlock(IBlockHook.class, new WorldCoord(x, y, z)) : lastHook;
@@ -42,7 +43,7 @@ public final class BlockHandler {
         String methodName = stackTrace[2].getMethodName().equals("hasWorldData") ? stackTrace[3].getMethodName() : stackTrace[2].getMethodName();
 
         for (String blockMethodName : hook.hookMethods(block)) {
-            if (methodName.equals(blockMethodName) && (!world.isAirBlock(x, y, z) || hook.shouldHookWhenAir(blockMethodName))) {
+            if (methodName.equals(blockMethodName)) {
                 BlockHandler.block = hook.getBlock(blockMethodName);
                 lastHook = hook;
                 lastMethod = methodName;
