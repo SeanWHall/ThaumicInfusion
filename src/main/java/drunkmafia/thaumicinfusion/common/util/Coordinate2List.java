@@ -1,19 +1,19 @@
 package drunkmafia.thaumicinfusion.common.util;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * This works based on a graph design to allow for negative coordinates:
- *          X
- *          |
- *          |
- *   PosNeg | PosPos
- *  ------------------- Z
- *   NegNeg | NegPos
- *          |
- *          |
+ *
+ *        X  | Z
+ *      -----------
+ *       Pos | Neg
+ *       Neg | Pos
+ *       Pos | Pos
+ *       Neg | Neg
+ *
  * Making it ideal for coordinate based lists, it gives a faster lookup time than lists and maps
  * since you need to know the coordinates of the element you want to look up.
  *
@@ -23,14 +23,15 @@ import java.util.List;
  * @author TheDrunkMafia
  */
 @SuppressWarnings("unchecked")
-public class Coordinate2List<T>{
+public class Coordinate2List<T> implements Iterable<T>, RandomAccess, java.io.Serializable{
 
     /**
      * The array buffer into which the elements of the ArrayList are stored.
      */
     private transient T[][] posPos, negNeg, posNeg, negPos;
 
-    private int size, initalSize;
+    private ArrayList<T> elements;
+    private int initalSize;
 
     /**
      * The margin which the arrays are shifted by when being resized
@@ -50,6 +51,8 @@ public class Coordinate2List<T>{
         this.tClass = tClass;
         this.shitMargin = shitMargin;
         this.initalSize = initalSize;
+
+        elements = new ArrayList(initalSize);
 
         posPos =  (T[][]) Array.newInstance(tClass, initalSize, initalSize);
         negNeg =  (T[][]) Array.newInstance(tClass, initalSize, initalSize);
@@ -73,57 +76,54 @@ public class Coordinate2List<T>{
      * @param x pos
      * @param z pos
      */
-    public T set(T element, int x, int z) {
+    public void set(T element, int x, int z){
         boolean xPos = x > 0, zPos = z > 0;
-        x = Math.abs(x);
-        z = Math.abs(z);
 
-        T[][] array = (xPos && zPos) ? posPos : (!xPos && zPos) ? negPos : (xPos && !zPos) ? posNeg : negNeg;
+        x = (z < 0) ? -z : z;
+        z = (z < 0) ? -z : z;
+
+        T[][] array = getArray(xPos, zPos);
+
         if(x >= array.length) array = changeArraySize(array, x + shitMargin);
         if(z >= array[x].length) array[x] = changeArraySize(array[x], z + shitMargin);
 
-        size += element != null ? 1 : -1;
+        if(element != null) elements.add(element);
+        else elements.remove(array[x][z]);
         array[x][z] = element;
 
-        if(xPos && zPos) posPos = array;
-        if(!xPos && zPos) negPos = array;
-        if(xPos && !zPos) posNeg = array;
-        if(!xPos && !zPos) negNeg = array;
-
-        return array[x][z];
+        setArray(xPos, zPos, array);
     }
 
     /**
-     * Directly accesses the array at the specfied look up, nominal lookup due to this
+     * Directly accesses the array at the specified look up, nominal lookup due to this
      * @param x pos
      * @param z pos
      * @return Element at that position, can be null
      */
     public T get(int x, int z){
         boolean xPos = x > 0, zPos = z > 0;
-        x = Math.abs(x);
-        z = Math.abs(z);
+
+        x = (z < 0) ? -z : z;
+        z = (z < 0) ? -z : z;
 
         T[][] array = (xPos && zPos) ? posPos : (!xPos && zPos) ? negPos : (xPos && !zPos) ? posNeg : negNeg;
-        return (x < array.length && z < array[x].length) ? tClass.cast(array[x][z]) : null;
+        return (x < array.length && z < array[x].length) ? array[x][z] : null;
     }
 
-    public List<T> toList() {
-        List<T> list = new ArrayList<T>();
-        arrayToList(posPos, list);
-        arrayToList(negNeg, list);
-        arrayToList(negPos, list);
-        arrayToList(posNeg, list);
-        return list;
+    private T[][] getArray(boolean xPos, boolean zPos){
+        return xPos && zPos ? posPos : !xPos && zPos ? negPos : xPos ? posNeg : negNeg;
     }
 
-    private void arrayToList(T[][] toAdd, List<T> array) {
-        for (int x = 0; x < toAdd.length; x++)
-            for (int z = 0; z < toAdd[x].length; z++)
-                array.add(toAdd[x][z]);
+    private void setArray(boolean xPos, boolean zPos, T[][] array){
+        if(xPos && zPos) posPos = array;
+        if(!xPos && zPos) negPos = array;
+        if(xPos && !zPos) posNeg = array;
+        if(!xPos && !zPos) negNeg = array;
     }
 
     public void cleanAll(){
+        elements = new ArrayList(initalSize);
+
         posPos = clean(posPos);
         negNeg = clean(negNeg);
         negPos = clean(negPos);
@@ -147,20 +147,16 @@ public class Coordinate2List<T>{
         return old;
     }
 
-    public void remove(int x, int z){
-        set(null, x, z);
-    }
-
     @Override
     public String toString() {
-        return getClass().getSimpleName() + " - Size: " + size + " Type: " + tClass.getSimpleName();
+        return getClass().getSimpleName() + " - Size: " + elements.size() + " Type: " + tClass.getSimpleName();
     }
 
     /**
      * Recreates the list, removing all stored objects
      */
     public void removeAll(){
-        size = 0;
+        elements = new ArrayList<>();
 
         posPos =  (T[][]) Array.newInstance(tClass, initalSize, initalSize);
         negNeg =  (T[][]) Array.newInstance(tClass, initalSize, initalSize);
@@ -172,30 +168,18 @@ public class Coordinate2List<T>{
      * @return is the list empty
      */
     public boolean isEmpty(){
-        return size == 0;
+        return elements.size() == 0;
     }
 
     /**
      * @return Total size of the list
      */
     public int size(){
-        return size;
+        return elements.size();
     }
 
-    public T[][] getPosPos(){
-        return posPos;
-    }
-
-    public T[][] getNegNeg(){
-        return negNeg;
-    }
-
-    public T[][] getNegPos(){
-        return negPos;
-    }
-
-    public T[][] getPosNeg(){
-        return posNeg;
+    public ArrayList<T> getElements(){
+        return elements;
     }
 
     /**
@@ -223,5 +207,54 @@ public class Coordinate2List<T>{
         T[][] newArray = (T[][]) new Object[newSize][newSize];
         System.arraycopy(old, 0, newArray, 0, old.length);
         return newArray;
+    }
+
+    public Iterator<T> iterator() {
+        return new Itr();
+    }
+
+    private class Itr implements Iterator<T> {
+        int cursor;
+        int lastRet = -1;
+
+        public T[] elementData;
+
+        public Itr(){
+            elementData = (T[]) Coordinate2List.this.elements.toArray();
+        }
+
+        public boolean hasNext() {
+            return cursor != elementData.length;
+        }
+
+        @SuppressWarnings("unchecked")
+        public T next() {
+            int i = cursor;
+            if (i >= elementData.length)
+                throw new NoSuchElementException();
+            cursor = i + 1;
+            return elementData[lastRet = i];
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public void forEachRemaining(Consumer<? super T> consumer) {
+            Objects.requireNonNull(consumer);
+            final int size = elementData.length;
+            int i = cursor;
+            if (i >= size)
+                return;
+
+            if (i >= elementData.length)
+                throw new ConcurrentModificationException();
+
+            // update once at end of iteration to reduce heap write traffic
+            cursor = i;
+            lastRet = i - 1;
+        }
     }
 }
