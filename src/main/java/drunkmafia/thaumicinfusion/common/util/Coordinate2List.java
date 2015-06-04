@@ -28,7 +28,7 @@ public class Coordinate2List<T> {
      */
     private Integer[][] posPos, negNeg, posNeg, negPos;
 
-    private int initalSize;
+    private int initialSize;
 
     /**
      * All elements stored in this list are in here, the data is constent and stays at is position during resize
@@ -39,21 +39,23 @@ public class Coordinate2List<T> {
      * The margin which the arrays are shifted by when being resized
      */
     private int shitMargin;
+    private int attempt = 0, maxAttempts;
+
     private Class<T> tClass;
 
     /**
-     * @param initalSize of arrays, this will increase put Times
+     * @param initialSize of arrays, this will increase put Times
      * @param tClass used to create the arrays
      * @param shitMargin used to push the array size up to give some leeway
      * @param maxAttempts used to ensure that the list does not cause an infinite loop when adding data
      */
-    public Coordinate2List(Class<T> tClass, int initalSize, int shitMargin, int maxAttempts){
-        if(tClass == null || initalSize < 0 || shitMargin < 0)
-            throw new IllegalArgumentException("Bad Arguments, Failed to create list. Class: " + tClass + " Size: " + initalSize + " Shift: " + shitMargin);
+    public Coordinate2List(Class<T> tClass, int initialSize, int shitMargin, int maxAttempts){
+        if(tClass == null || initialSize < 0 || shitMargin < 0)
+            throw new IllegalArgumentException("Bad Arguments, Failed to create list. Class: " + tClass + " Size: " + initialSize + " Shift: " + shitMargin);
 
         this.tClass = tClass;
         this.shitMargin = shitMargin;
-        this.initalSize = initalSize;
+        this.initialSize = initialSize;
         this.maxAttempts = maxAttempts;
 
         removeAll();
@@ -95,14 +97,12 @@ public class Coordinate2List<T> {
         setArray(xPos, zPos, array);
     }
 
-    private int attempt = 0, maxAttempts;
-
     /**
      * Attempts to add the element to the list and then returns the index of it, to be placed in the
      * position arrays.
-     * 
-     * This has the possability to cause an infinte loop, so there is a max amount of attempts before erroring
-     * 
+     *
+     * This has the possibility to cause an infinite loop, so there is a max amount of attempts before erroring
+     *
      * @param element the element to be added
      **/
     public int addElement(T element){
@@ -165,12 +165,12 @@ public class Coordinate2List<T> {
      * Recreates the list, removing all stored objects
      */
     public void removeAll(){
-        elementData = (T[]) Array.newInstance(tClass, initalSize, initalSize);
+        elementData = (T[]) Array.newInstance(tClass, initialSize, initialSize);
 
-        posPos = new Integer[initalSize][initalSize];
-        negNeg = new Integer[initalSize][initalSize];
-        posNeg = new Integer[initalSize][initalSize];
-        negPos = new Integer[initalSize][initalSize];
+        posPos = new Integer[initialSize][initialSize];
+        negNeg = new Integer[initialSize][initialSize];
+        posNeg = new Integer[initialSize][initialSize];
+        negPos = new Integer[initialSize][initialSize];
     }
 
     /**
