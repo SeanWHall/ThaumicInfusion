@@ -24,12 +24,15 @@ import java.lang.reflect.Array;
 public class Coordinate2List<T> {
 
     /**
-     * The array buffer into which the elements of the ArrayList are stored.
+     * Arrays for each type of position, they hold the index of the data stored in the elementData array
      */
     private Integer[][] posPos, negNeg, posNeg, negPos;
 
     private int initalSize;
 
+    /**
+     * All elements stored in this list are in here, the data is constent and stays at is position during resize
+     */
     private T[] elementData;
 
     /**
@@ -94,6 +97,14 @@ public class Coordinate2List<T> {
 
     private int attempt = 0, maxAttempts;
 
+    /**
+     * Attempts to add the element to the list and then returns the index of it, to be placed in the
+     * position arrays.
+     * 
+     * This has the possability to cause an infinte loop, so there is a max amount of attempts before erroring
+     * 
+     * @param element the element to be added
+     **/
     public int addElement(T element){
         if(attempt++ > maxAttempts)
             throw new IllegalArgumentException("Exceeded max amount of attempts to add data to list");
@@ -123,10 +134,21 @@ public class Coordinate2List<T> {
         return (x < array.length && z < array[x].length && array[x][z] != null) ? elementData[array[x][z]] : null;
     }
 
+    /**
+     * Gets the appropriate array
+     * @param xPos is the x positive or negative
+     * @param zPos is the z positive or negative
+     **/
     private Integer[][] getArray(boolean xPos, boolean zPos){
         return xPos && zPos ? posPos : !xPos && zPos ? negPos : xPos ? posNeg : negNeg;
     }
 
+    /**
+     * Sets the changes of an array to its appropriate global array
+     * @param xPos is the x positive or negative
+     * @param zPos is the z positive or negative
+     * @param array the array to set
+     **/
     private void setArray(boolean xPos, boolean zPos, Integer[][] array){
         if(xPos && zPos) posPos = array;
         if(!xPos && zPos) negPos = array;
