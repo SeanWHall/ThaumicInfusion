@@ -1,3 +1,21 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
+/*
+ * Created by DrunkMafia on 25/07/2014.
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import cpw.mods.fml.common.network.NetworkRegistry;
@@ -5,14 +23,12 @@ import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
-import drunkmafia.thaumicinfusion.common.world.WorldCoord;
-import drunkmafia.thaumicinfusion.net.ChannelHandler;
-import drunkmafia.thaumicinfusion.net.packet.server.BlockSyncPacketC;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
+import thaumcraft.api.WorldCoordinates;
 import thaumcraft.common.items.wands.ItemWandCasting;
 import thaumcraft.common.lib.network.PacketHandler;
 import thaumcraft.common.lib.network.fx.PacketFXBlockSparkle;
@@ -20,65 +36,48 @@ import thaumcraft.common.lib.network.fx.PacketFXBlockSparkle;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by DrunkMafia on 20/06/2014.
- * <p/>
- * See http://www.wtfpl.net/txt/copying for licence
- */
 public class AspectLink extends AspectEffect {
 
-    private static Map<Integer, WorldCoord> positions = new HashMap<Integer, WorldCoord>();
-    public WorldCoord destination;
+    private static Map<Integer, WorldCoordinates> positions = new HashMap<>();
+    public WorldCoordinates destination;
 
     @OverrideBlock(overrideBlockFunc = false)
-    public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player) {
+    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
         ItemStack wand = player.getCurrentEquippedItem();
         if (world.isRemote || wand == null || !(wand.getItem() instanceof ItemWandCasting))
-            return;
+            return false;
 
-        WorldCoord pos = getPos();
-        pos.dim = world.provider.dimensionId;
+        WorldCoordinates pos = new WorldCoordinates(x, y, z, player.dimension);
+        if (positions.containsKey(wand.hashCode())) {
+            WorldCoordinates storedDest = positions.get(wand.hashCode());
+            World worldDest = DimensionManager.getWorld(storedDest.dim);
 
-        WorldCoord savedDestination = positions.get(wand.hashCode());
-        if (savedDestination != null) {
-            positions.remove(wand.hashCode());
-            World desinationWorld = DimensionManager.getWorld(pos.dim);
+            BlockData data = TIWorldData.getWorldData(worldDest).getBlock(BlockData.class, storedDest);
+            AspectLink linkDest;
+            if (data == null || (linkDest = data.getEffect(getClass())) == null || linkDest == this) return false;
 
-            BlockData data = TIWorldData.getData(BlockData.class, desinationWorld, savedDestination);
-            if (data == null) return;
+            linkDest.destination = pos;
+            destination = storedDest;
 
-            AspectLink link = data.getEffect(getClass());
-            if (link == null || link == this) return;
-
-            link.destination = pos;
-            destination = savedDestination;
             positions.remove(wand.hashCode());
 
             world.playSoundEffect((double) x + 0.5D, (double) y + 0.5D, (double) z + 0.5D, "thaumcraft:zap", 0.25F, 1.0F);
-            PacketHandler.INSTANCE.sendToAllAround(new PacketFXBlockSparkle(x, y, z, 16556032), new NetworkRegistry.TargetPoint(player.worldObj.provider.dimensionId, (double) x, (double) y, (double) z, 32.0D));
-            ChannelHandler.network.sendToDimension(new BlockSyncPacketC(TIWorldData.getData(BlockData.class, world, pos)), world.provider.dimensionId);
-            syncBlockData();
-            return;
+            PacketHandler.INSTANCE.sendToAllAround(new PacketFXBlockSparkle(x, y, z, 16556032), new NetworkRegistry.TargetPoint(pos.dim, (double) x, (double) y, (double) z, 32.0D));
+            return false;
         }
 
         positions.put(wand.hashCode(), pos);
         world.playSoundEffect((double) x + 0.5D, (double) y + 0.5D, (double) z + 0.5D, "thaumcraft:zap", 0.25F, 1.0F);
+        return false;
     }
 
-    public WorldCoord getDestination(){
-        World world = getDestinationWorld();
-        if(world == null || destination == null)
+    public WorldCoordinates getDestination() {
+        World world;
+        if (destination == null || (world = DimensionManager.getWorld(destination.dim)) == null)
             return destination = null;
 
         BlockData blockData = TIWorldData.getWorldData(world).getBlock(BlockData.class, destination);
-        if (blockData == null)
-            return destination = null;
-
-        return (blockData.getEffect(getClass()) != null ? destination : (destination = null));
-    }
-
-    World getDestinationWorld(){
-        return destination != null ? DimensionManager.getWorld(destination.dim) : null;
+        return (blockData != null && blockData.hasEffect(getClass())) ? destination : (destination = null);
     }
 
     @Override
@@ -87,10 +86,7 @@ public class AspectLink extends AspectEffect {
 
         if(destination == null)
             return;
-
-        nbt.setInteger("dest_x", destination.x);
-        nbt.setInteger("dest_y", destination.y);
-        nbt.setInteger("dest_z", destination.z);
+        destination.writeNBT(nbt);
     }
 
     @Override
@@ -99,7 +95,7 @@ public class AspectLink extends AspectEffect {
 
         if (!nbt.hasKey("dest_x"))
             destination = null;
-
-        destination = new WorldCoord(nbt.getInteger("dest_x"), nbt.getInteger("dest_y"), nbt.getInteger("dest_z"));
+        destination = new WorldCoordinates();
+        destination.readNBT(nbt);
     }
 }

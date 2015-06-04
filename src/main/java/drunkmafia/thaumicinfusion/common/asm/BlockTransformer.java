@@ -1,3 +1,9 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.asm;
 
 import cpw.mods.fml.relauncher.CoreModManager;
@@ -20,12 +26,7 @@ import java.util.List;
 import static org.objectweb.asm.Opcodes.*;
 
 
-/**
- * Created by DrunkMafia on 25/07/2014.
- * <p/>
- * See http://www.wtfpl.net/txt/copying for licence
- */
-public class ClassTransformer implements IClassTransformer {
+public class BlockTransformer implements IClassTransformer {
 
     public static List<String> blockMethods = new ArrayList<String>();
     public static boolean isObf;
@@ -34,7 +35,7 @@ public class ClassTransformer implements IClassTransformer {
     private static Logger log = LogManager.getLogger("TI Transformer");
     private static String[] blacklistMethods = {"getExplosionResistance"};
 
-    public ClassTransformer() {
+    public BlockTransformer() {
         log.info("Class Transformer starting!");
         try {
             Field deobfuscatedEnvironment = CoreModManager.class.getDeclaredField("deobfuscatedEnvironment");
@@ -64,12 +65,6 @@ public class ClassTransformer implements IClassTransformer {
         if (bytecode == null)
             return null;
 
-        bytecode = injectBlockCode(bytecode, transformedName);
-
-        return bytecode;
-    }
-
-    public byte[] injectBlockCode(byte[] bytecode, String name) {
         ClassNode classNode = new ClassNode();
         ClassReader classReader = new ClassReader(bytecode);
         classReader.accept(classNode, 0);

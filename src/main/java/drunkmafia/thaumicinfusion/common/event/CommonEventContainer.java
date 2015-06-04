@@ -1,3 +1,9 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.event;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -7,24 +13,23 @@ import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import drunkmafia.thaumicinfusion.common.world.SavableHelper;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
+import drunkmafia.thaumicinfusion.net.packet.client.ChunkRequestPacketS;
 import drunkmafia.thaumicinfusion.net.packet.server.BlockSyncPacketC;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
 
 import java.io.File;
 import java.io.IOException;
 
-/**
- * Created by DrunkMafia on 04/11/2014.
- * See http://www.wtfpl.net/txt/copying for licence
- */
 public class CommonEventContainer {
 
     @SubscribeEvent
@@ -59,11 +64,26 @@ public class CommonEventContainer {
 
         TIWorldData worldData = TIWorldData.getWorldData(event.world);
         for(BlockSavable savable : worldData.getAllStoredData()) {
-            if (savable instanceof BlockData)
+            if (savable != null)
                 ChannelHandler.network.sendTo(new BlockSyncPacketC(savable), (EntityPlayerMP) event.entity);
-
         }
+    }
 
+    @SubscribeEvent
+    public void loadChunk(ChunkEvent.Load event) {
+        World world = event.world;
+        if (world.isRemote)
+            ChannelHandler.network.sendToServer(new ChunkRequestPacketS(event.getChunk().getChunkCoordIntPair(), world.provider.dimensionId));
+    }
+
+    @SubscribeEvent
+    public void unloadChunk(ChunkEvent.Unload event) {
+        World world = event.world;
+        if (!world.isRemote) return;
+
+        TIWorldData worldData = TIWorldData.getWorldData(world);
+        ChunkCoordIntPair pos = event.getChunk().getChunkCoordIntPair();
+        worldData.chunkDatas.set(null, pos.getCenterXPos(), pos.getCenterZPosition());
     }
 
     @SubscribeEvent

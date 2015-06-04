@@ -1,22 +1,24 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.world;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
+import thaumcraft.api.WorldCoordinates;
 
-/**
- * Created by DrunkMafia on 29/06/2014.
- * <p/>
- * See http://www.wtfpl.net/txt/copying for licence
- */
 public class BlockSavable implements ISavable {
 
     public boolean init = false;
-    protected WorldCoord coordinates;
+    protected WorldCoordinates coordinates;
 
     public BlockSavable() {
     }
 
-    public BlockSavable(WorldCoord coordinates) {
+    public BlockSavable(WorldCoordinates coordinates) {
         this.coordinates = coordinates;
     }
 
@@ -28,11 +30,11 @@ public class BlockSavable implements ISavable {
         return init;
     }
 
-    public WorldCoord getCoords() {
+    public WorldCoordinates getCoords() {
         return coordinates;
     }
 
-    public void setCoords(WorldCoord newPos){
+    public void setCoords(WorldCoordinates newPos) {
         coordinates = newPos;
     }
 
@@ -41,7 +43,7 @@ public class BlockSavable implements ISavable {
     }
 
     public void readNBT(NBTTagCompound tagCompound) {
-        coordinates = new WorldCoord();
+        coordinates = new WorldCoordinates();
         coordinates.readNBT(tagCompound);
     }
 }

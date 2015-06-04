@@ -1,3 +1,9 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
@@ -6,11 +12,6 @@ import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 
-/**
- * Created by DrunkMafia on 20/06/2014.
- * <p/>
- * See http://www.wtfpl.net/txt/copying for licence
- */
 @Effect(aspect = "humanus", cost = 4)
 public class Humanus extends AspectEffect {
 

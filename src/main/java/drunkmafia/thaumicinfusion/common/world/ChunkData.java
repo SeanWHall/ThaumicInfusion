@@ -1,3 +1,9 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.world;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -6,11 +12,6 @@ import net.minecraft.world.ChunkCoordIntPair;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by DrunkMafia on 20/06/2014.
- * <p/>
- * See http://www.wtfpl.net/txt/copying for licence
- */
 public class ChunkData implements ISavable{
 
     protected ChunkCoordIntPair chunkPos;
@@ -29,9 +30,8 @@ public class ChunkData implements ISavable{
                 for (int z = 0; z < blockdata[x][y].length; z++) {
                     final List<BlockSavable> savables = blockdata[x][y][z];
                     if(savables == null) continue;
-                    for(BlockSavable data : savables) {
+                    for (BlockSavable data : savables)
                         allData.add(data);
-                    }
                 }
             }
         }
@@ -40,11 +40,7 @@ public class ChunkData implements ISavable{
     }
 
     public void addBlock(BlockSavable data, int x, int y, int z){
-        List<BlockSavable> datas = blockdata[x & 15][y & 15][z & 15];
-        if(datas == null)
-            datas = blockdata[x & 15][y & 15][z & 15] = new ArrayList<BlockSavable>();
-
-        datas.add(data);
+        (blockdata[x & 15][y & 15][z & 15] != null ? blockdata[x & 15][y & 15][z & 15] : (blockdata[x & 15][y & 15][z & 15] = new ArrayList<>())).add(data);
     }
 
     public void removeBlock(int x, int y, int z){
@@ -76,6 +72,10 @@ public class ChunkData implements ISavable{
             }
         }
         return null;
+    }
+
+    public ChunkCoordIntPair getChunkPos() {
+        return chunkPos;
     }
 
     @Override

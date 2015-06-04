@@ -1,3 +1,9 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.client.renderer.item;
 
 import drunkmafia.thaumicinfusion.common.block.TIBlocks;
@@ -11,11 +17,7 @@ import net.minecraft.util.IIcon;
 import net.minecraftforge.client.IItemRenderer;
 import org.lwjgl.opengl.GL11;
 import thaumcraft.api.aspects.Aspect;
-/**
- * Created by DrunkMafia on 01/07/2014.
- * <p/>
- * See http://www.wtfpl.net/txt/copying for licence
- */
+
 public class EssentiaBlockRenderer implements IItemRenderer {
     @Override
     public boolean handleRenderType(ItemStack item, ItemRenderType type) {

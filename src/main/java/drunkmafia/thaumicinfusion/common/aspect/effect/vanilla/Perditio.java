@@ -1,3 +1,9 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
@@ -9,11 +15,6 @@ import net.minecraft.world.World;
 
 import java.util.Random;
 
-/**
- * Created by DrunkMafia on 25/07/2014.
- * <p/>
- * See http://www.wtfpl.net/txt/copying for licence
- */
 @Effect(aspect = ("perditio"), cost = 4)
 public class Perditio extends AspectEffect {
 

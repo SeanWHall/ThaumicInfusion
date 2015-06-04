@@ -1,3 +1,9 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.item;
 
 import cpw.mods.fml.common.network.NetworkRegistry;
@@ -8,7 +14,6 @@ import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
-import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -17,6 +22,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
+import thaumcraft.api.WorldCoordinates;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.aspects.IAspectSource;
@@ -29,9 +35,6 @@ import thaumcraft.common.tiles.TileJarFillable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Sean on 04/04/2015.
- */
 public class ItemFocusInfusing extends ItemFocusBasic {
 
     public IIcon iconOrnament;
@@ -70,22 +73,15 @@ public class ItemFocusInfusing extends ItemFocusBasic {
         return this.iconOrnament;
     }
 
-    public int getFocusColor(ItemStack itemstack) {
-        NBTTagCompound wandNBT = itemstack.getTagCompound();
-        if(wandNBT != null)
-            return Aspect.getAspect(wandNBT.getString("InfusionAspect")).getColor();
-        return 16771535;
-    }
-
     @Override
     public void addFocusInformation(ItemStack itemstack, EntityPlayer player, List list, boolean par4) {
+        super.addFocusInformation(itemstack, player, list, par4);
         NBTTagCompound wandNBT = itemstack.getTagCompound();
         if (wandNBT != null) {
             Aspect aspect = Aspect.getAspect(wandNBT.getString("InfusionAspect"));
             if (aspect != null)
                 list.add("Infusing Aspect: " + aspect.getName());
         }
-        super.addFocusInformation(itemstack, player, list, par4);
     }
 
     public AspectList getVisCost(ItemStack itemstack) {
@@ -105,21 +101,22 @@ public class ItemFocusInfusing extends ItemFocusBasic {
             } else if (wandNBT.hasKey("InfusionAspect") && !world.isRemote) {
                 Aspect aspect = Aspect.getAspect(wandNBT.getString("InfusionAspect"));
                 if (aspect != null && Thaumcraft.proxy.playerKnowledge.hasDiscoveredAspect(player.getCommandSenderName(), aspect)) {
-                    placeAspect(player, new WorldCoord(mop.blockX, mop.blockY, mop.blockZ), aspect);
+                    placeAspect(player, new WorldCoordinates(mop.blockX, mop.blockY, mop.blockZ, player.dimension), aspect);
                     world.playSoundEffect((double) mop.blockX + 0.5D, (double) mop.blockY + 0.5D, (double) mop.blockZ + 0.5D, "thaumcraft:zap", 0.25F, 1.0F);
                 }
             }
 
             itemstack.setTagCompound(wandNBT);
+            player.inventory.markDirty();
         }
         return itemstack;
     }
 
-    public void placeAspect(EntityPlayer player, WorldCoord pos, Aspect aspect){
+    public void placeAspect(EntityPlayer player, WorldCoordinates pos, Aspect aspect) {
         if(aspect != null) {
             World world = player.worldObj;
             TIWorldData worldData = TIWorldData.getWorldData(world);
-            WorldCoord coords = new WorldCoord(pos.x, pos.y, pos.z);
+            WorldCoordinates coords = new WorldCoordinates(pos.x, pos.y, pos.z, player.dimension);
             if (player.isSneaking()) {
                 BlockData data = worldData.getBlock(BlockData.class, pos);
                 if (data != null) {

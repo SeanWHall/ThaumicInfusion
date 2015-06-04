@@ -1,3 +1,9 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.net.packet.server;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
@@ -9,11 +15,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 
-/**
- * Created by DrunkMafia on 25/07/2014.
- * <p/>
- * See http://www.wtfpl.net/txt/copying for licence
- */
 public class EntitySyncPacketC implements IMessage {
 
     private int id;

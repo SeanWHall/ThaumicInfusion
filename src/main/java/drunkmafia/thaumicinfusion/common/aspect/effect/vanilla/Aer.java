@@ -1,9 +1,14 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
-import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
@@ -12,11 +17,6 @@ import net.minecraft.world.World;
 
 import java.util.List;
 
-/**
- * Created by DrunkMafia on 25/07/2014.
- * <p/>
- * See http://www.wtfpl.net/txt/copying for licence
- */
 @Effect(aspect = "aer", cost = 2)
 public class Aer extends AspectEffect {
 

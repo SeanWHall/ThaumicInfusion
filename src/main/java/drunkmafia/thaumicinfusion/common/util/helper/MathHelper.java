@@ -1,11 +1,13 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.util.helper;
 
 import net.minecraftforge.common.util.ForgeDirection;
 
-/**
- * Created by DrunkMafia on 31/10/2014.
- * See http://www.wtfpl.net/txt/copying for licence
- */
 public final class MathHelper {
 
     public static float lerp(float current, float target, float tick) {

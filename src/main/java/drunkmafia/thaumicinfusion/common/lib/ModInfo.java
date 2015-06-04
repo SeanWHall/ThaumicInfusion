@@ -1,3 +1,9 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.lib;
 
 public class ModInfo {
@@ -18,7 +24,6 @@ public class ModInfo {
 
     public static final String COMMON_PATH = BASE_PATH + ".common";
     public static final String COMMON_PROXY_PATH = COMMON_PATH + ".CommonProxy";
-    public static final String COMMON_EFFET_PATH = COMMON_PATH + ".aspect.effect.vanilla";
 
     /* JAVA Error Messages */
 

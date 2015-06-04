@@ -1,3 +1,9 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
@@ -7,11 +13,6 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
-/**
- * Created by DrunkMafia on 25/07/2014.
- *
- * See http://www.wtfpl.net/txt/copying for licence
- */
 @Effect(aspect = ("ignis"), cost = 1)
 public class Ignis  extends AspectEffect {
 

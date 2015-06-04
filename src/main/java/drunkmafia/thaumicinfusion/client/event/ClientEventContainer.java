@@ -1,3 +1,9 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.client.event;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -9,8 +15,8 @@ import drunkmafia.thaumicinfusion.common.util.RGB;
 import drunkmafia.thaumicinfusion.common.util.helper.MathHelper;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.BlockSavable;
+import drunkmafia.thaumicinfusion.common.world.ChunkData;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
-import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
@@ -36,11 +42,6 @@ import thaumcraft.common.items.wands.ItemWandCasting;
 
 import java.util.HashMap;
 
-/**
- * Created by DrunkMafia on 27/06/2014.
- * <p/>
- * See http://www.wtfpl.net/txt/copying for licence
- */
 @SideOnly(Side.CLIENT)
 public class ClientEventContainer {
 
@@ -48,14 +49,11 @@ public class ClientEventContainer {
 
     private BlockData currentdata, lastDataLookedAt;
 
-//    public static long hasWorldDataTime;
-//
 //    @SubscribeEvent
 //    public void onDrawDebugText(RenderGameOverlayEvent.Text event) {
 //        World world = Minecraft.getMinecraft().theWorld;
-//        if(Minecraft.getMinecraft().gameSettings.showDebugInfo) {
+//        if(Minecraft.getMinecraft().gameSettings.showDebugInfo)
 //
-//        }
 //    }
 
     @SideOnly(Side.CLIENT)
@@ -67,8 +65,11 @@ public class ClientEventContainer {
         if (player.isSneaking() && player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().getItem() instanceof ItemWandCasting) {
             ItemWandCasting wand = (ItemWandCasting) player.getCurrentEquippedItem().getItem();
             if (wand.getFocus(player.getCurrentEquippedItem()) != null && wand.getFocus(player.getCurrentEquippedItem()) instanceof ItemFocusInfusing) {
-                if (lastDataLookedAt == null || lastDataLookedAt.getCoords().x != target.blockX || lastDataLookedAt.getCoords().y != target.blockY || lastDataLookedAt.getCoords().z != target.blockZ)
-                    lastDataLookedAt = TIWorldData.getWorldData(player.worldObj).getBlock(BlockData.class, new WorldCoord(target.blockX, target.blockY, target.blockZ));
+                if (lastDataLookedAt == null || lastDataLookedAt.getCoords().x != target.blockX || lastDataLookedAt.getCoords().y != target.blockY || lastDataLookedAt.getCoords().z != target.blockZ) {
+                    TIWorldData worldData = TIWorldData.getWorldData(player.worldObj);
+                    if (worldData != null)
+                        lastDataLookedAt = worldData.getBlock(BlockData.class, new WorldCoordinates(target.blockX, target.blockY, target.blockZ, player.dimension));
+                }
 
                 if (lastDataLookedAt != null) {
                     ForgeDirection dir = MathHelper.sideToDirection(target.sideHit);
@@ -100,10 +101,13 @@ public class ClientEventContainer {
                     TIWorldData worldData = TIWorldData.getWorldData(world);
                     if (worldData == null)
                         return;
+                    for (ChunkData chunk : worldData.getChunksInRange((int) player.posX - 40, (int) player.posZ - 40, 80, 80)) {
+                        if (chunk == null) continue;
 
-                    for (BlockSavable savable : worldData.getAllStoredData()) {
-                        if(savable instanceof BlockData) {
-                            BlockData data = (BlockData)savable;
+                        for (BlockSavable savable : chunk.getAllBlocks()) {
+                            if (savable == null || !(savable instanceof BlockData)) continue;
+
+                            BlockData data = (BlockData) savable;
                             int x = data.getCoords().x, y = data.getCoords().y, z = data.getCoords().z;
                             currentdata = data;
 
@@ -165,7 +169,7 @@ public class ClientEventContainer {
     }
 
     private boolean isConnectedBlock(World world, int x, int y, int z) {
-        BlockData data = TIWorldData.getData(BlockData.class, world, new WorldCoord(x, y, z));
+        BlockData data = TIWorldData.getWorldData(world).getBlock(BlockData.class, new WorldCoordinates(x, y, z, world.provider.dimensionId));
         if (data == null)
             return false;
 

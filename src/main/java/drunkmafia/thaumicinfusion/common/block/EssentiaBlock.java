@@ -1,14 +1,19 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.block;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
-import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.EssentiaData;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
-import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
@@ -20,6 +25,7 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import thaumcraft.api.WorldCoordinates;
 import thaumcraft.api.aspects.Aspect;
 
 import java.util.ArrayList;
@@ -28,11 +34,6 @@ import java.util.Map;
 
 import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.*;
 
-/**
- * Created by DrunkMafia on 29/06/2014.
- * <p/>
- * See http://www.wtfpl.net/txt/copying for licence
- */
 public class EssentiaBlock extends Block {
 
     @SideOnly(Side.CLIENT)
@@ -47,6 +48,13 @@ public class EssentiaBlock extends Block {
         setHardness(1.5F);
         setLightLevel(1F);
         setResistance(10.0F);
+    }
+
+    @Override
+    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
+        BlockHandler.hasWorldData(world, x, y, z, this);
+
+        return false;
     }
 
     @Override
@@ -85,14 +93,8 @@ public class EssentiaBlock extends Block {
     }
 
     @Override
-    public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {
-        TIWorldData.getData(BlockData.class, world, new WorldCoord(x, y, z));
-        world.markBlockRangeForRenderUpdate(x, y, z, x, y, z);
-    }
-
-    @Override
     public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z, EntityPlayer player) {
-        EssentiaData data = TIWorldData.getData(EssentiaData.class, world, new WorldCoord(x, y, z));
+        EssentiaData data = TIWorldData.getWorldData(world).getBlock(EssentiaData.class, new WorldCoordinates(x, y, z, player.dimension));
         if(data != null) {
             int meta = world.getBlockMetadata(x, y, z);
             ItemStack stack = new ItemStack(this, 1, meta);
@@ -111,7 +113,7 @@ public class EssentiaBlock extends Block {
     @Override
     public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entity, ItemStack stack) {
         TIWorldData worldData = TIWorldData.getWorldData(world);
-        WorldCoord coord = new WorldCoord(x, y, z, world.provider.dimensionId);
+        WorldCoordinates coord = new WorldCoordinates(x, y, z, entity.dimension);
 
         world.setBlockMetadataWithNotify(coord.x, coord.y, coord.z, stack.getItemDamage(), 3);
         NBTTagCompound tagCompound = stack.getTagCompound();
@@ -121,7 +123,7 @@ public class EssentiaBlock extends Block {
 
     @Override
     public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune) {
-        EssentiaData data = TIWorldData.getWorldData(world).getBlock(EssentiaData.class, WorldCoord.get(x, y, z));
+        EssentiaData data = TIWorldData.getWorldData(world).getBlock(EssentiaData.class, new WorldCoordinates(x, y, z, world.provider.dimensionId));
 
         int meta = world.getBlockMetadata(x, y, z);
         ItemStack stack = new ItemStack(TIBlocks.essentiaBlock, 1, meta);
@@ -143,12 +145,12 @@ public class EssentiaBlock extends Block {
     @Override
     public void onBlockPreDestroy(World world, int x, int y, int z, int meta) {
         if (!world.isRemote)
-            TIWorldData.getWorldData(world).removeData(EssentiaData.class, new WorldCoord(x, y, z), true);
+            TIWorldData.getWorldData(world).removeData(EssentiaData.class, new WorldCoordinates(x, y, z, world.provider.dimensionId), true);
     }
 
     @SideOnly(Side.CLIENT)
     public int colorMultiplier(IBlockAccess access, int x, int y, int z){
-        EssentiaData data = TIWorldData.getData(EssentiaData.class, TIWorldData.getWorld(access), new WorldCoord(x, y, z));
+        EssentiaData data = TIWorldData.getWorldData(TIWorldData.getWorld(access)).getBlock(EssentiaData.class, new WorldCoordinates(x, y, z, Minecraft.getMinecraft().thePlayer.dimension));
         if(data == null || data.getAspect() == null)
             return 0;
         return data.getAspect().getColor();

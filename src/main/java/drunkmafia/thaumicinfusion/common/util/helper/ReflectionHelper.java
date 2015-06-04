@@ -1,14 +1,15 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.util.helper;
 
 import java.lang.reflect.Field;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
-/**
- * Created by DrunkMafia on 25/07/2014.
- * <p/>
- * See http://www.wtfpl.net/txt/copying for licence
- */
 public class ReflectionHelper {
 
     public static Map<Class<?>, Map<Class<?>, Field>> fieldCache = new IdentityHashMap<Class<?>, Map<Class<?>, Field>>();

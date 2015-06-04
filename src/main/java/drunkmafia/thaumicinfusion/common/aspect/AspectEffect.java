@@ -1,15 +1,19 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.aspect;
 
 import cpw.mods.fml.common.registry.EntityRegistry;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.effect.vanilla.*;
-import drunkmafia.thaumicinfusion.common.aspect.entity.GreedEntityItem;
 import drunkmafia.thaumicinfusion.common.aspect.entity.InfusedBlockFalling;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.ISavable;
-import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.server.BlockSyncPacketC;
 import net.minecraft.block.Block;
@@ -19,22 +23,19 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.common.config.Configuration;
+import thaumcraft.api.WorldCoordinates;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-/**
- * Created by DrunkMafia on 05/11/2014.
- * See http://www.wtfpl.net/txt/copying for licence
- */
 @Effect(aspect = "default", cost = 0)
 public class AspectEffect extends Block implements ISavable {
 
     private static HashMap<Class, ArrayList<MethodInfo>> phasedMethods = new HashMap<Class, ArrayList<MethodInfo>>();
     public BlockData data;
-    protected WorldCoord pos;
+    protected WorldCoordinates pos;
     private boolean shouldRegister;
 
     public AspectEffect() {
@@ -59,7 +60,6 @@ public class AspectEffect extends Block implements ISavable {
         AspectHandler.registerEffect(Machina.class);
         AspectHandler.registerEffect(Messis.class);
         AspectHandler.registerEffect(Mortuus.class);
-        AspectHandler.registerEffect(Motus.class);
         AspectHandler.registerEffect(Pannus.class);
         AspectHandler.registerEffect(Perditio.class);
         AspectHandler.registerEffect(Potentia.class);
@@ -78,7 +78,6 @@ public class AspectEffect extends Block implements ISavable {
         AspectHandler.registerEffect(Volatus.class);
 
         EntityRegistry.registerModEntity(InfusedBlockFalling.class, "InfusedBlockFalling", 0, ThaumicInfusion.instance, 80, 3, true);
-        EntityRegistry.registerModEntity(GreedEntityItem.class, "GreedEntityItem", 1, ThaumicInfusion.instance, 80, 3, true);
     }
 
     public static List<MethodInfo> getMethods(Class<? extends AspectEffect> clazz) {
@@ -109,19 +108,15 @@ public class AspectEffect extends Block implements ISavable {
         shouldRegister = config.getBoolean(getClass().getSimpleName(), "Effects", true, "");
     }
 
-    public void aspectInit(World world, WorldCoord pos){
+    public void aspectInit(World world, WorldCoordinates pos) {
         this.pos = pos;
     }
 
-    public WorldCoord getPos(){
-        if(pos != null){
-            pos.id = getClass().getSimpleName();
-            return pos;
-        }
-        return null;
+    public WorldCoordinates getPos() {
+        return pos;
     }
 
-    public void setCoords(WorldCoord newPos){
+    public void setCoords(WorldCoordinates newPos) {
         pos = newPos;
     }
 
@@ -145,7 +140,7 @@ public class AspectEffect extends Block implements ISavable {
     }
 
     public void readNBT(NBTTagCompound tagCompound) {
-        pos = new WorldCoord();
+        pos = new WorldCoordinates();
         pos.readNBT(tagCompound);
     }
 

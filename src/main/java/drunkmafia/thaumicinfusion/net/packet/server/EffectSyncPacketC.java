@@ -1,3 +1,9 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.net.packet.server;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
@@ -7,18 +13,14 @@ import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.SavableHelper;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
-import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.world.World;
+import thaumcraft.api.WorldCoordinates;
 
-/**
- * Created by DrunkMafia on 15/11/2014.
- * See http://www.wtfpl.net/txt/copying for licence
- */
 public class EffectSyncPacketC  implements IMessage {
 
     private AspectEffect effect;
@@ -55,7 +57,7 @@ public class EffectSyncPacketC  implements IMessage {
             AspectEffect effect = message.effect;
             if (effect == null || ctx.side.isServer()) return null;
             World world = ChannelHandler.getClientWorld();
-            WorldCoord pos = effect.getPos();
+            WorldCoordinates pos = effect.getPos();
             BlockData data = TIWorldData.getWorldData(world).getBlock(BlockData.class, effect.getPos());
             if(data != null &&  data.getEffect(effect.getClass()) != null)
                 data.getEffect(effect.getClass()).readNBT(message.tagCompound);

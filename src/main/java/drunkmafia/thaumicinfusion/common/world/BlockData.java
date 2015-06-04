@@ -1,3 +1,9 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.world;
 
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
@@ -8,6 +14,7 @@ import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
+import thaumcraft.api.WorldCoordinates;
 import thaumcraft.api.aspects.Aspect;
 
 import java.util.*;
@@ -22,7 +29,7 @@ public class BlockData extends BlockSavable implements IBlockHook {
 
     public BlockData() {}
 
-    public BlockData(WorldCoord coords, Class[] list) {
+    public BlockData(WorldCoordinates coords, Class[] list) {
         super(coords);
 
         for (AspectEffect effect : classesToEffects(list)) {
@@ -61,7 +68,7 @@ public class BlockData extends BlockSavable implements IBlockHook {
     }
 
     @Override
-    public void setCoords(WorldCoord newPos) {
+    public void setCoords(WorldCoordinates newPos) {
         super.setCoords(newPos);
         for(AspectEffect effect : dataEffects)
             effect.setCoords(newPos);
@@ -133,10 +140,5 @@ public class BlockData extends BlockSavable implements IBlockHook {
     @Override
     public boolean shouldOverride(String method) {
         return methodsOverrides.get(method) != null && methodsOverrides.get(method).overrideBlockFunc();
-    }
-
-    @Override
-    public boolean shouldHookWhenAir(String method) {
-        return methodsOverrides.get(method) != null && methodsOverrides.get(method).shouldRunAsAir();
     }
 }

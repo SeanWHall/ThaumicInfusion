@@ -1,3 +1,9 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
@@ -5,20 +11,16 @@ import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
-import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.common.config.Configuration;
+import thaumcraft.api.WorldCoordinates;
 
 import java.util.List;
 import java.util.Random;
 
-/**
- * Created by DrunkMafia on 12/11/2014.
- * See http://www.wtfpl.net/txt/copying for licence
- */
 @Effect(aspect = "volatus", cost = 4)
 public class Volatus extends AspectEffect {
 
@@ -33,7 +35,7 @@ public class Volatus extends AspectEffect {
     }
 
     @Override
-    public void aspectInit(World world, WorldCoord pos) {
+    public void aspectInit(World world, WorldCoordinates pos) {
         super.aspectInit(world, pos);
         if (!world.isRemote)
             updateTick(world, pos.x, pos.y, pos.z, world.rand);
@@ -43,7 +45,7 @@ public class Volatus extends AspectEffect {
     public void updateTick(World world, int x, int y, int z, Random random) {
         world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
 
-        WorldCoord pos = getPos();
+        WorldCoordinates pos = getPos();
 
         if(!world.isRemote && !world.isAirBlock(pos.x, pos.y + 1, pos.z))
             return;
@@ -74,7 +76,7 @@ public class Volatus extends AspectEffect {
         for(int y = 0; y < size; y++) {
             int posX = (int) player.posX, posY = (int) (player.posY - y), posZ = (int) player.posZ;
             if(! player.worldObj.isAirBlock(posX, posY, posZ)) {
-                BlockData data = TIWorldData.getData(BlockData.class, player.worldObj, new WorldCoord(posX, posY, posZ));
+                BlockData data = TIWorldData.getWorldData(player.worldObj).getBlock(BlockData.class, new WorldCoordinates(posX, posY, posZ, player.dimension));
                 if (data != null)
                     return true;
             }else
@@ -84,11 +86,11 @@ public class Volatus extends AspectEffect {
     }
 
     float getSize(World world){
-        WorldCoord pos = getPos();
+        WorldCoordinates pos = getPos();
         float ret = defSize;
         int curretY = pos.y - 1;
         while(!world.isAirBlock(pos.x, curretY, pos.z)){
-            BlockData data = TIWorldData.getData(BlockData.class, world, new WorldCoord(pos.x, curretY, pos.z));
+            BlockData data = TIWorldData.getWorldData(world).getBlock(BlockData.class, new WorldCoordinates(pos.x, curretY, pos.z, world.provider.dimensionId));
             if (data != null && data.hasEffect(Volatus.class)) {
                 ret += defSize;
                 curretY--;

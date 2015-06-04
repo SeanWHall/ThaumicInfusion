@@ -1,3 +1,9 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.net.packet.server;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
@@ -6,19 +12,14 @@ import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import drunkmafia.thaumicinfusion.common.world.SavableHelper;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
-import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.world.World;
+import thaumcraft.api.WorldCoordinates;
 
-/**
- * Created by DrunkMafia on 28/06/2014.
- * <p/>
- * See http://www.wtfpl.net/txt/copying for licence
- */
 public class BlockSyncPacketC implements IMessage {
 
     private BlockSavable data;
@@ -57,7 +58,7 @@ public class BlockSyncPacketC implements IMessage {
                 return null;
 
             World world = ChannelHandler.getClientWorld();
-            WorldCoord pos = data.getCoords();
+            WorldCoordinates pos = data.getCoords();
             TIWorldData worldData = TIWorldData.getWorldData(world);
 
             worldData.removeData(message.data.getClass(), pos, false);

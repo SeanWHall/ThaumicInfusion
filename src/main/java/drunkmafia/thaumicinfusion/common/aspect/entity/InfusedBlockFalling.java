@@ -1,3 +1,9 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.aspect.entity;
 
 import net.minecraft.block.Block;
@@ -11,11 +17,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
-/**
- * Created by DrunkMafia on 25/07/2014.
- * <p/>
- * See http://www.wtfpl.net/txt/copying for licence
- */
 public class InfusedBlockFalling extends Entity {
 
     public TileEntity tileEntity;
@@ -83,8 +84,6 @@ public class InfusedBlockFalling extends Entity {
                     if (this.worldObj.canPlaceEntityOnSide(Block.getBlockById(id), x, y, z, true, 1, null, null) && !BlockFalling.func_149831_e(this.worldObj, x, y - 1, z)) {
                         worldObj.setBlock(x, y, z, Block.getBlockById(id), meta, 3);
                         if (tileEntity != null) {
-                            System.out.println("Tile is not null");
-
                             tileEntity.xCoord = x;
                             tileEntity.yCoord = y;
                             tileEntity.zCoord = z;

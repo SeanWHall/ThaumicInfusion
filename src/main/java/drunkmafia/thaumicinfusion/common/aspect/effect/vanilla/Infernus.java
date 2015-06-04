@@ -1,3 +1,9 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
@@ -7,11 +13,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.world.World;
 
-/**
- * Created by DrunkMafia on 25/07/2014.
- *
- * See http://www.wtfpl.net/txt/copying for licence
- */
 @Effect(aspect = ("infernus"), cost = 4)
 public class Infernus extends AspectEffect {
 

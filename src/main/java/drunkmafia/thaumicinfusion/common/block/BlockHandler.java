@@ -1,18 +1,19 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.block;
 
 import drunkmafia.thaumicinfusion.common.util.IBlockHook;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
-import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import thaumcraft.api.WorldCoordinates;
 
-/**
- * Created by DrunkMafia on 04/07/2014.
- * <p/>
- * See http://www.wtfpl.net/txt/copying for licence
- */
 public final class BlockHandler {
     /**
      * Accessed by block methods to invoke code dynamically
@@ -34,7 +35,10 @@ public final class BlockHandler {
         if (world == null || block == Blocks.air)
             return false;
 
-        IBlockHook hook = (x != lastX || y != lastY || z != lastZ) ? TIWorldData.getWorldData(world).getBlock(IBlockHook.class, new WorldCoord(x, y, z)) : lastHook;
+        TIWorldData worldData = TIWorldData.getWorldData(world);
+        if (worldData == null) return false;
+
+        IBlockHook hook = worldData.getBlock(IBlockHook.class, new WorldCoordinates(x, y, z, world.provider.dimensionId));
 
         if (hook == null)
             return false;
@@ -61,7 +65,7 @@ public final class BlockHandler {
     }
 
     public static boolean overrideBlockFunctionality(World world, int x, int y, int z) {
-        IBlockHook hook = (lastHook == null || lastX == x || lastY == y || lastZ == z) ? TIWorldData.getWorldData(world).getBlock(IBlockHook.class, new WorldCoord(x, y, z)) : lastHook;
+        IBlockHook hook = (lastHook == null || lastX == x || lastY == y || lastZ == z) ? TIWorldData.getWorldData(world).getBlock(IBlockHook.class, new WorldCoordinates(x, y, z, world.provider.dimensionId)) : lastHook;
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         String methodName = lastMethod != null ? lastMethod : stackTrace[2].getMethodName().equals("overrideBlockFunctionality") ? stackTrace[3].getMethodName() : stackTrace[2].getMethodName();
 

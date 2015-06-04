@@ -1,3 +1,9 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.client.renderer;
 
 import drunkmafia.thaumicinfusion.common.aspect.entity.InfusedBlockFalling;
@@ -11,16 +17,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
-/**
- * Created by DrunkMafia on 25/07/2014.
- * <p/>
- * See http://www.wtfpl.net/txt/copying for licence
- */
 public class InfusedBlockFallingRenderer extends Render {
 
     @Override
     public void doRender(Entity entity, double x, double y, double z, float p_76986_8_, float p_76986_9_) {
-        InfusedBlockFalling fallingEntity = (InfusedBlockFalling)entity;
+        InfusedBlockFalling movingEntity = (InfusedBlockFalling) entity;
 
         GL11.glPushMatrix();
 
@@ -28,7 +29,7 @@ public class InfusedBlockFallingRenderer extends Render {
         GL11.glRotatef(-90, 0, 1F, 0);
         GL11.glScalef(4F, 4F, 4F);
 
-        EntityItem entityitem = new EntityItem(entity.worldObj, 0.0D, 0.0D, 0.0D, new ItemStack(Block.getBlockById(fallingEntity.id), 1, fallingEntity.meta));
+        EntityItem entityitem = new EntityItem(entity.worldObj, 0.0D, 0.0D, 0.0D, new ItemStack(Block.getBlockById(movingEntity.id), 1, movingEntity.meta));
         entityitem.hoverStart = 0F;
 
         RenderManager.instance.renderEntityWithPosYaw(entityitem, 0.0D, 0.0D, 0.0D, 0.0F, 0.0F);

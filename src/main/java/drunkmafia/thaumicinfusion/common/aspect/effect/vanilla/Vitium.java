@@ -1,25 +1,27 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
-import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
-import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import net.minecraft.block.Block;
 import net.minecraft.world.World;
+import thaumcraft.api.WorldCoordinates;
 import thaumcraft.common.blocks.BlockFluxGas;
 import thaumcraft.common.blocks.BlockFluxGoo;
 
 import java.util.Random;
 
-/**
- * Created by DrunkMafia on 12/11/2014.
- * See http://www.wtfpl.net/txt/copying for licence
- */
 @Effect(aspect = "vitium", cost = 1)
 public class Vitium extends AspectEffect {
 
     @OverrideBlock
-    public void aspectInit(World world,WorldCoord pos) {
+    public void aspectInit(World world, WorldCoordinates pos) {
         super.aspectInit(world, pos);
         if(!world.isRemote)
             updateTick(world, pos.x, pos.y, pos.z, new Random());

@@ -1,26 +1,29 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.net.packet.server;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
-import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.world.World;
+import thaumcraft.api.WorldCoordinates;
 
-/**
- * Created by Sean on 09/04/2015.
- */
 public class DataRemovePacketC implements IMessage {
 
     private Class clazz;
-    private WorldCoord coordinates;
+    private WorldCoordinates coordinates;
 
     public DataRemovePacketC() {
     }
 
-    public DataRemovePacketC(Class clazz, WorldCoord coordinates) {
+    public DataRemovePacketC(Class clazz, WorldCoordinates coordinates) {
         this.clazz = clazz;
         this.coordinates = coordinates;
     }
@@ -38,8 +41,7 @@ public class DataRemovePacketC implements IMessage {
                 e.printStackTrace();
             }
 
-            coordinates = new WorldCoord();
-            coordinates.fromBytes(buf);
+            coordinates = new WorldCoordinates(buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt());
         }
     }
 
@@ -52,7 +54,10 @@ public class DataRemovePacketC implements IMessage {
             buf.writeInt(bytes.length);
             for (byte aByte : bytes) buf.writeByte(aByte);
 
-            coordinates.toBytes(buf);
+            buf.writeInt(coordinates.x);
+            buf.writeInt(coordinates.y);
+            buf.writeInt(coordinates.z);
+            buf.writeInt(coordinates.dim);
         }else buf.writeByte(0);
     }
 

@@ -1,12 +1,13 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.lib;
 
 import net.minecraft.util.ResourceLocation;
 
-/**
- * Created by DrunkMafia on 16/06/2014.
- * <p/>
- * See http://www.wtfpl.net/txt/copying for licence
- */
 public class BlockInfo {
 
     public static final String infusedBlock_UnlocalizedName = "local_infused";

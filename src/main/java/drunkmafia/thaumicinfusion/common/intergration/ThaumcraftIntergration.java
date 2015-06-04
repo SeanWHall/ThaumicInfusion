@@ -1,3 +1,9 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.intergration;
 
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
@@ -22,10 +28,6 @@ import thaumcraft.common.items.ItemEssence;
 
 import java.util.ArrayList;
 
-/**
- * Created by DrunkMafia on 08/11/2014.
- * See http://www.wtfpl.net/txt/copying for licence
- */
 public class ThaumcraftIntergration {
 
     public static void init() {

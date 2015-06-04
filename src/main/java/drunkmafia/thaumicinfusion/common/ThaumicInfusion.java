@@ -1,3 +1,9 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common;
 
 import cpw.mods.fml.common.Mod;
@@ -5,7 +11,6 @@ import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.*;
-import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
@@ -76,19 +81,10 @@ public class ThaumicInfusion {
     public void postInit(FMLPostInitializationEvent event){
         AspectHandler.postInit();
         ThaumcraftIntergration.init();
-        NetworkRegistry.INSTANCE.registerGuiHandler(instance, proxy);
     }
 
     @EventHandler
     public void serverStart(FMLServerStartingEvent event){
         TICommand.init((ServerCommandManager) event.getServer().getCommandManager());
-    }
-
-    public void test() {
-        try {
-            System.out.println("T");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

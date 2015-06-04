@@ -1,31 +1,32 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.net.packet.server;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import drunkmafia.thaumicinfusion.common.world.BlockSavable;
+import drunkmafia.thaumicinfusion.common.world.ChunkData;
 import drunkmafia.thaumicinfusion.common.world.SavableHelper;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
-import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.world.World;
 
-/**
- * Created by DrunkMafia on 20/06/2014.
- * <p/>
- * See http://www.wtfpl.net/txt/copying for licence
- */
-public class SynChunkData implements IMessage {
+public class ChunkSyncPacketC implements IMessage {
 
-    private BlockSavable data;
+    private ChunkData data;
 
-    public SynChunkData() {
+    public ChunkSyncPacketC() {
     }
 
+    public ChunkSyncPacketC(ChunkData data) {
+        this.data = data;
+    }
 
     @Override
     public void fromBytes(ByteBuf buf) {
@@ -46,10 +47,15 @@ public class SynChunkData implements IMessage {
         } catch (Exception e) {}
     }
 
-    public static class Handler implements IMessageHandler<BlockSyncPacketC, IMessage> {
+    public static class Handler implements IMessageHandler<ChunkSyncPacketC, IMessage> {
         @Override
-        public IMessage onMessage(BlockSyncPacketC message, MessageContext ctx) {
+        public IMessage onMessage(ChunkSyncPacketC message, MessageContext ctx) {
+            ChunkData data = message.data;
+            if (data == null || ctx.side.isServer())
+                return null;
 
+            TIWorldData worldData = TIWorldData.getWorldData(ChannelHandler.getClientWorld());
+            worldData.chunkDatas.set(data, data.getChunkPos().getCenterXPos(), data.getChunkPos().getCenterZPosition());
             return null;
         }
     }

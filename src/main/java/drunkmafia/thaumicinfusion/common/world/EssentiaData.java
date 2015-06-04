@@ -1,20 +1,22 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.world;
 
 import net.minecraft.nbt.NBTTagCompound;
+import thaumcraft.api.WorldCoordinates;
 import thaumcraft.api.aspects.Aspect;
 
-/**
- * Created by DrunkMafia on 29/06/2014.
- * <p/>
- * See http://www.wtfpl.net/txt/copying for licence
- */
 public class EssentiaData extends BlockSavable {
 
     private Aspect aspect;
 
     public EssentiaData(){}
 
-    public EssentiaData(WorldCoord coordinates, Aspect aspect){
+    public EssentiaData(WorldCoordinates coordinates, Aspect aspect) {
         super(coordinates);
         this.aspect = aspect;
     }

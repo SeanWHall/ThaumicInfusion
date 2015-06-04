@@ -1,3 +1,9 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
@@ -6,10 +12,6 @@ import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
 
-/**
- * Created by DrunkMafia on 05/11/2014.
- * See http://www.wtfpl.net/txt/copying for licence
- */
 @Effect(aspect = ("pannus"), cost = 1)
 public class Pannus extends AspectEffect {
 

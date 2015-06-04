@@ -1,22 +1,24 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
-import drunkmafia.thaumicinfusion.common.world.WorldCoord;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.World;
 import net.minecraftforge.common.config.Configuration;
+import thaumcraft.api.WorldCoordinates;
 
 import java.util.ArrayList;
 
-/**
- * Created by DrunkMafia on 12/11/2014.
- * See http://www.wtfpl.net/txt/copying for licence
- */
 @Effect(aspect = "alienis", cost = 1)
 public class Alienis extends AspectEffect {
 
@@ -64,7 +66,7 @@ public class Alienis extends AspectEffect {
     }
 
     public ChunkCoordinates[] getPossibleWarps(World world){
-        WorldCoord pos = getPos();
+        WorldCoordinates pos = getPos();
         ArrayList<ChunkCoordinates> warps = new ArrayList<ChunkCoordinates>();
         for (int x = -size + pos.x; x < size + pos.x; x++){
             for (int y = -size + pos.y; y < size + pos.y; y++){

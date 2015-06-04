@@ -1,12 +1,15 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.util;
 
 import org.lwjgl.opengl.GL11;
 
 import java.util.Random;
 
-/**
- * Created by Sean on 08/04/2015.
- */
 public class RGB {
     private float r, g, b;
 

@@ -1,3 +1,9 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.command;
 
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
@@ -10,11 +16,6 @@ import net.minecraft.world.World;
 
 import java.util.ArrayList;
 
-/**
- * Created by DrunkMafia on 25/07/2014.
- * <p/>
- * See http://www.wtfpl.net/txt/copying for licence
- */
 public class CleanCommand extends CommandBase {
 
     ArrayList<String> players = new ArrayList<String>();

@@ -1,10 +1,16 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.world;
 
 import net.minecraft.nbt.NBTTagCompound;
 
 public class SavableHelper {
     public static <T>T loadDataFromNBT(NBTTagCompound tag) {
-        if (!tag.hasKey("class")) return null;
+        if (tag == null || !tag.hasKey("class")) return null;
         try {
             Class<?> c = Class.forName(tag.getString("class"));
             if (ISavable.class.isAssignableFrom(c)) {

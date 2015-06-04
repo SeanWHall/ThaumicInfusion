@@ -1,3 +1,9 @@
+/*
+ * @author TheDrunkMafia
+ *
+ * See http://www.wtfpl.net/txt/copying for licence
+ */
+
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import cpw.mods.fml.relauncher.Side;
@@ -10,10 +16,6 @@ import net.minecraft.world.World;
 
 import java.util.Random;
 
-/**
- * Created by DrunkMafia on 13/11/2014.
- * See http://www.wtfpl.net/txt/copying for licence
- */
 @Effect(aspect = "cognitio", cost = 1)
 public class Cognitio extends AspectEffect {
     @OverrideBlock()
