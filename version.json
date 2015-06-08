@@ -2,6 +2,21 @@
 	"versionList": [
 		{
 			"mcVersion":"Minecraft 1.7.*",
+			"modVersion":"4.05",
+			"changeLog": [
+				"Data Structure Reworked",
+				"Performance Fixed",
+				"Memory Issues Fixed",
+				"Networking Reworked",
+				"Aspect Bugs fixed",
+				"Blocks have more of their Functionality with aspect infused"
+			],
+			"updateURL":"http://www.curse.com/mc-mods/minecraft/220308-thaumic-infusion",
+			"isDirectLink":"false",
+			"newFileName":""
+		},
+		{
+			"mcVersion":"Minecraft 1.7.*",
 			"modVersion":"4.002",
 			"changeLog": [
 				"Performance issues have been resolved",
