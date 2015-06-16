@@ -10,10 +10,11 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
+import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
-import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
+import drunkmafia.thaumicinfusion.common.world.data.BlockData;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -133,8 +134,10 @@ public class ItemFocusInfusing extends ItemFocusBasic {
                     Class c = AspectHandler.getEffectFromAspect(aspect);
                     if(c == null)
                         return;
-                    if (drainAspects(player, aspect))
-                        worldData.addBlock(new BlockData(coords, new Class[]{c}), true, true);
+                    if (drainAspects(player, aspect)) {
+                        data = new BlockData(coords, new Class[]{c});
+
+                    }
                 }else{
                     for(Aspect dataAspect : data.getAspects()){
                         if(dataAspect == aspect){
@@ -148,7 +151,10 @@ public class ItemFocusInfusing extends ItemFocusBasic {
                                 worldData.removeData(BlockData.class, pos, true);
                             else if(drainAspects(player, aspect)){
                                 worldData.removeData(BlockData.class, pos, true);
-                                worldData.addBlock(new BlockData(coords, newAspects.toArray(new Class[newAspects.size()])), true, true);
+                                data = new BlockData(coords, newAspects.toArray(new Class[newAspects.size()]));
+                                for (AspectEffect effect : data.getEffects())
+                                    effect.onPlaceEffect(player);
+                                worldData.addBlock(data, true, true);
                             }
                             return;
                         }
@@ -160,8 +166,13 @@ public class ItemFocusInfusing extends ItemFocusBasic {
                             newAspects.add(AspectHandler.getEffectFromAspect(dataAspect));
 
                         worldData.removeData(BlockData.class, pos, true);
-                        worldData.addBlock(new BlockData(coords, newAspects.toArray(new Class[newAspects.size()])), true, true);
+                        data = new BlockData(coords, newAspects.toArray(new Class[newAspects.size()]));
                     }
+                }
+                if (data != null) {
+                    for (AspectEffect effect : data.getEffects())
+                        effect.onPlaceEffect(player);
+                    worldData.addBlock(data, true, true);
                 }
                 PacketHandler.INSTANCE.sendToAllAround(new PacketFXBlockSparkle(pos.x, pos.y, pos.z, 16556032), new NetworkRegistry.TargetPoint(player.worldObj.provider.dimensionId, (double) pos.x, (double) pos.y, (double) pos.z, 32.0D));
             }

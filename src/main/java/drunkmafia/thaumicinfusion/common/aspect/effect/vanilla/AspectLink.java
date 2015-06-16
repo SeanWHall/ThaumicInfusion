@@ -21,8 +21,8 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
-import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
+import drunkmafia.thaumicinfusion.common.world.data.BlockData;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -38,7 +38,7 @@ import java.util.Map;
 
 public class AspectLink extends AspectEffect {
 
-    private static Map<Integer, WorldCoordinates> positions = new HashMap<>();
+    private static Map<Integer, WorldCoordinates> positions = new HashMap<Integer, WorldCoordinates>();
     public WorldCoordinates destination;
 
     @OverrideBlock(overrideBlockFunc = false)

@@ -4,13 +4,15 @@
  * See http://www.wtfpl.net/txt/copying for licence
  */
 
-package drunkmafia.thaumicinfusion.common.world;
+package drunkmafia.thaumicinfusion.common.world.data;
 
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.util.IBlockHook;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
+import drunkmafia.thaumicinfusion.common.world.SavableHelper;
+import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;

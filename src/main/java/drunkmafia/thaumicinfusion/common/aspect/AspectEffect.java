@@ -12,13 +12,10 @@ import drunkmafia.thaumicinfusion.common.aspect.effect.vanilla.*;
 import drunkmafia.thaumicinfusion.common.aspect.entity.InfusedBlockFalling;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
-import drunkmafia.thaumicinfusion.common.world.BlockData;
 import drunkmafia.thaumicinfusion.common.world.ISavable;
-import drunkmafia.thaumicinfusion.net.ChannelHandler;
-import drunkmafia.thaumicinfusion.net.packet.server.BlockSyncPacketC;
+import drunkmafia.thaumicinfusion.common.world.data.BlockData;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
@@ -46,6 +43,7 @@ public class AspectEffect extends Block implements ISavable {
     public static void init(){
         AspectHandler.registerEffect(Aer.class);
         AspectHandler.registerEffect(Alienis.class);
+        AspectHandler.registerEffect(Aqua.class);
         AspectHandler.registerEffect(Bestia.class);
         AspectHandler.registerEffect(Cognitio.class);
         AspectHandler.registerEffect(Exanimis.class);
@@ -76,6 +74,7 @@ public class AspectEffect extends Block implements ISavable {
         AspectHandler.registerEffect(Vitium.class);
         AspectHandler.registerEffect(Vitreus.class);
         AspectHandler.registerEffect(Volatus.class);
+        AspectHandler.registerEffect(Ordo.class);
 
         EntityRegistry.registerModEntity(InfusedBlockFalling.class, "InfusedBlockFalling", 0, ThaumicInfusion.instance, 80, 3, true);
     }
@@ -100,12 +99,12 @@ public class AspectEffect extends Block implements ISavable {
         return meths;
     }
 
-    public void syncBlockData() {
-        ChannelHandler.network.sendToAll(new BlockSyncPacketC(data));
-    }
-
     public void readConfig(Configuration config) {
         shouldRegister = config.getBoolean(getClass().getSimpleName(), "Effects", true, "");
+    }
+
+    public void onPlaceEffect(EntityPlayer player) {
+
     }
 
     public void aspectInit(World world, WorldCoordinates pos) {
@@ -123,12 +122,6 @@ public class AspectEffect extends Block implements ISavable {
     public boolean shouldRegister(){
         return true;
     }
-
-    public void interactWithEntity(EntityPlayer player, Entity Target) {
-
-    }
-
-    public void worldBlockInteracted(EntityPlayer player, World world, int x, int y, int z, int face) {}
 
     public boolean hasMethod(String methName){
         return getMethods(getClass()).contains(methName);

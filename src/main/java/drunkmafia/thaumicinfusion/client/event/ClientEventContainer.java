@@ -13,10 +13,10 @@ import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.item.ItemFocusInfusing;
 import drunkmafia.thaumicinfusion.common.util.RGB;
 import drunkmafia.thaumicinfusion.common.util.helper.MathHelper;
-import drunkmafia.thaumicinfusion.common.world.BlockData;
-import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import drunkmafia.thaumicinfusion.common.world.ChunkData;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
+import drunkmafia.thaumicinfusion.common.world.data.BlockData;
+import drunkmafia.thaumicinfusion.common.world.data.BlockSavable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
@@ -56,7 +56,7 @@ public class ClientEventContainer {
 //
 //    }
 
-    @SideOnly(Side.CLIENT)
+
     @SubscribeEvent
     public void blockHighlight(DrawBlockHighlightEvent event) {
         MovingObjectPosition target = event.target;

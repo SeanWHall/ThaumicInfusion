@@ -14,8 +14,10 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
+import thaumcraft.api.WorldCoordinates;
 
 import java.util.List;
+import java.util.Random;
 
 @Effect(aspect = "aer", cost = 2)
 public class Aer extends AspectEffect {
@@ -23,8 +25,16 @@ public class Aer extends AspectEffect {
     static long maxCooldown = 2000L;
     long cooldown;
 
-    @OverrideBlock
-    public void updateBlock(World world) {
+    @Override
+    public void aspectInit(World world, WorldCoordinates pos) {
+        super.aspectInit(world, pos);
+        if (!world.isRemote)
+            updateTick(world, pos.x, pos.y, pos.z, world.rand);
+    }
+
+    @OverrideBlock(overrideBlockFunc = false)
+    public void updateTick(World world, int x, int y, int z, Random random) {
+        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
         if(world.isRemote)
             return;
 
@@ -39,5 +49,10 @@ public class Aer extends AspectEffect {
         }
 
 
+    }
+
+    @OverrideBlock(overrideBlockFunc = false)
+    public void onBlockAdded(World world, int x, int y, int z) {
+        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
     }
 }

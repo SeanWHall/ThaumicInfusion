@@ -4,7 +4,7 @@
  * See http://www.wtfpl.net/txt/copying for licence
  */
 
-package drunkmafia.thaumicinfusion.common.world;
+package drunkmafia.thaumicinfusion.common.world.data;
 
 import net.minecraft.nbt.NBTTagCompound;
 import thaumcraft.api.WorldCoordinates;

@@ -29,9 +29,11 @@ import static org.objectweb.asm.Opcodes.*;
 public class BlockTransformer implements IClassTransformer {
 
     public static List<String> blockMethods = new ArrayList<String>();
+    public static List<Interface> blockInterfaces = new ArrayList<>();
     public static boolean isObf;
-    public static String block, world, iBlockAccess, getMaterial, chunk;
-    public static BufferedWriter logger;
+
+    private static String block, world, iBlockAccess;
+    private static BufferedWriter logger;
     private static Logger log = LogManager.getLogger("TI Transformer");
     private static String[] blacklistMethods = {"getExplosionResistance"};
 
@@ -51,13 +53,14 @@ public class BlockTransformer implements IClassTransformer {
         block = isObf ? "aji" : "net/minecraft/block/Block";
         world = isObf ? "ahb" : "net/minecraft/world/World";
         iBlockAccess = isObf ? "ahl" : "net/minecraft/world/IBlockAccess";
-        getMaterial = isObf ? "func_149688_o" : "getMaterial";
-        chunk = isObf ? "apx" : "net/minecraft/world/chunk/Chunk";
 
         log.info("Block: " + block);
         log.info("World: " + world);
         log.info("Access: " + iBlockAccess);
-        log.info(("Chunk: " + chunk));
+
+        Interface infusionStabiliser = new Interface("thaumcraft/api/crafting/IInfusionStabiliser");
+        infusionStabiliser.addMethod(new IMethod("canStabaliseInfusion", "Z", "L" + world + ";III"));
+        blockInterfaces.add(infusionStabiliser);
     }
 
     @Override
@@ -72,6 +75,7 @@ public class BlockTransformer implements IClassTransformer {
         boolean isBlockClass = classNode.name.equals(block);
         if (classNode.name.equals("drunkmafia/thaumicinfusion/common/aspect/AspectEffect") || !classNode.superName.equals(block) && !classNode.name.equals(block))
             return bytecode;
+
         try {
             logger.write("==== " + name + " ==== \nFound block Class \n");
         } catch (IOException e) {
@@ -79,6 +83,11 @@ public class BlockTransformer implements IClassTransformer {
         }
         try {
             int methodNo = 1;
+            if (isBlockClass) {
+                for (Interface inter : blockInterfaces)
+                    inter.injectMethodsIntoClass(classNode);
+            }
+
             for (MethodNode method : classNode.methods) {
                 boolean isBlockMethod = isBlockClass;
                 if (!isBlockMethod) {

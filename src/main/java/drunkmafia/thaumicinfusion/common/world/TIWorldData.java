@@ -9,6 +9,7 @@ package drunkmafia.thaumicinfusion.common.world;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.util.Coordinate2List;
 import drunkmafia.thaumicinfusion.common.util.helper.ReflectionHelper;
+import drunkmafia.thaumicinfusion.common.world.data.BlockSavable;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.server.BlockSyncPacketC;
 import drunkmafia.thaumicinfusion.net.packet.server.DataRemovePacketC;
@@ -24,34 +25,45 @@ import java.util.Collections;
 
 public class TIWorldData implements ISavable {
 
-    public static Coordinate2List<TIWorldData> worldDatas = new Coordinate2List<>(TIWorldData.class);
+    public static Coordinate2List<TIWorldData> worldDatas = new Coordinate2List<TIWorldData>(TIWorldData.class);
 
     public World world;
 
-    public Coordinate2List<ChunkData> chunkDatas = new Coordinate2List<>(ChunkData.class);
+    public Coordinate2List<ChunkData> chunkDatas = new Coordinate2List<ChunkData>(ChunkData.class);
 
     public static TIWorldData getWorldData(World world) {
-        if (world == null || world.getWorldInfo() == null || world.provider == null)
-            return null;
+        try {
+            if (world == null || world.provider == null)
+                return null;
 
-        int dimensionID = world.provider.dimensionId;
-        TIWorldData worldData = worldDatas.get(dimensionID, 0);
+            int dimensionID = world.provider.dimensionId;
+            TIWorldData worldData = worldDatas.get(dimensionID, 0);
 
-        if (worldData != null) {
+            if (worldData != null) {
+                worldData.world = world;
+                return worldData;
+            }
+
+            worldData = new TIWorldData();
             worldData.world = world;
+            worldDatas.set(worldData, dimensionID, 0);
             return worldData;
+        } catch (Exception e) {
         }
-
-        worldData = new TIWorldData();
-        worldData.world = world;
-        worldDatas.set(worldData, dimensionID, 0);
-        return worldData;
+        return null;
     }
 
     public static World getWorld(IBlockAccess blockAccess) {
         return ThaumicInfusion.instance.side.isServer() ? blockAccess instanceof World ? (World) blockAccess : ReflectionHelper.getObjFromField(World.class, blockAccess) : ChannelHandler.getClientWorld();
     }
 
+    /**
+     * Adds block to world data
+     *
+     * @param block  to be saved to the world data
+     * @param init   if true will initialize the data
+     * @param packet will sync to the client if true
+     */
     public void addBlock(BlockSavable block, boolean init, boolean packet){
         if (block == null)
             return;
@@ -62,13 +74,15 @@ public class TIWorldData implements ISavable {
         if (init && !block.isInit())
             block.dataLoad(world);
 
-        ChunkCoordIntPair chunkPos = new ChunkCoordIntPair(block.coordinates.x >> 4, block.coordinates.z >> 4);
+        WorldCoordinates coordinates = block.getCoords();
+
+        ChunkCoordIntPair chunkPos = new ChunkCoordIntPair(coordinates.x >> 4, coordinates.z >> 4);
 
         ChunkData chunkData = chunkDatas.get(chunkPos.getCenterXPos(), chunkPos.getCenterZPosition());
         if (chunkData == null)
             chunkData = chunkDatas.set(new ChunkData(chunkPos), chunkPos.getCenterXPos(), chunkPos.getCenterZPosition());
 
-        chunkData.addBlock(block, block.coordinates.x, block.coordinates.y, block.coordinates.z);
+        chunkData.addBlock(block, coordinates.x, coordinates.y, coordinates.z);
 
         if (!world.isRemote && packet)
             ChannelHandler.network.sendToDimension(new BlockSyncPacketC(block), world.provider.dimensionId);
@@ -94,7 +108,7 @@ public class TIWorldData implements ISavable {
             if (world == null)
                 world = DimensionManager.getWorld(savable.getCoords().dim);
             else
-                savable.coordinates.dim = world.provider.dimensionId;
+                savable.getCoords().dim = world.provider.dimensionId;
 
             if (!savable.isInit())
                 savable.dataLoad(world);
@@ -119,8 +133,8 @@ public class TIWorldData implements ISavable {
         }
     }
 
-    public BlockSavable[] getAllStoredData(){
-        ArrayList<BlockSavable> savables = new ArrayList<>();
+    public BlockSavable[] getAllStoredData() {
+        ArrayList<BlockSavable> savables = new ArrayList<BlockSavable>();
         ChunkData[] chunks = chunkDatas.toArray();
         for (ChunkData chunk : chunks) {
             if (chunk != null)

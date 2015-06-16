@@ -137,7 +137,7 @@ public class Coordinate2List<T> {
 
         x = (x < 0) ? -x : x;
         z = (z < 0) ? -z : z;
-        return (x < array.length && z < array[x].length && array[x][z] != null && array[x][z] >= 0 && array[x][z] < elementData).length ? elementData[array[x][z]] : null;
+        return (x >= 0 && x < array.length && z >= 0 && z < array[x].length && array[x][z] != null && array[x][z] >= 0 && array[x][z] < elementData.length) ? elementData[array[x][z]] : null;
     }
 
     /**

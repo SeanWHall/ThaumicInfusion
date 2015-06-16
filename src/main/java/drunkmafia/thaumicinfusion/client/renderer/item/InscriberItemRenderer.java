@@ -15,7 +15,7 @@ import thaumcraft.codechicken.lib.vec.Rotation;
 import thaumcraft.codechicken.lib.vec.Scale;
 import thaumcraft.codechicken.lib.vec.Translation;
 
-import static drunkmafia.thaumicinfusion.client.renderer.RenderingHelper.renderSimpleModel;
+import static drunkmafia.thaumicinfusion.client.RenderingHelper.renderSimpleModel;
 
 public class InscriberItemRenderer implements IItemRenderer {
 

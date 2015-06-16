@@ -20,7 +20,7 @@ import thaumcraft.codechicken.lib.vec.Scale;
 import thaumcraft.codechicken.lib.vec.Translation;
 import thaumcraft.codechicken.lib.vec.Vector3;
 
-import static drunkmafia.thaumicinfusion.client.renderer.RenderingHelper.*;
+import static drunkmafia.thaumicinfusion.client.RenderingHelper.*;
 
 @SideOnly(Side.CLIENT)
 public class InscriberTileRenderer extends TileEntitySpecialRenderer {

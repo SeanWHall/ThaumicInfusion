@@ -7,11 +7,9 @@
 package drunkmafia.thaumicinfusion.common.event;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
-import drunkmafia.thaumicinfusion.common.world.BlockData;
-import drunkmafia.thaumicinfusion.common.world.BlockSavable;
 import drunkmafia.thaumicinfusion.common.world.SavableHelper;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
+import drunkmafia.thaumicinfusion.common.world.data.BlockSavable;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.client.ChunkRequestPacketS;
 import drunkmafia.thaumicinfusion.net.packet.server.BlockSyncPacketC;
@@ -22,40 +20,14 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
-import net.minecraftforge.event.entity.player.EntityInteractEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 
 public class CommonEventContainer {
-
-    @SubscribeEvent
-    public void onEntityInteract(EntityInteractEvent event) {
-        BlockSavable[] datas = TIWorldData.getWorldData(event.entityPlayer.worldObj).getAllStoredData();
-        for (BlockSavable savable : datas) {
-            if (savable instanceof BlockData) {
-                BlockData data = (BlockData) savable;
-                for (AspectEffect effect : data.getEffects())
-                    effect.interactWithEntity(event.entityPlayer, event.target);
-            }
-        }
-    }
-
-    @SubscribeEvent
-    public void onClick(PlayerInteractEvent event) {
-        BlockSavable[] datas = TIWorldData.getWorldData(event.world).getAllStoredData();
-        for(BlockSavable savable : datas) {
-            if(savable instanceof BlockData) {
-                BlockData data = (BlockData) savable;
-                for (AspectEffect effect : data.getEffects()) {
-                    effect.worldBlockInteracted(event.entityPlayer, event.world, event.x, event.y, event.z, event.face);
-                }
-            }
-        }
-    }
 
     @SubscribeEvent
     public void onPlayerJoin(EntityJoinWorldEvent event) {
@@ -87,26 +59,42 @@ public class CommonEventContainer {
     }
 
     @SubscribeEvent
-    public void load(WorldEvent.Load event) throws IOException {
+    public void load(WorldEvent.Load event) {
         World world = event.world;
-        NBTTagCompound tagCompound = CompressedStreamTools.read(new File("world/data/" + world.getWorldInfo().getWorldName() + "_" + world.provider.dimensionId + "_TIWorldData"));
-        if (tagCompound == null)
-            return;
+        try {
+            File file = new File("TIWorldData/" + world.getWorldInfo().getWorldName() + "_" + world.provider.dimensionId + "_TIWorldData.dat");
+            if (!file.exists())
+                return;
 
-        TIWorldData data = SavableHelper.loadDataFromNBT(tagCompound);
+            NBTTagCompound tagCompound = CompressedStreamTools.read(file);
+            if (tagCompound == null)
+                return;
 
-        if (data != null) {
-            data.postLoad();
-            TIWorldData.worldDatas.set(data, world.provider.dimensionId, 0);
+            TIWorldData data = SavableHelper.loadDataFromNBT(tagCompound);
+
+            if (data != null) {
+                data.postLoad();
+                TIWorldData.worldDatas.set(data, world.provider.dimensionId, 0);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     @SubscribeEvent
-    public void save(WorldEvent.Save event) throws IOException {
+    public void save(WorldEvent.Save event) {
         World world = event.world;
-        TIWorldData worldData = TIWorldData.getWorldData(world);
-        NBTTagCompound tagCompound = SavableHelper.saveDataToNBT(worldData);
-        if (tagCompound != null)
-            CompressedStreamTools.write(tagCompound, new File("world/data/" + world.getWorldInfo().getWorldName() + "_" + world.provider.dimensionId + "_TIWorldData"));
+        try {
+            TIWorldData worldData = TIWorldData.getWorldData(world);
+            NBTTagCompound tagCompound = SavableHelper.saveDataToNBT(worldData);
+            if (tagCompound != null) {
+                File file = new File("TIWorldData/" + world.getWorldInfo().getWorldName() + "_" + world.provider.dimensionId + "_TIWorldData.dat");
+                FileUtils.forceMkdir(new File("TIWorldData"));
+
+                CompressedStreamTools.write(tagCompound, file);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

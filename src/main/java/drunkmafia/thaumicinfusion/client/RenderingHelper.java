@@ -4,7 +4,7 @@
  * See http://www.wtfpl.net/txt/copying for licence
  */
 
-package drunkmafia.thaumicinfusion.client.renderer;
+package drunkmafia.thaumicinfusion.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderBlocks;
