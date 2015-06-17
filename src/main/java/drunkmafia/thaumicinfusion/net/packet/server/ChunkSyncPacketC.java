@@ -12,10 +12,14 @@ import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import drunkmafia.thaumicinfusion.common.world.ChunkData;
 import drunkmafia.thaumicinfusion.common.world.SavableHelper;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
+import drunkmafia.thaumicinfusion.common.world.data.BlockSavable;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.ChunkCoordIntPair;
+import net.minecraft.world.World;
+import thaumcraft.api.WorldCoordinates;
 
 public class ChunkSyncPacketC implements IMessage {
 
@@ -53,9 +57,16 @@ public class ChunkSyncPacketC implements IMessage {
             ChunkData data = message.data;
             if (data == null || ctx.side.isServer())
                 return null;
+            World world = ChannelHandler.getClientWorld();
+            TIWorldData worldData = TIWorldData.getWorldData(world);
+            ChunkCoordIntPair chunkPos = data.getChunkPos();
 
-            TIWorldData worldData = TIWorldData.getWorldData(ChannelHandler.getClientWorld());
-            worldData.chunkDatas.set(data, data.getChunkPos().getCenterXPos(), data.getChunkPos().getCenterZPosition());
+            worldData.chunkDatas.set(data, chunkPos.getCenterXPos(), chunkPos.getCenterZPosition());
+
+            for (BlockSavable savable : data.getAllBlocks()) {
+                WorldCoordinates blockPos = savable.getCoords();
+                world.markBlockForUpdate(blockPos.x, blockPos.y, blockPos.z);
+            }
             return null;
         }
     }
