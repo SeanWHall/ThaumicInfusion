@@ -10,7 +10,7 @@ Thaumic Infusion (TI) is a magical mod, all about adding in a whole new mechanic
 
 So, an example of this would be: If you were to infuse the aspect Lux into a block, the said block would then emit light when placed in the world. If you infuse Aqua, said block would then become a tank. The list of all the effects go on.
 
-Setting Up Enviorment
+Setting Up TI in a Dev Enviorment
 --------------
 
 Fork this Repository & then clone/download it somewhere to your computer, then simply setup the enviorment by running the following command:
