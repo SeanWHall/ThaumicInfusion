@@ -20,7 +20,7 @@ import thaumcraft.api.aspects.Aspect;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 public final class AspectHandler {
 
@@ -28,6 +28,11 @@ public final class AspectHandler {
     private static HashMap<Aspect, Class> registeredEffects = new HashMap<Aspect, Class>();
     private static HashMap<Aspect, Aspect[]> opposites = new HashMap<Aspect, Aspect[]>();
 
+    /**
+     * Registers an Effect, this has to be done during the pre-initialization
+     *
+     * @param effect The effect you want to register
+     */
     public static void registerEffect(Class<? extends AspectEffect> effect){
         Logger logger = ThaumicInfusion.getLogger();
         if(isInCorretState(LoaderState.PREINITIALIZATION)) {
@@ -61,6 +66,9 @@ public final class AspectHandler {
         }
     }
 
+    /**
+     * Calculates the opposites of every effect and other misc stuff required to make the mod work
+     */
     public static void postInit(){
         Logger logger = ThaumicInfusion.getLogger();
         if(isInCorretState(LoaderState.POSTINITIALIZATION)) {
@@ -86,6 +94,13 @@ public final class AspectHandler {
         effectsToRegister = null;
     }
 
+    /**
+     * Internal use, calculates incompatible effects to ensure that effects that dont
+     * work with each are able to be infused with into a block together
+     *
+     * @param aspect The Aspect you want to check
+     * @return The opposites of the aspect
+     */
     private static Aspect[] calculateEffectOpposites(Aspect aspect){
         try {
             ArrayList<Aspect> aspects = new ArrayList<Aspect>();
@@ -105,15 +120,21 @@ public final class AspectHandler {
         return new Aspect[0];
     }
 
+    /**
+     * Internal function to ensure that the methods are called in order
+     * @param state The state you want to check
+     * @return Whether it is in this current state
+     */
     private static boolean isInCorretState(LoaderState state){
         Loader loader = Loader.instance();
         return !loader.isInState(state) && loader.activeModContainer().getModId().matches(ModInfo.MODID);
     }
 
-    public static Class getEffectFromAspect(Aspect aspects) {
-        return registeredEffects.get(aspects);
-    }
-
+    /**
+     * Check if a number of aspect can be infused together
+     * @param aspects Aspect you want to check
+     * @return Are the aspect compatible with each other
+     */
     public static boolean canInfuse(Aspect[] aspects){
         for(Aspect aspect : aspects){
             Aspect[] opposite = opposites.get(aspect);
@@ -131,6 +152,11 @@ public final class AspectHandler {
         return true;
     }
 
+    /**
+     * Gets the cost of an aspect, used when infusing
+     * @param aspect The aspect you want the cost of
+     * @return The cost of the aspect
+     */
     public static int getCostOfEffect(Aspect aspect){
         Class c = getEffectFromAspect(aspect);
         if(c == null || (c != null && c.getAnnotation(Effect.class) == null))
@@ -139,19 +165,53 @@ public final class AspectHandler {
         return annot.cost();
     }
 
-    public static Aspect[] getAspects(){
-        Map.Entry<Aspect, Class>[] entries = registeredEffects.entrySet().toArray(new Map.Entry[registeredEffects.size()]);
-        Aspect[] aspects = new Aspect[entries.length];
-        for(int i = 0; i < aspects.length; i++)
-            aspects[i] = entries[i].getKey();
-        return aspects;
+    /**
+     * Gets all the registered aspects
+     *
+     * @return An Array of all the aspects that have been registered with an effect
+     */
+    public static Aspect[] getAspects() {
+        Aspect[] aspects = getAllAspects();
+        List<Aspect> registeredAspect = new ArrayList<>();
+        for (Aspect aspect : aspects) {
+            if (registeredEffects.containsKey(aspect))
+                registeredAspect.add(aspect);
+        }
+        return registeredAspect.toArray(new Aspect[registeredAspect.size()]);
     }
 
+    /**
+     * Gets all aspects in Thaumcraft
+     *
+     * @return A Full array of all the aspects
+     */
+    public static Aspect[] getAllAspects() {
+        List<Aspect> aspects = new ArrayList<>();
+        aspects.addAll(Aspect.getPrimalAspects());
+        aspects.addAll(Aspect.getCompoundAspects());
+        return aspects.toArray(new Aspect[aspects.size()]);
+    }
+
+    /**
+     * Converts an AspectEffect Class to its registered Aspect
+     * @param effect The class you want the aspect of
+     * @return The Aspect registered with the effect
+     */
     public static Aspect getAspectsFromEffect(Class effect) {
         if(effect.isAnnotationPresent(Effect.class)){
             Effect annotation = (Effect) effect.getAnnotation(Effect.class);
             return Aspect.getAspect(annotation.aspect());
         }
         return null;
+    }
+
+    /**
+     * Converts an Aspect to its registered aspect Effect
+     *
+     * @param aspects The aspect you want the effect of
+     * @return The Aspect effect registered with the aspect
+     */
+    public static Class getEffectFromAspect(Aspect aspects) {
+        return registeredEffects.get(aspects);
     }
 }

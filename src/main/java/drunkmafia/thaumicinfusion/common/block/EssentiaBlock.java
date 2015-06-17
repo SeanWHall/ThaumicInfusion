@@ -50,11 +50,14 @@ public class EssentiaBlock extends Block {
         setResistance(10.0F);
     }
 
-    @Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
-        BlockHandler.hasWorldData(world, x, y, z, this);
-
-        return false;
+    public static ItemStack getEssentiaBlock(Aspect aspect, int meta) {
+        NBTTagCompound tag = new NBTTagCompound();
+        tag.setString("aspectTag", aspect.getTag());
+        ItemStack stack = new ItemStack(TIBlocks.essentiaBlock);
+        stack.setItemDamage(meta);
+        stack.setTagCompound(tag);
+        stack.setStackDisplayName(aspect.getName() + (meta != 0 ? (meta == 1 ? ThaumicInfusion.translate("key.essentiaBlock.brick") : ThaumicInfusion.translate("key.essentiaBlock.chiseled")) : ""));
+        return stack;
     }
 
     @Override

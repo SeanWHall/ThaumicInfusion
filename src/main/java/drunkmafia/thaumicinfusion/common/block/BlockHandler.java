@@ -29,7 +29,8 @@ public final class BlockHandler {
     }
 
     /**
-     * Checks to see if world data exists at a certain block position, returning true will trigger it to invoke the method that called this method. Via the block method
+     * Used to decided if an effects exists in this blocks position
+     * @return If true then it triggers the ASM code within the block to run the effects code
      */
     public static boolean hasWorldData(World world, int x, int y, int z, Block block) {
         if (world == null || block == Blocks.air)
@@ -64,6 +65,11 @@ public final class BlockHandler {
         return overrideBlockFunctionality(TIWorldData.getWorld(access), x, y, z);
     }
 
+    /**
+     * Used to decidede if an effects functionality should override the blocks own functionality
+     *
+     * @return If true then it stops the blocks code from running and returns the value
+     */
     public static boolean overrideBlockFunctionality(World world, int x, int y, int z) {
         IBlockHook hook = (lastHook == null || lastX == x || lastY == y || lastZ == z) ? TIWorldData.getWorldData(world).getBlock(IBlockHook.class, new WorldCoordinates(x, y, z, world.provider.dimensionId)) : lastHook;
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();

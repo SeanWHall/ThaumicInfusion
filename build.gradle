@@ -16,12 +16,12 @@ buildscript {
 }
 
 apply plugin: 'forge'
-version = "4"
+version = "4.6"
 group= "drunkmafia.thaumicinfusion"
 archivesBaseName = "ThaumicInfusion"
 
 minecraft {
-    version = "1.7.10-10.13.3.1403-1.7.10"
+    version = "1.7.10-10.13.4.1451-1.7.10"
     runDir = "eclipse"
 }
 
@@ -30,11 +30,6 @@ jar {
         attributes 'FMLCorePlugin': 'drunkmafia.thaumicinfusion.common.asm.ThaumicInfusionPlugin', 'FMLCorePluginContainsFMLMod': 'true'
     }
 }
-
-dependencies {
-    compile fileTree(dir: 'lib', include: '**/*.jar')
-}
-
 processResources {
     inputs.property "version", project.version
     inputs.property "mcversion", project.minecraft.version

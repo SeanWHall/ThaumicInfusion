@@ -25,7 +25,19 @@ import java.util.List;
 
 import static org.objectweb.asm.Opcodes.*;
 
-
+/**
+ * This transformer injects code into every single block and the main class itself, the code it injects looks like this:
+ * <p/>
+ * if(BlockHandler.hasWorldData(World, int, int, int, Block){
+ * if(BlockHandler.overrideBlockFunctionality(World, int, int, int)){
+ * return BlockHandler.block.onBlockActivated(World, int, int, int, EntityPlayer, int, float, float, float)
+ * }else{
+ * BlockHandler.block.onBlockActivated(World, int, int, int, EntityPlayer, int, float, float, float)
+ * }
+ * }
+ * <p/>
+ * This code has been optimized to try and negate the performance impact that this causes
+ */
 public class BlockTransformer implements IClassTransformer {
 
     public static List<String> blockMethods = new ArrayList<String>();
@@ -190,6 +202,12 @@ public class BlockTransformer implements IClassTransformer {
         return classWriter.toByteArray();
     }
 
+    /**
+     * Gets the World and coordinates variables index in the methods stack
+     *
+     * @param pars The parameters of the method
+     * @return a WorldParamaters that is used to load the variables
+     */
     public WorldParamaters getWorldPars(Type[] pars) {
         WorldParamaters worldPars = new WorldParamaters();
 

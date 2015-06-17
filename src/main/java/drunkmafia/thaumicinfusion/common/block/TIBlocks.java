@@ -18,8 +18,5 @@ public class TIBlocks {
 
     public static void initBlocks() {
         GameRegistry.registerBlock(essentiaBlock = new EssentiaBlock(), essentiaBlock_RegistryName);
-        //GameRegistry.registerBlock(aspectInscriber = new InscriberBlock(), inscriberBlock_RegistryName);
-
-        //GameRegistry.registerTileEntity(InscriberTile.class, inscriberBlock_TileEntity);
     }
 }
