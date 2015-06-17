@@ -10,6 +10,25 @@ Thaumic Infusion (TI) is a magical mod, all about adding in a whole new mechanic
 
 So, an example of this would be: If you were to infuse the aspect Lux into a block, the said block would then emit light when placed in the world. If you infuse Aqua, said block would then become a tank. The list of all the effects go on.
 
+Setting Up TI in a Dev Enviorment
+--------------
+
+Fork this Repository & then clone/download it somewhere to your computer, then simply setup the enviorment by running the following command:
+
+`gradlew setupDecompWorkSpace`
+
+Then depending on your choice of IDE, run:
+
+`gradlew idea or gradlew  eclipse`
+
+Once your enviorment is setup, edit your run configurations and in the VM arugments paste this in:
+
+`-Dfml.coreMods.load=drunkmafia.thaumicinfusion.common.asm.ThaumicInfusionPlugin`
+
+This will let forge know that this is also a core mod, which will allow the Transformers that the Mod uses to run. Otherwise, non of the effects will work when you infuse them into a block.
+
+If you make changes to the code, just make a pull request with a description of the changes and why they are there. If everything checks out, then I will accept the pull request.
+
 Localizing
 --------------
 
