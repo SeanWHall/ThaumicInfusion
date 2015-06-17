@@ -62,7 +62,6 @@ public class AspectEffect extends Block implements ISavable {
         AspectHandler.registerEffect(Perditio.class);
         AspectHandler.registerEffect(Potentia.class);
         AspectHandler.registerEffect(Permutatio.class);
-        AspectHandler.registerEffect(Praecantatio.class);
         AspectHandler.registerEffect(Sano.class);
         AspectHandler.registerEffect(Spiritus.class);
         AspectHandler.registerEffect(Tempestas.class);
@@ -71,7 +70,6 @@ public class AspectEffect extends Block implements ISavable {
         AspectHandler.registerEffect(Venenum.class);
         AspectHandler.registerEffect(Victus.class);
         AspectHandler.registerEffect(Vinculum.class);
-        AspectHandler.registerEffect(Vitium.class);
         AspectHandler.registerEffect(Vitreus.class);
         AspectHandler.registerEffect(Volatus.class);
         AspectHandler.registerEffect(Ordo.class);

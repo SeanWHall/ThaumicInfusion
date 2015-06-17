@@ -6,7 +6,6 @@
 
 package drunkmafia.thaumicinfusion.common.item;
 
-import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
@@ -26,12 +25,9 @@ import net.minecraft.world.World;
 import thaumcraft.api.WorldCoordinates;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
+import thaumcraft.api.aspects.IAspectContainer;
 import thaumcraft.api.aspects.IAspectSource;
 import thaumcraft.api.wands.ItemFocusBasic;
-import thaumcraft.common.Thaumcraft;
-import thaumcraft.common.lib.network.PacketHandler;
-import thaumcraft.common.lib.network.fx.PacketFXBlockSparkle;
-import thaumcraft.common.tiles.TileJarFillable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -95,13 +91,13 @@ public class ItemFocusInfusing extends ItemFocusBasic {
         if (mop != null && mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
             NBTTagCompound wandNBT = itemstack.getTagCompound() != null ? itemstack.getTagCompound() : new NBTTagCompound();
             TileEntity tile = world.getTileEntity(mop.blockX, mop.blockY, mop.blockZ);
-            if (tile != null && tile instanceof TileJarFillable) {
-                Aspect aspect = ((TileJarFillable) tile).getAspects().getAspects()[0];
+            if (tile != null && tile instanceof IAspectContainer) {
+                Aspect aspect = ((IAspectContainer) tile).getAspects().getAspects()[0];
                 if (aspect != null)
                     wandNBT.setString("InfusionAspect", aspect.getTag());
             } else if (wandNBT.hasKey("InfusionAspect") && !world.isRemote) {
                 Aspect aspect = Aspect.getAspect(wandNBT.getString("InfusionAspect"));
-                if (aspect != null && Thaumcraft.proxy.playerKnowledge.hasDiscoveredAspect(player.getCommandSenderName(), aspect)) {
+                if (aspect != null) {
                     placeAspect(player, new WorldCoordinates(mop.blockX, mop.blockY, mop.blockZ, player.dimension), aspect);
                     world.playSoundEffect((double) mop.blockX + 0.5D, (double) mop.blockY + 0.5D, (double) mop.blockZ + 0.5D, "thaumcraft:zap", 0.25F, 1.0F);
                 }
@@ -174,7 +170,6 @@ public class ItemFocusInfusing extends ItemFocusBasic {
                         effect.onPlaceEffect(player);
                     worldData.addBlock(data, true, true);
                 }
-                PacketHandler.INSTANCE.sendToAllAround(new PacketFXBlockSparkle(pos.x, pos.y, pos.z, 16556032), new NetworkRegistry.TargetPoint(player.worldObj.provider.dimensionId, (double) pos.x, (double) pos.y, (double) pos.z, 32.0D));
             }
         }
     }

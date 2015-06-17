@@ -18,7 +18,6 @@
 
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
-import cpw.mods.fml.common.network.NetworkRegistry;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
@@ -28,10 +27,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
+import thaumcraft.api.ItemApi;
 import thaumcraft.api.WorldCoordinates;
-import thaumcraft.common.items.wands.ItemWandCasting;
-import thaumcraft.common.lib.network.PacketHandler;
-import thaumcraft.common.lib.network.fx.PacketFXBlockSparkle;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +41,7 @@ public class AspectLink extends AspectEffect {
     @OverrideBlock(overrideBlockFunc = false)
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
         ItemStack wand = player.getCurrentEquippedItem();
-        if (world.isRemote || wand == null || !(wand.getItem() instanceof ItemWandCasting))
+        if (world.isRemote || wand == null || !(wand.getItem().getClass().isAssignableFrom(ItemApi.getItem("itemWandCasting", 0).getItem().getClass())))
             return false;
 
         WorldCoordinates pos = new WorldCoordinates(x, y, z, player.dimension);
@@ -62,7 +59,6 @@ public class AspectLink extends AspectEffect {
             positions.remove(wand.hashCode());
 
             world.playSoundEffect((double) x + 0.5D, (double) y + 0.5D, (double) z + 0.5D, "thaumcraft:zap", 0.25F, 1.0F);
-            PacketHandler.INSTANCE.sendToAllAround(new PacketFXBlockSparkle(x, y, z, 16556032), new NetworkRegistry.TargetPoint(pos.dim, (double) x, (double) y, (double) z, 32.0D));
             return false;
         }
 
