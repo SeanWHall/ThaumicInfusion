@@ -43,35 +43,46 @@ public class AspectEffect extends Block implements ISavable {
     public static void init(){
         AspectHandler.registerEffect(Aer.class);
         AspectHandler.registerEffect(Alienis.class);
-        AspectHandler.registerEffect(Aqua.class);
         AspectHandler.registerEffect(Bestia.class);
+
         AspectHandler.registerEffect(Cognitio.class);
+
         AspectHandler.registerEffect(Exanimis.class);
+
         AspectHandler.registerEffect(Fabrico.class);
         AspectHandler.registerEffect(Fames.class);
+
         AspectHandler.registerEffect(Humanus.class);
+
         AspectHandler.registerEffect(Ignis.class);
         AspectHandler.registerEffect(Infernus.class);
         AspectHandler.registerEffect(Iter.class);
+
         AspectHandler.registerEffect(Lucrum.class);
         AspectHandler.registerEffect(Lux.class);
+
         AspectHandler.registerEffect(Machina.class);
         AspectHandler.registerEffect(Messis.class);
         AspectHandler.registerEffect(Mortuus.class);
         AspectHandler.registerEffect(Pannus.class);
+
         AspectHandler.registerEffect(Perditio.class);
         AspectHandler.registerEffect(Potentia.class);
         AspectHandler.registerEffect(Permutatio.class);
+
         AspectHandler.registerEffect(Sano.class);
         AspectHandler.registerEffect(Spiritus.class);
+
         AspectHandler.registerEffect(Tempestas.class);
         AspectHandler.registerEffect(Terra.class);
         AspectHandler.registerEffect(Tutamen.class);
+
         AspectHandler.registerEffect(Venenum.class);
         AspectHandler.registerEffect(Victus.class);
         AspectHandler.registerEffect(Vinculum.class);
         AspectHandler.registerEffect(Vitreus.class);
         AspectHandler.registerEffect(Volatus.class);
+
         AspectHandler.registerEffect(Ordo.class);
 
         EntityRegistry.registerModEntity(InfusedBlockFalling.class, "InfusedBlockFalling", 0, ThaumicInfusion.instance, 80, 3, true);

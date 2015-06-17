@@ -20,7 +20,6 @@ import drunkmafia.thaumicinfusion.common.event.CommonEventContainer;
 import drunkmafia.thaumicinfusion.common.intergration.ThaumcraftIntergration;
 import drunkmafia.thaumicinfusion.common.item.TIItems;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
-import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import net.minecraft.command.ServerCommandManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
@@ -72,7 +71,6 @@ public class ThaumicInfusion {
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
-        ChannelHandler.init();
         MinecraftForge.EVENT_BUS.register(new CommonEventContainer());
         proxy.initRenderers();
     }

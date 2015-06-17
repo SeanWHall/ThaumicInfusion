@@ -32,6 +32,7 @@ public class Iter extends AspectLink {
         world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
         if(world.isRemote)
             return;
+
         WorldCoordinates pos = getPos();
         if (pos == null || world.isAirBlock(pos.x, pos.y, pos.z))
             return;

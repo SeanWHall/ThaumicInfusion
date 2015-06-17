@@ -37,7 +37,7 @@ public class CommonEventContainer {
         TIWorldData worldData = TIWorldData.getWorldData(event.world);
         for(BlockSavable savable : worldData.getAllStoredData()) {
             if (savable != null)
-                ChannelHandler.network.sendTo(new BlockSyncPacketC(savable), (EntityPlayerMP) event.entity);
+                ChannelHandler.instance().sendTo(new BlockSyncPacketC(savable), (EntityPlayerMP) event.entity);
         }
     }
 
@@ -45,7 +45,7 @@ public class CommonEventContainer {
     public void loadChunk(ChunkEvent.Load event) {
         World world = event.world;
         if (world.isRemote)
-            ChannelHandler.network.sendToServer(new ChunkRequestPacketS(event.getChunk().getChunkCoordIntPair(), world.provider.dimensionId));
+            ChannelHandler.instance().sendToServer(new ChunkRequestPacketS(event.getChunk().getChunkCoordIntPair(), world.provider.dimensionId));
     }
 
     @SubscribeEvent

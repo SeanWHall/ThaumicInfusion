@@ -85,7 +85,7 @@ public class TIWorldData implements ISavable {
         chunkData.addBlock(block, coordinates.x, coordinates.y, coordinates.z);
 
         if (!world.isRemote && packet)
-            ChannelHandler.network.sendToDimension(new BlockSyncPacketC(block), world.provider.dimensionId);
+            ChannelHandler.instance().sendToDimension(new BlockSyncPacketC(block), world.provider.dimensionId);
     }
 
     public ChunkData[] getChunksInRange(int xPos, int zPos, int xRange, int zRange) {
@@ -128,7 +128,7 @@ public class TIWorldData implements ISavable {
             chunkData.removeBlock(coords.x, coords.y, coords.z);
             if (sendPacket) {
                 coords.dim = world.provider.dimensionId;
-                ChannelHandler.network.sendToAll(new DataRemovePacketC(type, coords));
+                ChannelHandler.instance().sendToAll(new DataRemovePacketC(type, coords));
             }
         }
     }

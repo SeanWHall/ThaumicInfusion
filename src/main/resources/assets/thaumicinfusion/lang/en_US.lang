@@ -74,6 +74,9 @@ ti.effect_info.PERFODIO=Blocks hardness and resistance are halved
 ti.effect_info.AER=Players that stand on top of this block will be given a jump boost
 ti.effect_info.MACHINA=By linking two of this effect together, it will cause a Redstone to be emitted wireless. The signal can be sent both ways
 ti.effect_info.POTENTIA=Block simply emits a strong Redstone signal
+ti.effect_info.HUMANUS=A simpler version of Warding
+ti.effect_info.ORDO=Adds stability to nearby arcane infusion crafting
+
 
 #Mod Effects
 ti.effect_info.INFERNUS=Sets any entity that happens to touch this block on fire.

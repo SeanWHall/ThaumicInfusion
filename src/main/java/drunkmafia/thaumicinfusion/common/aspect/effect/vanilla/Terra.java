@@ -33,7 +33,7 @@ public class Terra extends AspectEffect{
             world.setBlock(pos.x, pos.y, pos.z, Blocks.air);
 
             world.spawnEntityInWorld(entity);
-            ChannelHandler.network.sendToDimension(new EntitySyncPacketC(entity), world.provider.dimensionId);
+            ChannelHandler.instance().sendToDimension(new EntitySyncPacketC(entity), world.provider.dimensionId);
         }
     }
 }
