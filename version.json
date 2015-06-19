@@ -1,6 +1,22 @@
 {
 	"versionList": [
 		{
+		  "mcVersion": "Minecraft 1.7.*",
+		  "modVersion": "4.07",
+		  "changeLog": [
+			"Networking Rebuilt",
+			"Aspects Updated",
+			"Moved code over to Thaumcraft API",
+			"Mystcraft Crash Fixed",
+			"Visual Effects not syncing fixed",
+			"Added new Effects",
+			"Localization Updated"
+		  ],
+		  "updateURL": "http://www.curse.com/mc-mods/minecraft/220308-thaumic-infusion",
+		  "isDirectLink": "false",
+		  "newFileName": ""
+		},
+	  {
 			"mcVersion":"Minecraft 1.7.*",
 			"modVersion":"4.05",
 			"changeLog": [
