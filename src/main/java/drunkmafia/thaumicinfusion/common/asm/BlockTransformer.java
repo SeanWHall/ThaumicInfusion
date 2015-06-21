@@ -20,7 +20,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.objectweb.asm.Opcodes.*;
@@ -41,13 +40,12 @@ import static org.objectweb.asm.Opcodes.*;
 public class BlockTransformer implements IClassTransformer {
 
     public static List<String> blockMethods = new ArrayList<String>();
-    public static List<Interface> blockInterfaces = new ArrayList<>();
+    public static List<Interface> blockInterfaces = new ArrayList<Interface>();
     public static boolean isObf;
 
     private static String block, world, iBlockAccess;
     private static BufferedWriter logger;
     private static Logger log = LogManager.getLogger("TI Transformer");
-    private static String[] blacklistMethods = {"getExplosionResistance"};
 
     public BlockTransformer() {
         log.info("Class Transformer starting!");
@@ -125,9 +123,6 @@ public class BlockTransformer implements IClassTransformer {
                         continue;
                 }
 
-                if (Arrays.asList(blacklistMethods).contains(method.name))
-                    continue;
-
                 if (isBlockMethod) {
                     Type[] pars = Type.getArgumentTypes(method.desc);
                     WorldParamaters worldPars = getWorldPars(pars);
@@ -161,23 +156,16 @@ public class BlockTransformer implements IClassTransformer {
                     toInsert.add(new JumpInsnNode(IFEQ, l2));
                     toInsert.add(new LabelNode());
 
-                    toInsert.add(new FieldInsnNode(GETSTATIC, "drunkmafia/thaumicinfusion/common/block/BlockHandler", "block", "L" + block + ";"));
-
-                    for (int i = 0; i < pars.length; i++)
-                        toInsert.add(new VarInsnNode(pars[i].getOpcode(ILOAD), i + 1));
-
-                    toInsert.add(new MethodInsnNode(INVOKEVIRTUAL, block, method.name, method.desc, false));
+                    //Injects Block Invocation Code
+                    injectInvokeBlock(toInsert, method, pars);
 
                     toInsert.add(new InsnNode(returnType));
 
                     toInsert.add(l2);
 
-                    toInsert.add(new FieldInsnNode(GETSTATIC, "drunkmafia/thaumicinfusion/common/block/BlockHandler", "block", "L" + block + ";"));
+                    //Injects Block Invocation Code
+                    injectInvokeBlock(toInsert, method, pars);
 
-                    for (int i = 0; i < pars.length; i++)
-                        toInsert.add(new VarInsnNode(pars[i].getOpcode(ILOAD), i + 1));
-
-                    toInsert.add(new MethodInsnNode(INVOKEVIRTUAL, block, method.name, method.desc, false));
                     if (returnType != RETURN)
                         toInsert.add(new InsnNode(POP));
 
@@ -200,6 +188,19 @@ public class BlockTransformer implements IClassTransformer {
         ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
         classNode.accept(classWriter);
         return classWriter.toByteArray();
+    }
+
+    private void injectInvokeBlock(InsnList isnList, MethodNode method, Type[] pars) {
+        isnList.add(new FieldInsnNode(GETSTATIC, "drunkmafia/thaumicinfusion/common/block/BlockHandler", "block", "L" + block + ";"));
+
+        int stackIndex = 1;
+        for (Type par : pars) {
+            int opcode = par.getOpcode(ILOAD);
+            isnList.add(new VarInsnNode(opcode, stackIndex++));
+            if (opcode == DLOAD) stackIndex++;
+        }
+
+        isnList.add(new MethodInsnNode(INVOKEVIRTUAL, block, method.name, method.desc, false));
     }
 
     /**
