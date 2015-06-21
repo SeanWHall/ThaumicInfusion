@@ -39,6 +39,11 @@ public class Humanus extends AspectEffect {
     }
 
     @OverrideBlock()
+    public float getExplosionResistance(Entity par1Entity, World world, int x, int y, int z, double explosionX, double explosionY, double explosionZ) {
+        return 999.0F;
+    }
+
+    @OverrideBlock()
     public boolean getBlocksMovement(IBlockAccess access, int x, int y, int z) {
         return false;
     }

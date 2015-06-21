@@ -6,33 +6,28 @@
 
 package drunkmafia.thaumicinfusion.common.asm;
 
-import cpw.mods.fml.relauncher.CoreModManager;
 import net.minecraft.launchwrapper.IClassTransformer;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import static drunkmafia.thaumicinfusion.common.asm.ThaumicInfusionPlugin.*;
 import static org.objectweb.asm.Opcodes.*;
 
 /**
  * This transformer injects code into every single block and the main class itself, the code it injects looks like this:
  * <p/>
  * if(BlockHandler.hasWorldData(World, int, int, int, Block){
- * if(BlockHandler.overrideBlockFunctionality(World, int, int, int)){
- * return BlockHandler.block.onBlockActivated(World, int, int, int, EntityPlayer, int, float, float, float)
- * }else{
- * BlockHandler.block.onBlockActivated(World, int, int, int, EntityPlayer, int, float, float, float)
- * }
+ *      if(BlockHandler.overrideBlockFunctionality(World, int, int, int)){
+ *          return BlockHandler.block.onBlockActivated(World, int, int, int, EntityPlayer, int, float, float, float)
+ *      }else{
+ *          BlockHandler.block.onBlockActivated(World, int, int, int, EntityPlayer, int, float, float, float)
+ *      }
  * }
  * <p/>
  * This code has been optimized to try and negate the performance impact that this causes
@@ -41,32 +36,11 @@ public class BlockTransformer implements IClassTransformer {
 
     public static List<String> blockMethods = new ArrayList<String>();
     public static List<Interface> blockInterfaces = new ArrayList<Interface>();
-    public static boolean isObf;
 
-    private static String block, world, iBlockAccess;
-    private static BufferedWriter logger;
-    private static Logger log = LogManager.getLogger("TI Transformer");
+
 
     public BlockTransformer() {
-        log.info("Class Transformer starting!");
-        try {
-            Field deobfuscatedEnvironment = CoreModManager.class.getDeclaredField("deobfuscatedEnvironment");
-            deobfuscatedEnvironment.setAccessible(true);
-            isObf = !deobfuscatedEnvironment.getBoolean(null);
-
-            logger = new BufferedWriter(new FileWriter("TI_Transformer_Log.log"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        log.info("Thaumic Infusion has detected an " + (isObf ? "Obfuscated" : "Deobfuscated") + " environment!");
-        block = isObf ? "aji" : "net/minecraft/block/Block";
-        world = isObf ? "ahb" : "net/minecraft/world/World";
-        iBlockAccess = isObf ? "ahl" : "net/minecraft/world/IBlockAccess";
-
-        log.info("Block: " + block);
-        log.info("World: " + world);
-        log.info("Access: " + iBlockAccess);
+        log.info("Block Transformer starting!");
 
         Interface infusionStabiliser = new Interface("thaumcraft/api/crafting/IInfusionStabiliser");
         infusionStabiliser.addMethod(new IMethod("canStabaliseInfusion", "Z", "L" + world + ";III"));
@@ -83,8 +57,10 @@ public class BlockTransformer implements IClassTransformer {
         classReader.accept(classNode, 0);
 
         boolean isBlockClass = classNode.name.equals(block);
-        if (classNode.name.equals("drunkmafia/thaumicinfusion/common/aspect/AspectEffect") || !classNode.superName.equals(block) && !classNode.name.equals(block))
+        if (classNode.name.equals("drunkmafia/thaumicinfusion/common/aspect/AspectEffect") || classNode.superName.equals("java/lang/Object"))
             return bytecode;
+
+        boolean hasCodeBeenInjected = false;
 
         try {
             logger.write("==== " + name + " ==== \nFound block Class \n");
@@ -172,6 +148,7 @@ public class BlockTransformer implements IClassTransformer {
                     toInsert.add(l1);
 
                     method.instructions.insert(toInsert);
+                    hasCodeBeenInjected = true;
 
                     try {
                         logger.write(methodNo++ + ") Injected block code into: " + method.name + " " + method.desc + "\n");
@@ -184,6 +161,8 @@ public class BlockTransformer implements IClassTransformer {
             e.printStackTrace();
             return bytecode;
         }
+
+        if (!hasCodeBeenInjected) return bytecode;
 
         ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
         classNode.accept(classWriter);

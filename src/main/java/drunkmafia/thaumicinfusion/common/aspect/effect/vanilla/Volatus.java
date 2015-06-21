@@ -25,7 +25,7 @@ import java.util.Random;
 public class Volatus extends AspectEffect {
 
     private int defSize = 10, tickTime = 1;
-    private List<Integer> isFlying = new ArrayList<>();
+    private List<Integer> isFlying = new ArrayList<Integer>();
 
     @Override
     public void readConfig(Configuration config) {
