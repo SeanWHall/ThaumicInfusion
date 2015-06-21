@@ -172,7 +172,7 @@ public final class AspectHandler {
      */
     public static Aspect[] getAspects() {
         Aspect[] aspects = getAllAspects();
-        List<Aspect> registeredAspect = new ArrayList<>();
+        List<Aspect> registeredAspect = new ArrayList<Aspect>();
         for (Aspect aspect : aspects) {
             if (registeredEffects.containsKey(aspect))
                 registeredAspect.add(aspect);
@@ -186,7 +186,7 @@ public final class AspectHandler {
      * @return A Full array of all the aspects
      */
     public static Aspect[] getAllAspects() {
-        List<Aspect> aspects = new ArrayList<>();
+        List<Aspect> aspects = new ArrayList<Aspect>();
         aspects.addAll(Aspect.getPrimalAspects());
         aspects.addAll(Aspect.getCompoundAspects());
         return aspects.toArray(new Aspect[aspects.size()]);

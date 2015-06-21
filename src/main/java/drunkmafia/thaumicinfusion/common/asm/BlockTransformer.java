@@ -28,11 +28,11 @@ import static org.objectweb.asm.Opcodes.*;
  * This transformer injects code into every single block and the main class itself, the code it injects looks like this:
  * <p/>
  * if(BlockHandler.hasWorldData(World, int, int, int, Block){
- * if(BlockHandler.overrideBlockFunctionality(World, int, int, int)){
- * return BlockHandler.block.onBlockActivated(World, int, int, int, EntityPlayer, int, float, float, float)
- * }else{
- * BlockHandler.block.onBlockActivated(World, int, int, int, EntityPlayer, int, float, float, float)
- * }
+ *      if(BlockHandler.overrideBlockFunctionality(World, int, int, int)){
+ *          return BlockHandler.block.onBlockActivated(World, int, int, int, EntityPlayer, int, float, float, float)
+ *      }else{
+ *          BlockHandler.block.onBlockActivated(World, int, int, int, EntityPlayer, int, float, float, float)
+ *      }
  * }
  * <p/>
  * This code has been optimized to try and negate the performance impact that this causes
