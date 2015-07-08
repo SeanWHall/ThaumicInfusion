@@ -24,33 +24,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class TIWorldData implements ISavable {
-
-    public static Coordinate2List<TIWorldData> worldDatas = new Coordinate2List<TIWorldData>(TIWorldData.class);
-
     public World world;
 
     public Coordinate2List<ChunkData> chunkDatas = new Coordinate2List<ChunkData>(ChunkData.class);
 
     public static TIWorldData getWorldData(World world) {
-        try {
-            if (world == null || world.provider == null)
-                return null;
+        if (world == null || !(world instanceof IWorldDataProvider))
+            return null;
 
-            int dimensionID = world.provider.dimensionId;
-            TIWorldData worldData = worldDatas.get(dimensionID, 0);
+        IWorldDataProvider dataProvider = (IWorldDataProvider) world;
+        TIWorldData worldData = dataProvider.getWorldData();
+        if (worldData == null)
+            dataProvider.setWorldData(worldData = new TIWorldData());
 
-            if (worldData != null) {
-                worldData.world = world;
-                return worldData;
-            }
-
-            worldData = new TIWorldData();
-            worldData.world = world;
-            worldDatas.set(worldData, dimensionID, 0);
-            return worldData;
-        } catch (Exception e) {
-        }
-        return null;
+        worldData.world = world;
+        return worldData;
     }
 
     public static World getWorld(IBlockAccess blockAccess) {
