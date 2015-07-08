@@ -61,6 +61,9 @@ public class ChunkSyncPacketC implements IMessage {
             TIWorldData worldData = TIWorldData.getWorldData(world);
             ChunkCoordIntPair chunkPos = data.getChunkPos();
 
+            for (BlockSavable block : data.getAllBlocks())
+                block.dataLoad(world);
+
             worldData.chunkDatas.set(data, chunkPos.getCenterXPos(), chunkPos.getCenterZPosition());
 
             for (BlockSavable savable : data.getAllBlocks()) {

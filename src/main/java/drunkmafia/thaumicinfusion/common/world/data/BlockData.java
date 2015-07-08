@@ -43,6 +43,8 @@ public class BlockData extends BlockSavable implements IBlockHook {
 
     @Override
     public void dataLoad(World world) {
+        super.dataLoad(world);
+
         if(world == null)
             return;
 
@@ -66,7 +68,6 @@ public class BlockData extends BlockSavable implements IBlockHook {
         }
         Set key = methodsToBlock.keySet();
         methods = (String[]) key.toArray(new String[key.size()]);
-        init = true;
     }
 
     @Override

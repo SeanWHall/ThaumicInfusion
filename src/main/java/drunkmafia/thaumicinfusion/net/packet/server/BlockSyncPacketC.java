@@ -9,6 +9,7 @@ package drunkmafia.thaumicinfusion.net.packet.server;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.world.SavableHelper;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.data.BlockSavable;
@@ -56,6 +57,8 @@ public class BlockSyncPacketC implements IMessage {
             BlockSavable data = message.data;
             if (data == null || ctx.side.isServer())
                 return null;
+
+            ThaumicInfusion.getLogger().info("Block Sync Packet");
 
             World world = ChannelHandler.getClientWorld();
             WorldCoordinates pos = data.getCoords();

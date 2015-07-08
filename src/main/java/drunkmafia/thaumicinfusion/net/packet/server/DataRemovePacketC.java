@@ -12,6 +12,7 @@ import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.World;
 import thaumcraft.api.WorldCoordinates;
 
@@ -64,12 +65,14 @@ public class DataRemovePacketC implements IMessage {
     public static class Handler implements IMessageHandler<DataRemovePacketC, IMessage> {
         @Override
         public IMessage onMessage(DataRemovePacketC message, MessageContext ctx) {
-            if (message.coordinates == null || ctx.side.isServer()) return null;
+            WorldCoordinates pos = message.coordinates;
+
+            if (pos == null || ctx.side.isServer()) return null;
             World world = ChannelHandler.getClientWorld();
 
-            if(world != null && world.provider.dimensionId == message.coordinates.dim)
-                TIWorldData.getWorldData(world).removeData(message.clazz, message.coordinates, false);
-
+            if (world != null && world.provider.dimensionId == pos.dim)
+                TIWorldData.getWorldData(world).removeData(message.clazz, pos, false);
+            Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.x, pos.y, pos.z);
             return null;
         }
     }
