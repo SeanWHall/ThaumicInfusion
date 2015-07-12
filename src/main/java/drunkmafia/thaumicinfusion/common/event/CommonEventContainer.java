@@ -7,6 +7,7 @@
 package drunkmafia.thaumicinfusion.common.event;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import drunkmafia.thaumicinfusion.common.world.IWorldDataProvider;
 import drunkmafia.thaumicinfusion.common.world.SavableHelper;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.data.BlockSavable;
@@ -31,7 +32,7 @@ public class CommonEventContainer {
 
     @SubscribeEvent
     public void onPlayerJoin(EntityJoinWorldEvent event) {
-        if (event.world.isRemote || !(event.entity instanceof EntityPlayer))
+        if (event.world == null || event.world.isRemote || !(event.entity instanceof EntityPlayer))
             return;
 
         TIWorldData worldData = TIWorldData.getWorldData(event.world);
@@ -43,6 +44,8 @@ public class CommonEventContainer {
 
     @SubscribeEvent
     public void loadChunk(ChunkEvent.Load event) {
+        if (event.world == null) return;
+
         World world = event.world;
         if (world.isRemote)
             ChannelHandler.instance().sendToServer(new ChunkRequestPacketS(event.getChunk().getChunkCoordIntPair(), world.provider.dimensionId));
@@ -50,6 +53,8 @@ public class CommonEventContainer {
 
     @SubscribeEvent
     public void unloadChunk(ChunkEvent.Unload event) {
+        if (event.world == null) return;
+
         World world = event.world;
         if (!world.isRemote) return;
 
@@ -60,6 +65,8 @@ public class CommonEventContainer {
 
     @SubscribeEvent
     public void load(WorldEvent.Load event) {
+        if (event.world == null) return;
+
         World world = event.world;
         try {
             File file = new File("TIWorldData/" + world.getWorldInfo().getWorldName() + "_" + world.provider.dimensionId + "_TIWorldData.dat");
@@ -74,15 +81,17 @@ public class CommonEventContainer {
 
             if (data != null) {
                 data.postLoad();
-                TIWorldData.worldDatas.set(data, world.provider.dimensionId, 0);
+                ((IWorldDataProvider) world).setWorldData(data);
             }
-        } catch (IOException e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
     }
 
     @SubscribeEvent
     public void save(WorldEvent.Save event) {
+        if (event.world == null) return;
+
         World world = event.world;
         try {
             TIWorldData worldData = TIWorldData.getWorldData(world);
