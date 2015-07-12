@@ -12,6 +12,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import drunkmafia.thaumicinfusion.net.packet.client.ChunkRequestPacketS;
+import drunkmafia.thaumicinfusion.net.packet.client.WandAspectPacketS;
 import drunkmafia.thaumicinfusion.net.packet.server.*;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -29,6 +30,7 @@ public class ChannelHandler extends SimpleNetworkWrapper {
 
         //Server Handled Packets
         registerMessage(ChunkRequestPacketS.Handler.class, ChunkRequestPacketS.class, getOrdinal(), S);
+        registerMessage(WandAspectPacketS.Handler.class, WandAspectPacketS.class, getOrdinal(), S);
 
         //Client Handled Packets
         registerMessage(ChunkSyncPacketC.Handler.class, ChunkSyncPacketC.class, getOrdinal(), C);

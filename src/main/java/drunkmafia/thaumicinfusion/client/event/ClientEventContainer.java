@@ -78,6 +78,14 @@ public class ClientEventContainer {
 //
 //    }
 
+    public static ItemFocusBasic getFocus(ItemStack stack) {
+        if (stack.hasTagCompound() && stack.stackTagCompound.hasKey("focus")) {
+            NBTTagCompound nbt = stack.stackTagCompound.getCompoundTag("focus");
+            return (ItemFocusBasic) ItemStack.loadItemStackFromNBT(nbt).getItem();
+        } else {
+            return null;
+        }
+    }
 
     @SubscribeEvent
     public void blockHighlight(DrawBlockHighlightEvent event) throws Exception {
@@ -201,15 +209,6 @@ public class ClientEventContainer {
             }
         }
         return same == data.getAspects().length;
-    }
-
-    public ItemFocusBasic getFocus(ItemStack stack) {
-        if (stack.hasTagCompound() && stack.stackTagCompound.hasKey("focus")) {
-            NBTTagCompound nbt = stack.stackTagCompound.getCompoundTag("focus");
-            return (ItemFocusBasic) ItemStack.loadItemStackFromNBT(nbt).getItem();
-        } else {
-            return null;
-        }
     }
 
     private IIcon getIconOnSide(World world, int x, int y, int z, int side, int ticks) throws Exception {

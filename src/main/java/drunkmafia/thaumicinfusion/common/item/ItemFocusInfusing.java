@@ -105,7 +105,10 @@ public class ItemFocusInfusing extends ItemFocusBasic {
 
             itemstack.setTagCompound(wandNBT);
             player.inventory.markDirty();
+        } else {
+            player.openGui(ThaumicInfusion.instance, 0, world, (int) player.posX, (int) player.posY, (int) player.posZ);
         }
+
         return itemstack;
     }
 
