@@ -40,7 +40,7 @@ public class ThaumcraftIntergration {
 
                 ItemStack item;
                 if (i == 0) {
-                    item = ItemApi.getItem("itemResource", 0);
+                    item = ItemApi.getItem("itemEssence", 0);
                     ((IEssentiaContainerItem) item.getItem()).setAspects(item, new AspectList().add(aspect, 8));
                 } else if (i == 1) {
                     item = EssentiaBlock.getEssentiaBlock(aspect, 0);
@@ -48,7 +48,7 @@ public class ThaumcraftIntergration {
                     item = EssentiaBlock.getEssentiaBlock(aspect, 1);
                 } else continue;
 
-                ShapedArcaneRecipe recipe = ThaumcraftApi.addArcaneCraftingRecipe("ESSENTIABLOCKS", stack, new AspectList().add(Aspect.ENTROPY, 4), "PP", "PP", Character.valueOf('P'), item);
+                ShapedArcaneRecipe recipe = ThaumcraftApi.addArcaneCraftingRecipe("ESSENTIABLOCKS", stack, new AspectList().add(Aspect.ENTROPY, 4), "PP", "PP", 'P', item);
                 if (essentiaRecipe == null)
                     essentiaRecipe = recipe;
                 if (essentiaBlock == null)
