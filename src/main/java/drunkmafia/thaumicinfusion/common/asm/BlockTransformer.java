@@ -57,16 +57,12 @@ public class BlockTransformer implements IClassTransformer {
         classReader.accept(classNode, 0);
 
         boolean isBlockClass = classNode.name.equals(block);
-        if (classNode.name.equals("drunkmafia/thaumicinfusion/common/aspect/AspectEffect") || classNode.superName.equals("java/lang/Object"))
+        if (!isBlockClass && (classNode.name.equals("drunkmafia/thaumicinfusion/common/aspect/AspectEffect") || classNode.superName.equals("java/lang/Object")))
             return bytecode;
 
         boolean hasCodeBeenInjected = false;
 
-        try {
-            logger.write("==== " + name + " ==== \nFound block Class \n");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
         try {
             int methodNo = 1;
             if (isBlockClass) {
@@ -110,6 +106,14 @@ public class BlockTransformer implements IClassTransformer {
                         blockMethods.add(method.name);
                         try {
                             logger.write("Block Method found: " + method.name + " " + method.desc + "\n");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    if (!hasCodeBeenInjected) {
+                        try {
+                            logger.write("==== " + name + " ==== \nFound block Class \n");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }

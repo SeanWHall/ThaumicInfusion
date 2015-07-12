@@ -27,8 +27,7 @@ public class ThaumicInfusionPlugin implements IFMLLoadingPlugin {
 
     public static String block, world, iBlockAccess;
 
-    @Override
-    public String[] getASMTransformerClass() {
+    public ThaumicInfusionPlugin() {
         try {
             Field deobfuscatedEnvironment = CoreModManager.class.getDeclaredField("deobfuscatedEnvironment");
             deobfuscatedEnvironment.setAccessible(true);
@@ -47,7 +46,10 @@ public class ThaumicInfusionPlugin implements IFMLLoadingPlugin {
         log.info("Block: " + block);
         log.info("World: " + world);
         log.info("Access: " + iBlockAccess);
+    }
 
+    @Override
+    public String[] getASMTransformerClass() {
         return new String[]{BlockTransformer.class.getName(), WorldTransformer.class.getName()};
     }
 
