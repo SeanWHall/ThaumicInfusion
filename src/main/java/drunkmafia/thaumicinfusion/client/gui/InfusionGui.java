@@ -18,7 +18,7 @@ import thaumcraft.client.lib.UtilsFX;
 import java.util.ArrayList;
 
 public class InfusionGui extends GuiContainer {
-    private static Image background;
+    private static Image background, parchment;
 
     private EntityPlayer player;
     private ItemStack wand;
@@ -51,8 +51,10 @@ public class InfusionGui extends GuiContainer {
             if (aspects[i] == selected) slot = aspectSlots[i];
         }
 
-        if (background == null)
+        if (background == null) {
             background = new Image(new ResourceLocation(ModInfo.MODID, "textures/gui/gui_infusion.png"), 0, 0, 0, 0, xSize, ySize);
+            parchment = new Image(new ResourceLocation("thaumcraft", "textures/misc/parchment3.png"), xSize, 0, 0, 0, 150, 150);
+        }
 
         scrollRect = new ScrollRect(10, 10, 76, 76, new Image(background.image, 24, 89, 97, 0, 25, 8), new Image(background.image, 47, 89, 120, 0, 25, 8), aspectSlots);
         scrollRect.selected = slot;
@@ -62,6 +64,7 @@ public class InfusionGui extends GuiContainer {
     protected void drawGuiContainerBackgroundLayer(float tpf, int mouseX, int mouseY) {
         background.drawImage();
         scrollRect.drawScrollBackground(mouseX, mouseY);
+        if(scrollRect.selected != null) parchment.drawImage();
     }
 
     @Override
@@ -203,7 +206,7 @@ public class InfusionGui extends GuiContainer {
             if (yIndex < maxYIndex) right.drawImage();
 
             if (mouseOver != null) {
-                ArrayList<String> tooltip = new ArrayList<>();
+                ArrayList<String> tooltip = new ArrayList<String>();
                 String aspectName = mouseOver.aspect.getName(), aspectDesc = ThaumicInfusion.translate("ti.effect_info." + aspectName.toUpperCase());
                 tooltip.add(mouseOver.aspect.getName());
                 if (isShiftKeyDown()) {

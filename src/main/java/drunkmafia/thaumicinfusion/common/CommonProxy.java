@@ -14,7 +14,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import thaumcraft.api.ItemApi;
 
-public abstract class CommonProxy implements IGuiHandler {
+public class CommonProxy implements IGuiHandler {
     public void initRenderers() {}
 
     @Override
@@ -22,6 +22,11 @@ public abstract class CommonProxy implements IGuiHandler {
         if (ID == 0 && player.isSneaking() && player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().getItem().getClass().isAssignableFrom(ItemApi.getItem("itemWandCasting", 0).getItem().getClass()) && ClientEventContainer.getFocus(player.getCurrentEquippedItem()) != null && ClientEventContainer.getFocus(player.getCurrentEquippedItem()) instanceof ItemFocusInfusing) {
             return new InfusionContainer();
         }
+        return null;
+    }
+
+    @Override
+    public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
         return null;
     }
 }

@@ -13,6 +13,8 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.*;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
+import drunkmafia.thaumicinfusion.common.asm.BlockTransformer;
+import drunkmafia.thaumicinfusion.common.asm.ThaumicInfusionPlugin;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.TIBlocks;
@@ -81,6 +83,10 @@ public class ThaumicInfusion {
     public void postInit(FMLPostInitializationEvent event){
         AspectHandler.postInit();
         ThaumcraftIntergration.init();
+
+        ThaumicInfusionPlugin.logger.close();
+        getLogger().info("Block Transformer Finished");
+        getLogger().info("Successfully injected code into " + BlockTransformer.getBlocksInjected());
     }
 
     @EventHandler

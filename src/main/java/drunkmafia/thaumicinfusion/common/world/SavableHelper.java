@@ -26,6 +26,7 @@ public class SavableHelper {
 
     public static NBTTagCompound saveDataToNBT(ISavable savable){
         NBTTagCompound tag = new NBTTagCompound();
+        if(savable == null) return tag;
         tag.setString("class", savable.getClass().getCanonicalName());
         savable.writeNBT(tag);
         return tag;
