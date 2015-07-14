@@ -9,11 +9,13 @@ package drunkmafia.thaumicinfusion.common.asm;
 import cpw.mods.fml.relauncher.CoreModManager;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
+import net.minecraft.launchwrapper.Launch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.Map;
 
@@ -22,7 +24,7 @@ import java.util.Map;
 public class ThaumicInfusionPlugin implements IFMLLoadingPlugin {
 
     public static Logger log = LogManager.getLogger("TI Transformer");
-    public static BufferedWriter logger;
+    public static PrintWriter logger;
     public static boolean isObf;
 
     public static String block, world, iBlockAccess;
@@ -33,7 +35,7 @@ public class ThaumicInfusionPlugin implements IFMLLoadingPlugin {
             deobfuscatedEnvironment.setAccessible(true);
             isObf = !deobfuscatedEnvironment.getBoolean(null);
 
-            logger = new BufferedWriter(new FileWriter("TI_Transformer_Log.log"));
+            logger = new PrintWriter("TI_Transformer.log", "UTF-8");
         } catch (Exception e) {
             e.printStackTrace();
         }

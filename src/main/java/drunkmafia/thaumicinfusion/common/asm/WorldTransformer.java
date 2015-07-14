@@ -16,7 +16,7 @@ import static org.objectweb.asm.Opcodes.*;
 public class WorldTransformer implements IClassTransformer {
 
     @Override
-    public byte[] transform(String transformedName, String obfName, byte[] bytecode) {
+    public byte[] transform(String name, String transformedName, byte[] bytecode) {
         if (!transformedName.equals("net.minecraft.world.World"))
             return bytecode;
 
