@@ -10,6 +10,7 @@ import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 import thaumcraft.api.WorldCoordinates;
@@ -36,6 +37,11 @@ public class Vinculum extends AspectEffect {
             ent.motionY = 0;
             ent.motionZ = 0;
         }
+        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+    }
+
+    @OverrideBlock(overrideBlockFunc = false)
+    public void onBlockAdded(World world, int x, int y, int z) {
         world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
     }
 }

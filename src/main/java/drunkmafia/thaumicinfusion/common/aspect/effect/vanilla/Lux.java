@@ -24,6 +24,12 @@ public class Lux extends AspectEffect {
             Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.x, pos.y, pos.z);
     }
 
+    @OverrideBlock(overrideBlockFunc = false)
+    public void onBlockAdded(World world, int x, int y, int z) {
+        if (world.isRemote)
+            Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.x, pos.y, pos.z);
+    }
+
     @OverrideBlock
     public int getLightValue(IBlockAccess world, int x, int y, int z){
         return 14;

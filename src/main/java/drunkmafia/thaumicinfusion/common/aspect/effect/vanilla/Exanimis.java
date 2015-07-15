@@ -50,4 +50,9 @@ public class Exanimis extends AspectEffect {
             if(ent.isDead && !deadPlayers.contains(ent.getCommandSenderName()))
                 deadPlayers.add(ent.getCommandSenderName());
     }
+
+    @OverrideBlock(overrideBlockFunc = false)
+    public void onBlockAdded(World world, int x, int y, int z) {
+        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+    }
 }

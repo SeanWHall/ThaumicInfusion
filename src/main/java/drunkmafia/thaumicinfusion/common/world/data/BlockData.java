@@ -109,8 +109,10 @@ public class BlockData extends BlockSavable implements IBlockHook {
     public Aspect[] getAspects(){
         AspectEffect[] effects = getEffects();
         Aspect[] aspects = new Aspect[effects.length];
-        for(int i = 0; i < effects.length; i++)
+        for(int i = 0; i < effects.length; i++) {
+            if(effects[i] == null) continue;
             aspects[i] = AspectHandler.getAspectsFromEffect(effects[i].getClass());
+        }
 
         return aspects;
     }

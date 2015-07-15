@@ -37,4 +37,9 @@ public class Sano extends AspectEffect {
         }
         world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 50);
     }
+
+    @OverrideBlock(overrideBlockFunc = false)
+    public void onBlockAdded(World world, int x, int y, int z) {
+        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+    }
 }

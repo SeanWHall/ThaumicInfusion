@@ -48,4 +48,9 @@ public class Venenum extends AspectEffect {
             cooldown = System.currentTimeMillis();
         }
     }
+
+    @OverrideBlock(overrideBlockFunc = false)
+    public void onBlockAdded(World world, int x, int y, int z) {
+        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+    }
 }

@@ -35,15 +35,6 @@ public class Perditio extends AspectEffect {
         explode(world);
     }
 
-    @OverrideBlock(overrideBlockFunc = false)
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
-        if(world.isRemote)
-            return true;
-
-        explode(world);
-        return true;
-    }
-
     void explode(World world){
         if(rand.nextInt(20) == rand.nextInt(20))
             world.createExplosion(null, getPos().x, getPos().y, getPos().z, 4.0F, true);

@@ -30,15 +30,6 @@ public class Alienis extends AspectEffect {
         size = config.getInt("Size of random tp", "Alienis", size, 1, 50, "");
     }
 
-
-    @OverrideBlock(overrideBlockFunc = false)
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float htiX, float hitY, float hitZ) {
-        if(world.isRemote)
-            return true;
-        warpEntity(world, player);
-        return true;
-    }
-
     @OverrideBlock(overrideBlockFunc = false)
     public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) {
         if(!world.isRemote && entity instanceof EntityLivingBase)

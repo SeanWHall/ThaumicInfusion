@@ -75,7 +75,6 @@ public class AspectEffect extends Block implements ISavable {
 
         AspectHandler.registerEffect(Tempestas.class);
         AspectHandler.registerEffect(Terra.class);
-        AspectHandler.registerEffect(Tutamen.class);
 
         AspectHandler.registerEffect(Venenum.class);
         AspectHandler.registerEffect(Victus.class);

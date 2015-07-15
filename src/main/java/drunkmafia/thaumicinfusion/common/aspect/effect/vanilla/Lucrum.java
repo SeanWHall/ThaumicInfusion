@@ -16,10 +16,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.config.Configuration;
 import thaumcraft.api.WorldCoordinates;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 @Effect(aspect = "lucrum", cost = 4)
 public class Lucrum extends AspectEffect {
@@ -57,6 +54,12 @@ public class Lucrum extends AspectEffect {
                 item.motionZ = item.posZ > coord.z ? -speed : speed;
             }
         }
+    }
+
+
+    @OverrideBlock(overrideBlockFunc = false)
+    public void onBlockAdded(World world, int x, int y, int z) {
+        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
     }
 
     boolean isItemNearBlock(EntityItem item){

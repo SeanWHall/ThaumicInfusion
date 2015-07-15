@@ -8,6 +8,7 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.FoodStats;
@@ -27,7 +28,7 @@ public class Fames extends AspectEffect {
             updateTick(world, pos.x, pos.y, pos.z, new Random());
     }
 
-    @Override
+    @OverrideBlock(overrideBlockFunc = false)
     public void updateTick(World world, int x, int y, int z, Random random) {
         List<EntityPlayer> players = world.getEntitiesWithinAABB(EntityPlayer.class, AxisAlignedBB.getBoundingBox(x, y, z, x + 1, y + 1, z + 1).expand(15.0D, 15.0D, 15.0D));
         for(EntityPlayer player : players) {
@@ -36,5 +37,10 @@ public class Fames extends AspectEffect {
                 food.setFoodLevel(food.getFoodLevel() - 1);
         }
         world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 50);
+    }
+
+    @OverrideBlock(overrideBlockFunc = false)
+    public void onBlockAdded(World world, int x, int y, int z) {
+        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
     }
 }

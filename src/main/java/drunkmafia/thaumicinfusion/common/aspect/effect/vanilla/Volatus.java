@@ -42,8 +42,13 @@ public class Volatus extends AspectEffect {
     }
 
     @OverrideBlock(overrideBlockFunc = false)
+    public void onBlockAdded(World world, int x, int y, int z) {
+        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), tickTime);
+    }
+
+    @OverrideBlock(overrideBlockFunc = false)
     public void updateTick(World world, int x, int y, int z, Random random) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), tickTime);
         WorldCoordinates pos = getPos();
         if (!world.isAirBlock(pos.x, pos.y + 1, pos.z))
             return;

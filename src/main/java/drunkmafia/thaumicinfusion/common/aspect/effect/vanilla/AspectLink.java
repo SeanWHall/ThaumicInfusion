@@ -18,6 +18,7 @@
 
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
+import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
@@ -25,6 +26,7 @@ import drunkmafia.thaumicinfusion.common.world.data.BlockData;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import thaumcraft.api.ItemApi;
@@ -51,17 +53,22 @@ public class AspectLink extends AspectEffect {
 
             BlockData data = TIWorldData.getWorldData(worldDest).getBlock(BlockData.class, storedDest);
             AspectLink linkDest;
-            if (data == null || (linkDest = data.getEffect(getClass())) == null || linkDest == this) return false;
+            if (data == null || (linkDest = data.getEffect(getClass())) == null || linkDest == this){
+                player.addChatMessage(new ChatComponentText(ThaumicInfusion.translate("ti.linking.fail")));
+                return false;
+            }
 
             linkDest.destination = pos;
             destination = storedDest;
 
             positions.remove(wand.hashCode());
 
+            player.addChatMessage(new ChatComponentText(ThaumicInfusion.translate("ti.linking.end")));
             world.playSoundEffect((double) x + 0.5D, (double) y + 0.5D, (double) z + 0.5D, "thaumcraft:zap", 0.25F, 1.0F);
             return false;
         }
 
+        player.addChatMessage(new ChatComponentText(ThaumicInfusion.translate("ti.linking.begin")));
         positions.put(wand.hashCode(), pos);
         world.playSoundEffect((double) x + 0.5D, (double) y + 0.5D, (double) z + 0.5D, "thaumcraft:zap", 0.25F, 1.0F);
         return false;

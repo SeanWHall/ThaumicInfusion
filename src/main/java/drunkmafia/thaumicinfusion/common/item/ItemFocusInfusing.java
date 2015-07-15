@@ -34,8 +34,7 @@ import java.util.List;
 
 public class ItemFocusInfusing extends ItemFocusBasic {
 
-    public IIcon iconOrnament;
-    IIcon depthIcon = null;
+    public IIcon iconOrnament, depthIcon = null;;
 
     public ItemFocusInfusing(){
         this.setCreativeTab(ThaumicInfusion.instance.tab);
@@ -71,43 +70,22 @@ public class ItemFocusInfusing extends ItemFocusBasic {
     }
 
     @Override
-    public void addFocusInformation(ItemStack itemstack, EntityPlayer player, List list, boolean par4) {
-        super.addFocusInformation(itemstack, player, list, par4);
-        NBTTagCompound wandNBT = itemstack.getTagCompound();
-        if (wandNBT != null) {
-            Aspect aspect = Aspect.getAspect(wandNBT.getString("InfusionAspect"));
-            if (aspect != null)
-                list.add("Infusing Aspect: " + aspect.getName());
-        }
-    }
-
-    public AspectList getVisCost(ItemStack itemstack) {
+    public AspectList getVisCost(ItemStack focusstack) {
         return new AspectList();
     }
 
     public ItemStack onFocusRightClick(ItemStack itemstack, World world, EntityPlayer player, MovingObjectPosition mop) {
         player.swingItem();
-
         if (mop != null && mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
             NBTTagCompound wandNBT = itemstack.getTagCompound() != null ? itemstack.getTagCompound() : new NBTTagCompound();
-            TileEntity tile = world.getTileEntity(mop.blockX, mop.blockY, mop.blockZ);
-            if (tile != null && tile instanceof IAspectContainer) {
-                Aspect aspect = ((IAspectContainer) tile).getAspects().getAspects()[0];
-                if (aspect != null)
-                    wandNBT.setString("InfusionAspect", aspect.getTag());
-            } else if (wandNBT.hasKey("InfusionAspect") && !world.isRemote) {
+            if (wandNBT.hasKey("InfusionAspect") && !world.isRemote) {
                 Aspect aspect = Aspect.getAspect(wandNBT.getString("InfusionAspect"));
                 if (aspect != null) {
                     placeAspect(player, new WorldCoordinates(mop.blockX, mop.blockY, mop.blockZ, player.dimension), aspect);
                     world.playSoundEffect((double) mop.blockX + 0.5D, (double) mop.blockY + 0.5D, (double) mop.blockZ + 0.5D, "thaumcraft:zap", 0.25F, 1.0F);
                 }
             }
-
-            itemstack.setTagCompound(wandNBT);
-            player.inventory.markDirty();
-        } else {
-            player.openGui(ThaumicInfusion.instance, 0, world, (int) player.posX, (int) player.posY, (int) player.posZ);
-        }
+        } else player.openGui(ThaumicInfusion.instance, 0, world, (int) player.posX, (int) player.posY, (int) player.posZ);
 
         return itemstack;
     }
@@ -133,10 +111,8 @@ public class ItemFocusInfusing extends ItemFocusBasic {
                     Class c = AspectHandler.getEffectFromAspect(aspect);
                     if(c == null)
                         return;
-                    if (drainAspects(player, aspect)) {
+                    if (drainAspects(player, aspect))
                         data = new BlockData(coords, new Class[]{c});
-
-                    }
                 }else{
                     for(Aspect dataAspect : data.getAspects()){
                         if(dataAspect == aspect){

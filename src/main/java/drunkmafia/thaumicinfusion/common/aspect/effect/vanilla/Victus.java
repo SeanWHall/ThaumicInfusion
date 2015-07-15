@@ -55,6 +55,11 @@ public class Victus extends AspectEffect {
         }
     }
 
+    @OverrideBlock(overrideBlockFunc = false)
+    public void onBlockAdded(World world, int x, int y, int z) {
+        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+    }
+
     public boolean drainAspects(World world, Aspect aspect) {
         int cost = AspectHandler.getCostOfEffect(aspect);
         for (int x = pos.x - 10; x < pos.x + 10; x++) {

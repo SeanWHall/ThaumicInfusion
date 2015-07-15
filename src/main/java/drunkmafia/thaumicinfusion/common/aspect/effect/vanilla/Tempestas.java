@@ -25,10 +25,16 @@ public class Tempestas extends AspectEffect {
             updateTick(world, pos.x, pos.y, pos.z, new Random());
     }
 
+    @OverrideBlock(overrideBlockFunc = false)
     public void updateTick(World world, int x, int y, int z, Random rand) {
         if(world.isRaining() && world.canBlockSeeTheSky(x, y, z))
             if (rand.nextInt(50) == rand.nextInt(50))
                 world.spawnEntityInWorld(new EntityLightningBolt(world, x, y + 1, z));
         world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 50);
+    }
+
+    @OverrideBlock(overrideBlockFunc = false)
+    public void onBlockAdded(World world, int x, int y, int z) {
+        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
     }
 }
