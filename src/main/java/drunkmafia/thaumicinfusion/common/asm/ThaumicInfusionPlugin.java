@@ -9,6 +9,7 @@ package drunkmafia.thaumicinfusion.common.asm;
 import cpw.mods.fml.relauncher.CoreModManager;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
+import net.minecraft.block.Block;
 import net.minecraft.launchwrapper.Launch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,6 +18,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Map;
 
 @IFMLLoadingPlugin.Name(value = ModInfo.MODID)
@@ -62,6 +65,7 @@ public class ThaumicInfusionPlugin implements IFMLLoadingPlugin {
 
     @Override
     public String getSetupClass() {
+
         return null;
     }
 

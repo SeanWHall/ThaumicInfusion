@@ -37,11 +37,11 @@ import static org.objectweb.asm.Opcodes.*;
  */
 public class BlockTransformer implements IClassTransformer {
 
-    public static List<String> blockMethods;
+    private boolean hasBlockLoaded;
+
+    public static List<String> blockMethods, vanillaObfMethods = new ArrayList<String>();
     public static List<String> bannedSuperClasses = new ArrayList<String>();
     public static List<Interface> blockInterfaces = new ArrayList<Interface>();
-
-    public static int blocksInjected = 0, blocksFound = 0;
 
     public BlockTransformer() {
         log.info("Block Transformer starting!");
@@ -51,6 +51,8 @@ public class BlockTransformer implements IClassTransformer {
         blockInterfaces.add(infusionStabiliser);
 
         bannedSuperClasses.add("drunkmafia/thaumicinfusion/common/aspect/AspectEffect");
+        bannedSuperClasses.add("drunkmafia.thaumicinfusion.common.aspect.effect.vanilla/AspectLink");
+        bannedSuperClasses.add("java/lang/Object");
     }
 
     @Override
@@ -63,18 +65,22 @@ public class BlockTransformer implements IClassTransformer {
         classReader.accept(classNode, 0);
 
         boolean isBlockClass = classNode.name.equals(block);
-        if (!isBlockClass && (classNode.name.equals("drunkmafia/thaumicinfusion/common/aspect/AspectEffect") || !checkIfisBlock(classNode.superName)))
-            return bytecode;
 
-        blocksFound++;
-        logger.println("==== " + transformedName + " (" + classNode.name + ") ====");
-        logger.println("Found block Class");
+        if(!isBlockClass && (bannedSuperClasses.contains(classNode.superName) || !checkIfisBlock(classNode.superName))) return bytecode;
 
-        if(!isBlockClass && blockMethods == null) {
-            logger.println("Block has already been loaded, getting block methods");
-            blockMethods = new ArrayList<String>();
-            for (Method method : Block.class.getDeclaredMethods()) blockMethods.add(method.getName());
-        }
+        if(!isBlockClass && hasBlockLoaded && blockMethods == null && (classNode.superName.equals("net/minecraft/block/Block") || classNode.superName.equals(block))){
+            try {
+                logger.println("Block class has already been loaded, getting block methods for lookup");
+                blockMethods = new ArrayList<String>();
+                for (Method method : Block.class.getDeclaredMethods())
+                    blockMethods.add(method.getName());
+            }catch (Throwable t){
+                handleCrash(transformedName, t);
+                return bytecode;
+            }
+        }else if(!isBlockClass && blockMethods == null) return bytecode;
+
+        boolean hasInjectedCode = false;
 
         try {
             int methodNo = 1;
@@ -84,7 +90,6 @@ public class BlockTransformer implements IClassTransformer {
             }
 
             for (MethodNode method : classNode.methods) {
-
                 if (method.localVariables == null || method.localVariables.size() == 0) {
                     continue;
                 } else if (method.localVariables != null && method.localVariables.size() != 0) {
@@ -99,7 +104,7 @@ public class BlockTransformer implements IClassTransformer {
                         continue;
                 }
 
-                if((!isBlockClass && !blockMethods.contains(method.name)) || method.access != ACC_PUBLIC)
+                if(!isBlockClass && !blockMethods.contains(method.name) && !vanillaObfMethods.contains(method.name))
                     continue;
 
                 Type[] pars = Type.getArgumentTypes(method.desc);
@@ -107,6 +112,10 @@ public class BlockTransformer implements IClassTransformer {
 
                 if (worldPars == null)
                     continue;
+
+                if(isBlockClass)
+                    vanillaObfMethods.add(method.name);
+
 
                 int returnType = Type.getReturnType(method.desc).getOpcode(IRETURN);
                 InsnList toInsert = new InsnList();
@@ -141,27 +150,55 @@ public class BlockTransformer implements IClassTransformer {
                 toInsert.add(l1);
 
                 method.instructions.insert(toInsert);
+                if(!hasInjectedCode) {
+                    logger.println("==== " + transformedName + " (SuperClass: " + classNode.superName + ") ====");
+                    logger.println("Found block Class");
+                    hasInjectedCode = true;
+                }
 
                 logger.println(methodNo++ + ") Injected block code into: " + method.name + " " + method.desc);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Throwable t) {
+            handleCrash(transformedName, t);
             return bytecode;
         }
+
         logger.flush();
+
+        if(!hasInjectedCode)
+            return bytecode;
+
         MinecraftClassWriter classWriter = new MinecraftClassWriter(classNode.name, ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+
         try {
             classNode.accept(classWriter);
         }catch (Throwable t){
-            log.info("Block: " + transformedName + "(" + classNode.name + ") has an issue while merging the changes. A detailed crash has been printed to TI_Transformer.log, please upload this log to pastebin and report it to the mod author");
-            log.info("Reverting to original bytecode, this block will not be compatible with infusions and will behave abnormally");
-
-            logger.println("==== Block: " + transformedName + " has failed injection ==== ");
-            t.printStackTrace(logger);
+            handleCrash(transformedName, t);
             return bytecode;
         }
-        blocksInjected++;
+
+        if(isBlockClass) hasBlockLoaded = true;
+
         return classWriter.toByteArray();
+    }
+
+    private void handleCrash(String transformedName, Throwable t){
+        log.info("Block: " + transformedName + "has an issue while merging the changes. A detailed crash has been printed to TI_Transformer.log, please upload this log to pastebin and report it to the mod author");
+        log.info("Reverting to original bytecode, this block will not be compatible with infusions and will behave abnormally");
+        logger.println("==== Block: " + transformedName + " has failed injection ==== ");
+        t.printStackTrace(logger);
+    }
+
+    private boolean checkIfisBlock(String superName){
+        if(superName == null || bannedSuperClasses.contains(superName) ) return false;
+        if(superName.equals(block) || superName.equals("net/minecraft/block/Block")) return true;
+        try {
+            ClassNode superNode = new ClassNode();
+            new ClassReader(Launch.classLoader.getClassBytes(superName)).accept(superNode, 0);
+            return checkIfisBlock(superNode.superName);
+        } catch (Throwable e) {
+        }
+        return false;
     }
 
     private void injectInvokeBlock(InsnList isnList, MethodNode method, Type[] pars) {
@@ -175,18 +212,6 @@ public class BlockTransformer implements IClassTransformer {
         }
 
         isnList.add(new MethodInsnNode(INVOKEVIRTUAL, block, method.name, method.desc, false));
-    }
-
-    private boolean checkIfisBlock(String superName){
-        if(superName == null || bannedSuperClasses.contains(superName) ) return false;
-        if(superName.equals(block) || superName.equals("net/minecraft/block/Block")) return true;
-        try {
-            ClassNode superNode = new ClassNode();
-            new ClassReader(Launch.classLoader.getClassBytes(superName)).accept(superNode, 0);
-            return checkIfisBlock(superNode.superName);
-        } catch (Throwable e) {
-        }
-        return false;
     }
 
     /**
@@ -221,9 +246,6 @@ public class BlockTransformer implements IClassTransformer {
         return worldPars;
     }
 
-    /**
-     * Modified version of the ASM Classwriter, which makes it load classes from Minecrafts class loader
-     */
     class MinecraftClassWriter extends ClassWriter {
 
         public String className;

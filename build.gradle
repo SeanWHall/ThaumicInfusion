@@ -16,13 +16,17 @@ buildscript {
 }
 
 apply plugin: 'forge'
-version = "4.07"
+version = "4.11"
 group= "drunkmafia.thaumicinfusion"
 archivesBaseName = "ThaumicInfusion"
 
 minecraft {
     version = "1.7.10-10.13.4.1451-1.7.10"
     runDir = "eclipse"
+}
+
+dependencies {
+    compile fileTree(dir: 'lib', include: '**/*.jar')
 }
 
 jar {

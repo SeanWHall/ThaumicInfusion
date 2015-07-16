@@ -85,8 +85,6 @@ public class ThaumicInfusion {
         ThaumcraftIntergration.init();
 
         ThaumicInfusionPlugin.logger.close();
-        getLogger().info("Block Transformer Finished");
-        getLogger().info("Successfully injected code into " + BlockTransformer.blocksInjected + " out of " + BlockTransformer.blocksFound);
     }
 
     @EventHandler

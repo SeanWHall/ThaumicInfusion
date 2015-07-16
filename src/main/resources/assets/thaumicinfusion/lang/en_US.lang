@@ -32,6 +32,9 @@ tc.research_name.ASPECTEFFECTS=The Effects of Aspects
 tc.research_text.ASPECTEFFECTS=Effects of aspects upon being infused
 
 ti.cost=Cost
+ti.linking.begin=Linking has begun, use the same wand on another block to link.
+ti.linking.end=Effects have successfully been linked.
+ti.linking.fail=Effects failed to link!
 
 # Commands
 
@@ -42,40 +45,36 @@ clean.data=cleandata
 clean.data.usage=/cleandata Only run this command when TI blocks are crashing the world, this will remove every TI block in the current dimension. You have been warned!
 
 # Effects Description
-ti.effect_info.EXANIMIS=If a player dies while standing on this block, they will respawn back there
-ti.effect_info.FABRICO=By right clicking with the block with a aspect in a phial, the block will become stained with its colour
-ti.effect_info.LUX=Emits light much like a torch
-ti.effect_info.SANO=Refills health of players based upon their hunger
-ti.effect_info.PANNUS=Pads all falling damage of any entity
-ti.effect_info.COGNITIO=Block becomes a disguised bookcase
-ti.effect_info.ITER=Right clicking of two Iter infused blocks with a wand, will cause seamless transport between them
-ti.effect_info.ALIENIS=A strange effect, that seems to cause random teleporting
-ti.effect_info.TEMPESTAS=Lighting is attracted to this block during storms
-ti.effect_info.VOLATUS=Players are given flight above this block, height is doubled when more are place on top or below
-ti.effect_info.SPIRITUS=Block seems to be solid but has no collisions, allowing entities to ghost though it
-ti.effect_info.TERRA=Blocks will be affected by gravity, like sand and gravel
-ti.effect_info.FAMES=Eats away at peoples energy and makes them hungry
-ti.effect_info.BESTIA=Stops the spawning of aggressive mobs on top of it
-ti.effect_info.VITIUM=Stops taint from following near the block
-ti.effect_info.MESSIS=Block becomes a disguised farmland
-ti.effect_info.MOTUS=Entities are pushed in the direction of which it was placed
-ti.effect_info.IGNIS=Block becomes a disguised Netherrack
-ti.effect_info.PERDITIO=Block becomes prone to exploding, use with care
-ti.effect_info.TUTAMEN=Block is more resistant to explosions and breaking
-ti.effect_info.VINCULUM=Traps mobs on top of the block
-ti.effect_info.PERMUTATIO=Linking two of these blocks together with a wand, will cause the two blocks to seamless swap when powered by redstone
-ti.effect_info.LUCRUM=Slowly pulls items towards itself
-ti.effect_info.MORTUUS=Mobs are more likely to spawn on top of this block during night
-ti.effect_info.VICTUS=Animals are more likely to spawn on top of this block during day
-ti.effect_info.PRAECANTATIO=Not very useful, but pretty to look at
-ti.effect_info.VITREUS=Light can pass though this block
-ti.effect_info.VENENUM=Players that stand on top of this block will be poisoned
-ti.effect_info.PERFODIO=Blocks hardness and resistance are halved
-ti.effect_info.AER=Players that stand on top of this block will be given a jump boost
-ti.effect_info.MACHINA=By linking two of this effect together, it will cause a Redstone to be emitted wireless. The signal can be sent both ways
-ti.effect_info.POTENTIA=Block simply emits a strong Redstone signal
-ti.effect_info.HUMANUS=A simpler version of Warding
-ti.effect_info.ORDO=Adds stability to nearby arcane infusion crafting
+ti.effect_info.EXANIMIS=After infusion, any player that happens to die while standing on the infused block. Will be teleported back to it upon respawn, just the think for dangerous environments
+ti.effect_info.FABRICO=This neat little aspects adds the world of colours to every single block, all you have to do is grab a phial of an aspect which is the colour that you want the block to be. Then right click on the block with the phial, to dye the block. Simple
+ti.effect_info.LUX=Does what it says on the tin, causes any block that is infused with this to become a light source, that is equal to a torch.
+ti.effect_info.SANO=This little bugger is handy, if you are nice and fed. Then the aspect will increase your healing.
+ti.effect_info.PANNUS=Ever died from fall damage? Well worry no more, with the new and improved padded blocks! Which will negate all fall damage of any player, that is if you land on them. Dont worry, if you dont the effect comes with a free bucket to scoop yourself into.
+ti.effect_info.COGNITIO=Do you hate bookcases? Why whats wrong with them? Well in any case this effect causes blocks to act like bookcases and increase the enchantment levels of nearby enchantment tables.
+ti.effect_info.ITER=If you hate walking then this is the effect for you, this multi-dimensional teleporter works by having two effects placed down in the world and shifting while standing on one to teleport seamlessly between them. To link the two effects up, simply right click on it with the wand and then right click on the other one with the same wand, make sure to take of the foci!
+ti.effect_info.ALIENIS=Not much uses this one, but fun to troll people with. This aspect has a strange effect, if you interact with the block in any way you will be teleported randomly in the local area.
+ti.effect_info.TEMPESTAS=THUNDER! Na na na naaa na. THUNDER! To explain, while raining lighting is more likely to strike the block that is infused.
+ti.effect_info.VOLATUS=Yet another effect that does what it says on the tin, while standing above the block infused with this, You gain flight! But only while above the infused block and only 10 blocks high, this can of course be increase by infusing blocks below each other.
+ti.effect_info.SPIRITUS=This is a dangerous one & Sneaky one. When infused into a block, it no longer has any collisions and any entity can pass right though it.
+ti.effect_info.TERRA=A neat effect, this causes blocks to have gravity. Which means it acts like sand and gravel!
+ti.effect_info.FAMES=Not a very helpful effect, it seems to eay away at your hunger!
+ti.effect_info.BESTIA=Have you ever looked at the top of your house or went into a basement and what do you see? A creeper, well with this effect make that a thing of the past. As it will stop any aggressive mob from spawning.
+ti.effect_info.VITIUM=Stops pesky taint from spreading across the infused block, simple but effective if you don't want goo stinking up the place.
+ti.effect_info.MESSIS=Ever wanted to grow crops on any block? Well this effect turns any block into a disguised farm block, so no more worrying about having to hoe grass.
+ti.effect_info.IGNIS=Upon infusion, are fire that is placed on the block will never run out and the ignis aspect will fuel the fire. Much like Netherrack.
+ti.effect_info.PERDITIO=This effect is very dangerous, any interaction with the block after infusion makes it prone to exploding. Handle with extreme care!
+ti.effect_info.VINCULUM=After infusion, the block will immobilize any entity that so happens to step onto the block. Great for stopping mobs in their tracks!
+ti.effect_info.PERMUTATIO=Ever wanted to swap blocks between each other? Well this works by having two effects placed down in the world and applying a redstone signal to one of the linked effect to swap between them. To link the two effects up, simply right click on it with the wand and then right click on the other one with the same wand, make sure to take of the foci!
+ti.effect_info.LUCRUM=This greedy little thing likes to pull any item it can find, which just happens to be on the ground towards itself.
+ti.effect_info.MORTUUS=If you supply this effect with a jar that is filled with more Mortuus and is within 10 blocks, the effect will spawn aggressive mobs during night and will drain the jar.
+ti.effect_info.VICTUS=If you supply this effect with a jar that is filled with more Victus and is within 10 blocks, the effect will spawn friendly mobs during night and will drain the jar.
+ti.effect_info.VITREUS=This effect makes light pass though the block like glass, useful for building a skylight without the need of glass.
+ti.effect_info.VENENUM=Any player who is unfortunate enough to stand ontop of a block which is infused with this, will be poisoned!
+ti.effect_info.AER=Any player that is fortunate enough to stand ontop of a block which is infused with this, will be granted a jump boost! Not much help, but hey you get what you get.
+ti.effect_info.MACHINA=This effect provides a simpler form of wireless redstone, this multi-dimensional transmitter works by having two effects placed down in the world and then giving it a signal which will be outputted on the other end, this works two ways! To link the two effects up, simply right click on it with the wand and then right click on the other one with the same wand, make sure to take of the foci!
+ti.effect_info.POTENTIA=This effect is very simple and pretty much does what it says on the tin, it outputs a string redstone signal.
+ti.effect_info.HUMANUS=Warding itself is very powerful, however it has its limitations. This effect will allow you to infuse any block and that block will become unbreakable! However the infusion can be removed by anyone with an infusion foci.
+ti.effect_info.ORDO=If you ever wanted to stabilize the infusion alter, this effect is for you. Infuse any block near the alter with this and it will stabilize the alter like candles and skulls.
 
 
 #Mod Effects
