@@ -24,8 +24,8 @@ import java.util.List;
 
 @SideOnly(Side.CLIENT)
 public class InfusionGui extends GuiContainer {
-    private static Image background;
-    private static Scroll parchment;
+    private Image background;
+    private Scroll parchment;
 
     private EntityPlayer player;
     private ItemStack wand;
@@ -62,13 +62,12 @@ public class InfusionGui extends GuiContainer {
             if (aspect == selected) slot = aspectSlot;
         }
 
-        if (background == null) {
-            background = new Image(new ResourceLocation(ModInfo.MODID, "textures/gui/gui_infusion.png"), 0, 0, 0, 0, xSize, ySize);
-            parchment = new Scroll(new ResourceLocation("thaumcraft", "textures/misc/parchment3.png"), xSize, ((ySize - 150) / 2), 0, 0, 150, 150);
-        }
+        background = new Image(new ResourceLocation(ModInfo.MODID, "textures/gui/gui_infusion.png"), 0, 0, 0, 0, xSize, ySize);
+        parchment = new Scroll(new ResourceLocation("thaumcraft", "textures/misc/parchment3.png"), xSize, ((ySize - 150) / 2), 0, 0, 150, 150);
 
         scrollRect = new ScrollRect(10, 10, 76, 76, new Image(background.image, 24, 89, 97, 0, 25, 8), new Image(background.image, 46, 89, 120, 0, 25, 8), aspectSlots.toArray(new AspectSlot[aspectSlots.size()]));
         scrollRect.selected = slot;
+        if(slot != null) parchment.setAspect(slot.aspect);
     }
 
     @Override
