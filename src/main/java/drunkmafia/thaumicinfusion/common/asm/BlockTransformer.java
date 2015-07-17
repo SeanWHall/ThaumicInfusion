@@ -38,6 +38,7 @@ import static org.objectweb.asm.Opcodes.*;
 public class BlockTransformer implements IClassTransformer {
 
     private boolean hasBlockLoaded;
+    private Class blockClass;
 
     public static List<String> blockMethods, vanillaObfMethods = new ArrayList<String>();
     public static List<String> bannedSuperClasses = new ArrayList<String>();
@@ -51,7 +52,7 @@ public class BlockTransformer implements IClassTransformer {
         blockInterfaces.add(infusionStabiliser);
 
         bannedSuperClasses.add("drunkmafia/thaumicinfusion/common/aspect/AspectEffect");
-        bannedSuperClasses.add("drunkmafia.thaumicinfusion.common.aspect.effect.vanilla/AspectLink");
+        bannedSuperClasses.add("drunkmafia/thaumicinfusion/common/aspect/effect/vanilla/AspectLink");
         bannedSuperClasses.add("java/lang/Object");
     }
 
@@ -66,13 +67,16 @@ public class BlockTransformer implements IClassTransformer {
 
         boolean isBlockClass = classNode.name.equals(block);
 
+        //Checks if the ClassNode is the Block class or a subclass
         if(!isBlockClass && (bannedSuperClasses.contains(classNode.superName) || !checkIfisBlock(classNode.superName))) return bytecode;
 
+        //Gets block methods after the block class has already been loaded into the class loader
         if(!isBlockClass && hasBlockLoaded && blockMethods == null && (classNode.superName.equals("net/minecraft/block/Block") || classNode.superName.equals(block))){
             try {
                 logger.println("Block class has already been loaded, getting block methods for lookup");
                 blockMethods = new ArrayList<String>();
-                for (Method method : Block.class.getDeclaredMethods())
+                blockClass = Block.class;
+                for (Method method : blockClass.getDeclaredMethods())
                     blockMethods.add(method.getName());
             }catch (Throwable t){
                 handleCrash(transformedName, t);
@@ -84,39 +88,35 @@ public class BlockTransformer implements IClassTransformer {
 
         try {
             int methodNo = 1;
+
+            //Injects interfaces required by effects
             if (isBlockClass) {
                 for (Interface inter : blockInterfaces)
                     inter.injectMethodsIntoClass(classNode);
             }
 
+            //Iterates though class methods to find block methods and inject code into them
             for (MethodNode method : classNode.methods) {
-                if (method.localVariables == null || method.localVariables.size() == 0) {
-                    continue;
-                } else if (method.localVariables != null && method.localVariables.size() != 0) {
-                    boolean hasThis = false;
-                    for (LocalVariableNode varible : method.localVariables) {
-                        if (varible.name.equals("this")) {
-                            hasThis = true;
-                            break;
-                        }
-                    }
-                    if (!hasThis)
-                        continue;
-                }
 
+                //Checks if the method is not static
+                if(method.access != 1 && method.access != 2) continue;
+
+                //Checks if the method is a block method
                 if(!isBlockClass && !blockMethods.contains(method.name) && !vanillaObfMethods.contains(method.name))
                     continue;
 
                 Type[] pars = Type.getArgumentTypes(method.desc);
                 WorldParamaters worldPars = getWorldPars(pars);
 
+                //Makes sure that the method has a world object and three integers after it which is then inferred as coordinates.
                 if (worldPars == null)
                     continue;
 
+                //If the class is the Block class, adds the obfuscated method names for other vanilla classes
                 if(isBlockClass)
                     vanillaObfMethods.add(method.name);
 
-
+                // Sets up the conditional statements
                 int returnType = Type.getReturnType(method.desc).getOpcode(IRETURN);
                 InsnList toInsert = new InsnList();
                 worldPars.loadPars(toInsert);
@@ -149,14 +149,16 @@ public class BlockTransformer implements IClassTransformer {
 
                 toInsert.add(l1);
 
+                //Adds above code into the method
                 method.instructions.insert(toInsert);
+
                 if(!hasInjectedCode) {
                     logger.println("==== " + transformedName + " (SuperClass: " + classNode.superName + ") ====");
                     logger.println("Found block Class");
                     hasInjectedCode = true;
                 }
 
-                logger.println(methodNo++ + ") Injected block code into: " + method.name + " " + method.desc);
+                logger.println(methodNo++ + ") Injected block code into: " + method.name + " " + method.desc + " Access: " + method.access);
             }
         } catch (Throwable t) {
             handleCrash(transformedName, t);
@@ -165,9 +167,11 @@ public class BlockTransformer implements IClassTransformer {
 
         logger.flush();
 
+        //If no code has been injected returns original bytecode
         if(!hasInjectedCode)
             return bytecode;
 
+        //Uses a custom class writer to load classes from the Vanilla Class loader, to ensure no the classes can be found
         MinecraftClassWriter classWriter = new MinecraftClassWriter(classNode.name, ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
 
         try {
@@ -179,6 +183,7 @@ public class BlockTransformer implements IClassTransformer {
 
         if(isBlockClass) hasBlockLoaded = true;
 
+        //Returns new bytecode
         return classWriter.toByteArray();
     }
 
@@ -189,13 +194,25 @@ public class BlockTransformer implements IClassTransformer {
         t.printStackTrace(logger);
     }
 
+    /**
+     * Depending on if the block class has already been loaded, there are two ways to check if the class is a block class. The first is to grab the bytecode and check
+     * by hand if the super name is the block name, if not it recursively calls itself until it find the block class.
+     *
+     * The second way is when the block class has been loaded, it will use minecraft class loader to get the super class which will call the transformers and return
+     * a class object, which is used to check if the class is assignable from the block class.
+     *
+     * @param superName Name of the super class that needs to be checked
+     * @return true if the class is a Block Subclass
+     */
     private boolean checkIfisBlock(String superName){
-        if(superName == null || bannedSuperClasses.contains(superName) ) return false;
-        if(superName.equals(block) || superName.equals("net/minecraft/block/Block")) return true;
+        if(blockClass == null) {
+            if (superName == null || bannedSuperClasses.contains(superName)) return false;
+            if (superName.equals(block) || superName.equals("net/minecraft/block/Block")) return true;
+        }
+
         try {
-            ClassNode superNode = new ClassNode();
-            new ClassReader(Launch.classLoader.getClassBytes(superName)).accept(superNode, 0);
-            return checkIfisBlock(superNode.superName);
+            Class superClass = Launch.classLoader.findClass(superName.replace('/', '.'));
+            return blockClass != null ? blockClass.isAssignableFrom(superClass) : checkIfisBlock(superClass.getSuperclass().getName());
         } catch (Throwable e) {
         }
         return false;
@@ -258,7 +275,6 @@ public class BlockTransformer implements IClassTransformer {
         @Override
         protected String getCommonSuperClass(String type1, String type2) {
             Class<?> c, d;
-            if(type1.equals(className) || type2.equals(className)) return null;
             try {
                 c = Launch.classLoader.findClass(type1.replace('/', '.'));
                 d = Launch.classLoader.findClass(type2.replace('/', '.'));
