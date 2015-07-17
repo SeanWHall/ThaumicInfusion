@@ -13,10 +13,13 @@ import net.minecraft.item.Item;
 public class TIItems {
 
     public static Item focusInfusing;
-    public static Item focusWarding;
+    public static Item coordinatePaper;
 
     public static void init(){
         focusInfusing = (new ItemFocusInfusing()).setUnlocalizedName("FocusInfusion");
+        coordinatePaper = (new ItemCoordinatePaper()).setUnlocalizedName("CoordinatePaper");
+
         GameRegistry.registerItem(focusInfusing, "FocusInfusion", ModInfo.MODID);
+        GameRegistry.registerItem(coordinatePaper, "CoordinatePaper", ModInfo.MODID);
     }
 }

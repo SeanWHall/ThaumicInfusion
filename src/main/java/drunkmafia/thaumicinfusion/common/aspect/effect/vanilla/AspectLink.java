@@ -20,10 +20,14 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.item.ItemCoordinatePaper;
+import drunkmafia.thaumicinfusion.common.item.TIItems;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.data.BlockData;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChatComponentText;
@@ -37,18 +41,19 @@ import java.util.Map;
 
 public class AspectLink extends AspectEffect {
 
-    private static Map<Integer, WorldCoordinates> positions = new HashMap<Integer, WorldCoordinates>();
     public WorldCoordinates destination;
 
     @OverrideBlock(overrideBlockFunc = false)
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
-        ItemStack wand = player.getCurrentEquippedItem();
-        if (world.isRemote || wand == null || !(wand.getItem().getClass().isAssignableFrom(ItemApi.getItem("itemWandCasting", 0).getItem().getClass())))
+        ItemStack paper = player.getCurrentEquippedItem();
+        if (world.isRemote || paper == null || (paper.getItem() != TIItems.coordinatePaper && paper.getItem() != Items.paper))
             return false;
 
+        NBTTagCompound paperTag = paper.getTagCompound();
+
         WorldCoordinates pos = new WorldCoordinates(x, y, z, player.dimension);
-        if (positions.containsKey(wand.hashCode())) {
-            WorldCoordinates storedDest = positions.get(wand.hashCode());
+        if (paper.getItem() == TIItems.coordinatePaper && paperTag != null && paperTag.hasKey("CoordinateX")) {
+            WorldCoordinates storedDest = new WorldCoordinates(paperTag.getInteger("CoordinateX"), paperTag.getInteger("CoordinateY"), paperTag.getInteger("CoordinateZ"), paperTag.getInteger("CoordinateDim"));
             World worldDest = DimensionManager.getWorld(storedDest.dim);
 
             BlockData data = TIWorldData.getWorldData(worldDest).getBlock(BlockData.class, storedDest);
@@ -61,7 +66,7 @@ public class AspectLink extends AspectEffect {
             linkDest.destination = pos;
             destination = storedDest;
 
-            positions.remove(wand.hashCode());
+            player.inventory.mainInventory[player.inventory.currentItem] = new ItemStack(Items.paper);
 
             player.addChatMessage(new ChatComponentText(ThaumicInfusion.translate("ti.linking.end")));
             world.playSoundEffect((double) x + 0.5D, (double) y + 0.5D, (double) z + 0.5D, "thaumcraft:zap", 0.25F, 1.0F);
@@ -69,7 +74,24 @@ public class AspectLink extends AspectEffect {
         }
 
         player.addChatMessage(new ChatComponentText(ThaumicInfusion.translate("ti.linking.begin")));
-        positions.put(wand.hashCode(), pos);
+
+        if(paper.stackSize > 1){
+            paper.stackSize--;
+            world.spawnEntityInWorld(new EntityItem(world, player.posX, player.posY, player.posZ, paper));
+        }
+
+        paper = new ItemStack(TIItems.coordinatePaper);
+        paperTag = paper.getTagCompound() != null ? paper.getTagCompound() : new NBTTagCompound();
+
+        paperTag.setInteger("CoordinateX", x);
+        paperTag.setInteger("CoordinateY", y);
+        paperTag.setInteger("CoordinateZ", z);
+        paperTag.setInteger("CoordinateDim", player.dimension);
+
+        paper.setTagCompound(paperTag);
+
+        player.inventory.mainInventory[player.inventory.currentItem] = paper;
+
         world.playSoundEffect((double) x + 0.5D, (double) y + 0.5D, (double) z + 0.5D, "thaumcraft:zap", 0.25F, 1.0F);
         return false;
     }
