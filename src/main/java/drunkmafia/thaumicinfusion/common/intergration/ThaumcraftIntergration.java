@@ -62,8 +62,6 @@ public class ThaumcraftIntergration {
 
         new ResearchItem("FOCUSINFUSION", "THAUMICINFUSION", (new AspectList()).add(Aspect.EARTH, 6).add(Aspect.ARMOR, 3).add(Aspect.ORDER, 3).add(Aspect.MIND, 3), -2, 0, 2, new ItemStack(TIItems.focusInfusing)).setPages(new ResearchPage("tc.research_page.FOCUSINFUSION.1"), new ResearchPage("tc.research_page.FOCUSINFUSION.2"), new ResearchPage(infusionRecipe)).registerResearchItem();
         new ResearchItem("ESSENTIABLOCKS", "THAUMICINFUSION", new AspectList().add(Aspect.ORDER, 3).add(Aspect.MAGIC, 3), 2, 0, 2, essentiaBlock).setPages(new ResearchPage("tc.research_page.ESSENTIABLOCKS.1"), new ResearchPage(essentiaRecipe)).registerResearchItem();
-
-        new ResearchItem("ASPECTEFFECTS", "THAUMICINFUSION", new AspectList(), 0, 2, 2, new ResourceLocation("thaumcraft", "textures/misc/r_aspects.png")).setPages(getPages()).setAutoUnlock().registerResearchItem();
     }
 
 
