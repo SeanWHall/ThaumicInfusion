@@ -41,30 +41,35 @@ public class ChunkData implements ISavable{
     }
 
     public void addBlock(BlockSavable data, int x, int y, int z){
-        (blockdata[x & 15][y & 15][z & 15] != null ? blockdata[x & 15][y & 15][z & 15] : (blockdata[x & 15][y & 15][z & 15] = new ArrayList<BlockSavable>())).add(data);
+        if(y < 0 || y > 256) return;
+        (blockdata[x & 15][y][z & 15] != null ? blockdata[x & 15][y][z & 15] : (blockdata[x & 15][y][z & 15] = new ArrayList<BlockSavable>())).add(data);
     }
 
     public void removeBlock(int x, int y, int z){
-        blockdata[x & 15][y & 15][z & 15] = null;
+        blockdata[x & 15][y][z & 15] = null;
     }
 
     public void removeData(Class<? extends BlockSavable> type, int x, int y, int z){
-        List<BlockSavable> datas = blockdata[x & 15][y & 15][z & 15];
+        if(y < 0 || y > 256) return;
+
+        List<BlockSavable> datas = blockdata[x & 15][y][z & 15];
         if(datas == null)
             return;
 
-        for (BlockSavable block : datas) {
-            if (type.isAssignableFrom(block.getClass())) {
+        for (int i = 0; i < datas.size(); i++) {
+            BlockSavable block = datas.get(i);
+            if (type.isAssignableFrom(block.getClass()))
                 datas.remove(block);
-            }
         }
 
         if(datas.size() == 0)
-            blockdata[x & 15][y & 15][z & 15] = null;
+            blockdata[x & 15][y][z & 15] = null;
     }
 
     public <T>T getBlock(Class<T> type, int x, int y, int z){
-        List<BlockSavable> datas = blockdata[x & 15][y & 15][z & 15];
+        if(y < 0 || y > 256) return null;
+
+        List<BlockSavable> datas = blockdata[x & 15][y][z & 15];
         if(datas != null) {
             for (BlockSavable block : datas) {
                 if (type.isAssignableFrom(block.getClass())) {

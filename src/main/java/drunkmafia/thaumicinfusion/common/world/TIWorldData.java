@@ -109,11 +109,11 @@ public class TIWorldData implements ISavable {
         return chunkData != null ? chunkData.getBlock(type, coords.x, coords.y, coords.z) : null;
     }
 
-    public void removeData(Class<?> type, WorldCoordinates coords, boolean sendPacket) {
+    public void removeData(Class<? extends BlockSavable> type, WorldCoordinates coords, boolean sendPacket) {
         ChunkCoordIntPair chunkPos = new ChunkCoordIntPair(coords.x >> 4, coords.z >> 4);
         ChunkData chunkData = chunkDatas.get(chunkPos.getCenterXPos(), chunkPos.getCenterZPosition());
         if(chunkData != null) {
-            chunkData.removeBlock(coords.x, coords.y, coords.z);
+            chunkData.removeData(type, coords.x, coords.y, coords.z);
             if (sendPacket) {
                 coords.dim = world.provider.dimensionId;
                 ChannelHandler.instance().sendToAll(new DataRemovePacketC(type, coords));
