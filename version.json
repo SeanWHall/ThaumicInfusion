@@ -2,6 +2,20 @@
 	"versionList": [
 		{
 		  "mcVersion": "Minecraft 1.7.*",
+		  "modVersion": " 4.12",
+		  "changeLog": [
+		  	"Fixed startup crash with certain mods"
+			"Networking Rebuilt",
+			"Aspects Updated",
+			"Mod compatibility added",
+			"New Infusion GUI"
+		  ],
+		  "updateURL": "http://www.curse.com/mc-mods/minecraft/220308-thaumic-infusion",
+		  "isDirectLink": "false",
+		  "newFileName": ""
+		},
+		{
+		  "mcVersion": "Minecraft 1.7.*",
 		  "modVersion": "4.1",
 		  "changeLog": [
 			"Networking Rebuilt",
