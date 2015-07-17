@@ -14,7 +14,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +37,6 @@ import static org.objectweb.asm.Opcodes.*;
 public class BlockTransformer implements IClassTransformer {
 
     private boolean hasBlockLoaded;
-    private Class blockClass;
 
     public static List<String> blockMethods, vanillaObfMethods = new ArrayList<String>();
     public static List<String> bannedSuperClasses = new ArrayList<String>();
@@ -65,6 +63,9 @@ public class BlockTransformer implements IClassTransformer {
         ClassReader classReader = new ClassReader(bytecode);
         classReader.accept(classNode, 0);
 
+        //Uses a custom class writer to load classes from the Vanilla Class loader, to ensure no the classes can be found
+        MinecraftClassWriter classWriter = new MinecraftClassWriter(classNode.name, ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+
         boolean isBlockClass = classNode.name.equals(block);
 
         //Checks if the ClassNode is the Block class or a subclass
@@ -75,8 +76,7 @@ public class BlockTransformer implements IClassTransformer {
             try {
                 logger.println("Block class has already been loaded, getting block methods for lookup");
                 blockMethods = new ArrayList<String>();
-                blockClass = Block.class;
-                for (Method method : blockClass.getDeclaredMethods())
+                for (Method method : Block.class.getDeclaredMethods())
                     blockMethods.add(method.getName());
             }catch (Throwable t){
                 handleCrash(transformedName, t);
@@ -171,9 +171,6 @@ public class BlockTransformer implements IClassTransformer {
         if(!hasInjectedCode)
             return bytecode;
 
-        //Uses a custom class writer to load classes from the Vanilla Class loader, to ensure no the classes can be found
-        MinecraftClassWriter classWriter = new MinecraftClassWriter(classNode.name, ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
-
         try {
             classNode.accept(classWriter);
         }catch (Throwable t){
@@ -195,24 +192,14 @@ public class BlockTransformer implements IClassTransformer {
     }
 
     /**
-     * Depending on if the block class has already been loaded, there are two ways to check if the class is a block class. The first is to grab the bytecode and check
-     * by hand if the super name is the block name, if not it recursively calls itself until it find the block class.
-     *
-     * The second way is when the block class has been loaded, it will use minecraft class loader to get the super class which will call the transformers and return
-     * a class object, which is used to check if the class is assignable from the block class.
-     *
      * @param superName Name of the super class that needs to be checked
      * @return true if the class is a Block Subclass
      */
     private boolean checkIfisBlock(String superName){
-        if(blockClass == null) {
-            if (superName == null || bannedSuperClasses.contains(superName)) return false;
-            if (superName.equals(block) || superName.equals("net/minecraft/block/Block")) return true;
-        }
-
+        if(superName == null || !hasBlockLoaded || bannedSuperClasses.contains(superName)) return false;
+        if(superName.equals(block) || superName.equals("net/minecraft/block/Block")) return true;
         try {
-            Class superClass = Launch.classLoader.findClass(superName.replace('/', '.'));
-            return blockClass != null ? blockClass.isAssignableFrom(superClass) : checkIfisBlock(superClass.getSuperclass().getName());
+            return Block.class.isAssignableFrom(Launch.classLoader.findClass(superName.replace('/', '.')));
         } catch (Throwable e) {
         }
         return false;
@@ -275,6 +262,10 @@ public class BlockTransformer implements IClassTransformer {
         @Override
         protected String getCommonSuperClass(String type1, String type2) {
             Class<?> c, d;
+
+            if(type1.equals(className)) return type2;
+            if(type2.equals(className)) return type1;
+
             try {
                 c = Launch.classLoader.findClass(type1.replace('/', '.'));
                 d = Launch.classLoader.findClass(type2.replace('/', '.'));

@@ -14,7 +14,7 @@ import java.util.Random;
 @Effect(aspect = "gelum", cost = 1)
 public class Gelum extends AspectEffect {
 
-    public static long cooldownTimer = 15000L;
+    public static long cooldownTimer = 10000L;
     private long cooldown;
     private int radius = 10;
 

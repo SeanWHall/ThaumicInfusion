@@ -17,7 +17,7 @@ public class ItemCoordinatePaper extends Item {
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean val) {
         NBTTagCompound nbt = stack.getTagCompound();
         if(nbt == null) return;
-        if(!Keyboard.isKeyDown(42) || Keyboard.isKeyDown(54)){
+        if(Keyboard.isKeyDown(42) || Keyboard.isKeyDown(54)){
             list.add("X: " + nbt.getInteger("CoordinateX"));
             list.add("Y: " + nbt.getInteger("CoordinateY"));
             list.add("Z: " + nbt.getInteger("CoordinateZ"));

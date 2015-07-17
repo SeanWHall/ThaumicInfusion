@@ -60,55 +60,7 @@ public class ThaumcraftIntergration {
 
         InfusionRecipe infusionRecipe = ThaumcraftApi.addInfusionCraftingRecipe("FOCUSINFUSION", new ItemStack(TIItems.focusInfusing), 4, (new AspectList()).add(Aspect.EARTH, 25).add(Aspect.ARMOR, 25).add(Aspect.ORDER, 25).add(Aspect.MIND, 10), ItemApi.getItem("itemFocusWarding", 0), new ItemStack[]{ItemApi.getItem("itemResource", 3), ItemApi.getItem("itemShard", 3), new ItemStack(Items.quartz), ItemApi.getItem("itemShard", 4), ItemApi.getItem("itemResource", 3), ItemApi.getItem("itemShard", 3), new ItemStack(Items.quartz), ItemApi.getItem("itemShard", 4)});
 
-        new ResearchItem("FOCUSINFUSION", "THAUMICINFUSION", (new AspectList()).add(Aspect.EARTH, 6).add(Aspect.ARMOR, 3).add(Aspect.ORDER, 3).add(Aspect.MIND, 3), -2, 0, 2, new ItemStack(TIItems.focusInfusing)).setPages(new ResearchPage("tc.research_page.FOCUSINFUSION.1"), new ResearchPage("tc.research_page.FOCUSINFUSION.2"), new ResearchPage(infusionRecipe)).registerResearchItem();
+        new ResearchItem("FOCUSINFUSION", "THAUMICINFUSION", (new AspectList()).add(Aspect.EARTH, 6).add(Aspect.ARMOR, 3).add(Aspect.ORDER, 3).add(Aspect.MIND, 3), -2, 0, 2, new ItemStack(TIItems.focusInfusing)).setPages(new ResearchPage("tc.research_page.FOCUSINFUSION.1"), new ResearchPage(infusionRecipe), new ResearchPage("tc.research_page.FOCUSINFUSION.2"), new ResearchPage("tc.research_page.FOCUSINFUSION.3")).registerResearchItem();
         new ResearchItem("ESSENTIABLOCKS", "THAUMICINFUSION", new AspectList().add(Aspect.ORDER, 3).add(Aspect.MAGIC, 3), 2, 0, 2, essentiaBlock).setPages(new ResearchPage("tc.research_page.ESSENTIABLOCKS.1"), new ResearchPage(essentiaRecipe)).registerResearchItem();
-    }
-
-
-    private static ResearchPage[] getPages() {
-        Aspect[] aspects = AspectHandler.getAspects();
-        AspectList current = new AspectList();
-        ArrayList<ResearchPage> pages = new ArrayList<ResearchPage>();
-
-        int index = 0;
-        for (Aspect aspect : aspects) {
-            if (aspect != null) {
-                current.add(aspect, AspectHandler.getCostOfEffect(aspect));
-                if (index == 1) {
-                    pages.add(new AspectEffectPage(current));
-                    current = new AspectList();
-                    index = 0;
-                } else
-                    index++;
-            }
-        }
-        ResearchPage[] researchPages = new ResearchPage[pages.size()];
-        for (int p = 0; p < researchPages.length; p++)
-            researchPages[p] = pages.get(p);
-
-        return researchPages;
-    }
-
-
-    public static class AspectEffectPage extends ResearchPage {
-
-        public AspectList aspects;
-
-        public AspectEffectPage(AspectList aspects) {
-            super("");
-            this.aspects = aspects;
-        }
-
-        @Override
-        public String getTranslatedText() {
-            String str = "";
-            for (Aspect aspect : aspects.getAspects()) {
-                if (aspect != null) {
-                    ResourceLocation location = aspect.getImage();
-                    str += "<IMG>" + location.getResourceDomain() + ":" + location.getResourcePath() + ":0:0:255:255:0.125</IMG>" + aspect.getName() + " " + ThaumicInfusion.translate("ti.cost") + ": " + AspectHandler.getCostOfEffect(aspect) + " " + ThaumicInfusion.translate("ti.effect_info." + aspect.getName().toUpperCase()) + "\n";
-                }
-            }
-            return str;
-        }
     }
 }
