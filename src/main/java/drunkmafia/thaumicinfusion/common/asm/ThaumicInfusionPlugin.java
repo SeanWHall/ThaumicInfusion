@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 @IFMLLoadingPlugin.Name(value = ModInfo.MODID)
+@IFMLLoadingPlugin.TransformerExclusions({ "drunkmafia.thaumicinfusion.common.asm.", "drunkmafia.thaumicinfusion.common.aspect" })
 @IFMLLoadingPlugin.MCVersion(value = "1.7.10")
 public class ThaumicInfusionPlugin implements IFMLLoadingPlugin {
 

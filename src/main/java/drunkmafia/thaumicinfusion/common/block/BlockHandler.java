@@ -16,7 +16,8 @@ import thaumcraft.api.WorldCoordinates;
 
 public final class BlockHandler {
     /**
-     * Accessed by block methods to invoke code dynamically
+     * Accessed by block methods to invoke code dynamically, this is done over storing the object locally in the methods
+     * as TI does not want to alter the block methods anymore than is required. Which means there is less room for error.
      */
     public static Block block;
 

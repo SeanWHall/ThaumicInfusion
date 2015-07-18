@@ -25,7 +25,7 @@ import java.util.List;
 @SideOnly(Side.CLIENT)
 public class InfusionGui extends GuiContainer {
     private Image background;
-    private Scroll parchment;
+    private Image parchment;
 
     private EntityPlayer player;
     private ItemStack wand;
@@ -33,13 +33,13 @@ public class InfusionGui extends GuiContainer {
     private ScrollRect scrollRect;
 
     public InfusionGui(EntityPlayer player, ItemStack wand) {
-        super(new InfusionContainer());
+        super(new InfusionContainer(player.inventory));
 
         this.player = player;
         this.wand = wand;
 
-        xSize = 97;
-        ySize = 105;
+        xSize = 190;
+        ySize = 232;
     }
 
     @Override
@@ -63,11 +63,10 @@ public class InfusionGui extends GuiContainer {
         }
 
         background = new Image(new ResourceLocation(ModInfo.MODID, "textures/gui/gui_infusion.png"), 0, 0, 0, 0, xSize, ySize);
-        parchment = new Scroll(new ResourceLocation("thaumcraft", "textures/misc/parchment3.png"), xSize, ((ySize - 150) / 2), 0, 0, 150, 150);
+        parchment = new Image(new ResourceLocation("thaumcraft", "textures/misc/parchment3.png"), 145, -20, 0, 0, 150, 150);
 
-        scrollRect = new ScrollRect(10, 10, 76, 76, new Image(background.image, 24, 89, 97, 0, 25, 8), new Image(background.image, 46, 89, 120, 0, 25, 8), aspectSlots.toArray(new AspectSlot[aspectSlots.size()]));
+        scrollRect = new ScrollRect(54, 14, 76, 76, new Image(background.image, 70, 93, 191, 7, 24, 8), new Image(background.image, 92, 93, 215, 7, 24, 8), aspectSlots.toArray(new AspectSlot[aspectSlots.size()]));
         scrollRect.selected = slot;
-        if(slot != null) parchment.setAspect(slot.aspect);
     }
 
     @Override
@@ -75,11 +74,14 @@ public class InfusionGui extends GuiContainer {
         background.drawImage();
         if(scrollRect.selected != null) parchment.drawImage();
         scrollRect.drawScrollBackground(mouseX, mouseY);
-    }
-
-    @Override
-    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-        if(scrollRect.selected != null) parchment.drawForeground();
+        if(scrollRect.selected != null) {
+            GL11.glPushMatrix();
+            GL11.glTranslatef((float) guiLeft, (float) guiTop, 0.0F);
+            GL11.glDisable(GL11.GL_LIGHTING);
+            fontRendererObj.drawSplitString(ThaumicInfusion.translate("ti.effect_info." + scrollRect.selected.aspect.getName().toUpperCase()), parchment.x + 10, parchment.y + 5, width - 10, 1);
+            GL11.glEnable(GL11.GL_LIGHTING);
+            GL11.glPopMatrix();
+        }
     }
 
     @Override
@@ -97,24 +99,6 @@ public class InfusionGui extends GuiContainer {
             this.aspect = aspect;
             this.width = width;
             this.height = height;
-        }
-    }
-
-    class Scroll extends Image {
-
-        private String desc;
-
-        public Scroll(ResourceLocation image, int x, int y, int u, int v, int width, int height, Object... objects) {
-            super(image, x, y, u, v, width, height, objects);
-        }
-
-        public void setAspect(Aspect aspect){
-            desc = ThaumicInfusion.translate("ti.effect_info." + aspect.getName().toUpperCase());
-        }
-
-        public void drawForeground(){
-            if(desc != null)
-                fontRendererObj.drawSplitString(desc, x + 10, y + 5, width - 10, 1);
         }
     }
 
@@ -141,7 +125,9 @@ public class InfusionGui extends GuiContainer {
         public void drawImage() {
             GL11.glPushMatrix();
             mc.renderEngine.bindTexture(image);
+            GL11.glEnable(3042);
             drawTexturedModalRect(guiLeft + x, guiTop + y, u, v, width, height);
+            GL11.glDisable(3042);
             GL11.glPopMatrix();
         }
 
@@ -194,7 +180,6 @@ public class InfusionGui extends GuiContainer {
             AspectSlot mouseOver = getMouseOver(mouseX, mouseY);
             if (mouseOver != null) {
                 selected = mouseOver;
-                parchment.setAspect(selected.aspect);
                 if (player.inventory.getCurrentItem() != null)
                     ChannelHandler.instance().sendToServer(new WandAspectPacketS(player, player.inventory.currentItem, selected.aspect));
             }
@@ -245,7 +230,9 @@ public class InfusionGui extends GuiContainer {
             if (mouseOver != null) {
                 ArrayList<String> tooltip = new ArrayList<String>();
                 tooltip.add(mouseOver.aspect.getName());
+                GL11.glPushMatrix();
                 drawHoveringText(tooltip, mouseX, mouseY, fontRendererObj);
+                GL11.glPopMatrix();
             }
         }
     }

@@ -54,5 +54,6 @@ public class Gelum extends AspectEffect {
                 }
             }
         }
+        cooldown = System.currentTimeMillis();
     }
 }
