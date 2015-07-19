@@ -45,6 +45,8 @@ public final class BlockHandler {
         if (hook == null)
             return false;
 
+        //TODO Replace this with an integer passed in as a par, which is the indx of the correct method.
+        //Should increase the overall perforamnce of this method.
         final StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         String methodName = stackTrace[2].getMethodName().equals("hasWorldData") ? stackTrace[3].getMethodName() : stackTrace[2].getMethodName();
 
