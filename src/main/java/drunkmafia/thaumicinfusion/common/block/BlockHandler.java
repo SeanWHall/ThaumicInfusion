@@ -38,15 +38,6 @@ public final class BlockHandler {
         if (world == null || block == Blocks.air)
             return false;
 
-        if(lastX == x && lastY == y && lastZ == z){
-            for (String blockMethodName : lastHook.hookMethods(block)) {
-                if (methodName.equals(blockMethodName)) {
-                    BlockHandler.block = lastHook.getBlock(blockMethodName);
-                    return true;
-                }
-            }
-        }
-
         TIWorldData worldData = TIWorldData.getWorldData(world);
         if (worldData == null) return false;
 

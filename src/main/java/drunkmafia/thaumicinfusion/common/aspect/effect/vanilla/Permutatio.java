@@ -9,6 +9,8 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import net.minecraft.block.Block;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
@@ -72,6 +74,22 @@ public class Permutatio extends AspectLink {
             }
         }
         world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+    }
+
+    @OverrideBlock(overrideBlockFunc = false)
+    public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {
+        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+    }
+
+    @OverrideBlock(overrideBlockFunc = false)
+    public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) {
+        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+    }
+
+    @OverrideBlock(overrideBlockFunc = false)
+    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
+        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+        return false;
     }
 
     @OverrideBlock(overrideBlockFunc = false)

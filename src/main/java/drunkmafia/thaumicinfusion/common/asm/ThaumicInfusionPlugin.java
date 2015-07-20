@@ -46,10 +46,6 @@ public class ThaumicInfusionPlugin implements IFMLLoadingPlugin {
         block = isObf ? "aji" : "net/minecraft/block/Block";
         world = isObf ? "ahb" : "net/minecraft/world/World";
         iBlockAccess = isObf ? "ahl" : "net/minecraft/world/IBlockAccess";
-
-        log.info("Block: " + block);
-        log.info("World: " + world);
-        log.info("Access: " + iBlockAccess);
     }
 
     @Override

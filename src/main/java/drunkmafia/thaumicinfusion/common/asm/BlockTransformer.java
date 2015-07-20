@@ -6,39 +6,32 @@
 
 package drunkmafia.thaumicinfusion.common.asm;
 
-import cpw.mods.fml.common.asm.transformers.DeobfuscationTransformer;
-import net.minecraft.block.Block;
+import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
+import cpw.mods.fml.common.asm.transformers.deobf.FMLRemappingAdapter;
 import net.minecraft.launchwrapper.*;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static drunkmafia.thaumicinfusion.common.asm.ThaumicInfusionPlugin.*;
 import static org.objectweb.asm.Opcodes.*;
 
 /**
  * This transformer injects code into every single block and the main class itself, the code it injects looks like this:
- * <p/>
- * if(BlockHandler.hasWorldData(world, x, y, z, this, "onBlockActivated"){
+ * {@code
+ * if(BlockHandler.hasWorldData(world, x, y, z, this, "onBlockActivated")){
  *      if(BlockHandler.overrideBlockFunctionality(world, x, y, z, "onBlockActivated")){
  *          return BlockHandler.block.onBlockActivated(World, x, y, z, player, side, hitX, hitY, hitZ);
  *      }else{
  *          BlockHandler.block.onBlockActivated(World, x, y, z, player, side, hitX, hitY, hitZ);
  *      }
- * }
- * <p/>
+ * }}
  */
 public class BlockTransformer implements IClassTransformer {
 
     private static List<String> blockMethods = new ArrayList<String>(), blockClasses = new ArrayList<String>();
-    //Required to debofuscate the code, the FML plugin is unable to be sorted after {@link IClassTransformer} that is registered without losing the ability to inject into the block class
-    private static IClassTransformer deobfTransformer = new DeobfuscationTransformer();
 
     public static List<Interface> blockInterfaces = new ArrayList<Interface>();
 
@@ -47,7 +40,6 @@ public class BlockTransformer implements IClassTransformer {
         infusionStabiliser.addMethod(new IMethod("canStabaliseInfusion", "Z", "L" + world + ";III"));
         blockInterfaces.add(infusionStabiliser);
 
-        blockClasses.add("aji");
         blockClasses.add("net/minecraft/block/Block");
     }
 
@@ -59,7 +51,7 @@ public class BlockTransformer implements IClassTransformer {
         ClassNode classNode = new ClassNode(ASM5);
 
         //If the instance is obfuscated, then it will run though the deobf transformer to make sure that the src is deobfucated
-        ClassReader classReader = new ClassReader(isObf ? deobfTransformer.transform(name, transformedName, bytecode) : bytecode);
+        ClassReader classReader = isObf ? getDeobfReader(bytecode) : new ClassReader(bytecode);
         classReader.accept(classNode, ClassReader.EXPAND_FRAMES);
 
         //Uses a custom class writer to load classes from the Vanilla Class loader, to ensure no the classes can be found
@@ -125,8 +117,11 @@ public class BlockTransformer implements IClassTransformer {
 
                 InsnList toInsert = new InsnList();
 
+                //Loads the world object and three integers that the coordinate lookup deems to be the X, Y & Z
                 worldPars.loadPars(toInsert);
+                //Loads up the Block Object
                 toInsert.add(new VarInsnNode(ALOAD, 0));
+                //Passes in the method name to make the process of data detection even faster since method lookup is skipped
                 toInsert.add(new LdcInsnNode(method.name));
 
                 toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockHandler", "hasWorldData", "(Lnet/minecraft/world/IBlockAccess;IIILnet/minecraft/block/Block;Ljava/lang/String;)Z", false));
@@ -170,25 +165,20 @@ public class BlockTransformer implements IClassTransformer {
 
                 logger.println(methodNo++ + ") Injected hook into: " + method.name + " " + method.desc + " Access: " + method.access);
             }
+
+            logger.flush();
+
+            //Will only return a modified bytecode if any code has been injected into the methods
+            if(hasInjectedCode){
+                classNode.accept(classWriter);
+                return classWriter.toByteArray();
+            }
         } catch (Throwable t) {
             handleCrash(transformedName, t);
-            return bytecode;
         }
 
-        logger.flush();
-
-        //If no code has been injected returns original bytecode
-        if(!hasInjectedCode) return bytecode;
-
-        try {
-            classNode.accept(classWriter);
-        }catch (Throwable t){
-            handleCrash(transformedName, t);
-            return bytecode;
-        }
-
-        //Returns new bytecode
-        return classWriter.toByteArray();
+        //If no code is injected or an exception is thrown some how, it will revert to the original code
+        return bytecode;
     }
 
     private void handleCrash(String transformedName, Throwable t){
@@ -209,8 +199,15 @@ public class BlockTransformer implements IClassTransformer {
         if(blockClasses.contains(superName)) return true;
 
         try {
-            ClassReader reader = new ClassReader(Launch.classLoader.getClassBytes(superName.replace('/', '.')));
+            byte[] bytecode = Launch.classLoader.getClassBytes(superName.replace('/', '.'));
+            if(bytecode == null){
+                if(isObf) bytecode = Launch.classLoader.getClassBytes(FMLDeobfuscatingRemapper.INSTANCE.unmap(superName.replace('.', '/')).replace('/', '.'));
+                else return false;
+            }
+
+            ClassReader reader = isObf ? getDeobfReader(bytecode) : new ClassReader(bytecode);
             if(checkIfisBlock(reader.getSuperName())) {
+                logger.println("Found new super: " + superName);
                 blockClasses.add(superName);
                 return true;
             }
@@ -229,6 +226,23 @@ public class BlockTransformer implements IClassTransformer {
         }
 
         isnList.add(new MethodInsnNode(INVOKEVIRTUAL, block, method.name, method.desc, false));
+    }
+
+    /**
+     * Use in obfuscated environments to make it easier to parse though code, this is required because this transformer is loaded
+     * before the {@link cpw.mods.fml.common.asm.transformers.DeobfuscationTransformer} which does exactly what this method does
+     * but for every class. This transformer is unable to be placed after this transformer as the FMLPlugin Sorting index will
+     * cause the transformer to miss it's chance to inject into the {@link net.minecraft.block.Block}.
+     *
+     * @param bytecode The bytecode of the class which will be remapped to have deobfucated names
+     * @return will return a {@link ClassReader} that contains the modified bytecode
+     */
+    private ClassReader getDeobfReader(byte[] bytecode){
+        if(!isObf) return new ClassReader(bytecode);
+        ClassReader classReader = new ClassReader(bytecode);
+        ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        classReader.accept(new FMLRemappingAdapter(classWriter), ClassReader.EXPAND_FRAMES);
+        return new ClassReader(classWriter.toByteArray());
     }
 
     /**
