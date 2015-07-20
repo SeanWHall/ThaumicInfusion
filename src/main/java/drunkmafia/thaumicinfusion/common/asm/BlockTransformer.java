@@ -6,11 +6,13 @@
 
 package drunkmafia.thaumicinfusion.common.asm;
 
+import cpw.mods.fml.common.asm.transformers.DeobfuscationTransformer;
 import net.minecraft.block.Block;
 import net.minecraft.launchwrapper.*;
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,23 +25,21 @@ import static org.objectweb.asm.Opcodes.*;
 /**
  * This transformer injects code into every single block and the main class itself, the code it injects looks like this:
  * <p/>
- * if(BlockHandler.hasWorldData(World, int, int, int, Block){
- *      if(BlockHandler.overrideBlockFunctionality(World, int, int, int)){
- *          return BlockHandler.block.onBlockActivated(World, int, int, int, EntityPlayer, int, float, float, float)
+ * if(BlockHandler.hasWorldData(world, x, y, z, this, "onBlockActivated"){
+ *      if(BlockHandler.overrideBlockFunctionality(world, x, y, z, "onBlockActivated")){
+ *          return BlockHandler.block.onBlockActivated(World, x, y, z, player, side, hitX, hitY, hitZ);
  *      }else{
- *          BlockHandler.block.onBlockActivated(World, int, int, int, EntityPlayer, int, float, float, float)
+ *          BlockHandler.block.onBlockActivated(World, x, y, z, player, side, hitX, hitY, hitZ);
  *      }
  * }
  * <p/>
  */
 public class BlockTransformer implements IClassTransformer {
 
-    private boolean hasBlockLoaded;
+    private static List<String> blockMethods = new ArrayList<String>(), blockClasses = new ArrayList<String>();
+    //Required to debofuscate the code, the FML plugin is unable to be sorted after {@link IClassTransformer} that is registered without losing the ability to inject into the block class
+    private static IClassTransformer deobfTransformer = new DeobfuscationTransformer();
 
-    private static Map<String, String> obfClassNames = new HashMap<String, String>();
-    private static List<String> blockMethods, vanillaObfMethods = new ArrayList<String>(), blockClasses = new ArrayList<String>();
-
-    public static List<String> bannedSuperClasses = new ArrayList<String>();
     public static List<Interface> blockInterfaces = new ArrayList<Interface>();
 
     static{
@@ -49,8 +49,6 @@ public class BlockTransformer implements IClassTransformer {
 
         blockClasses.add("aji");
         blockClasses.add("net/minecraft/block/Block");
-
-        bannedSuperClasses.add("java/lang/Object");
     }
 
     @Override
@@ -58,33 +56,26 @@ public class BlockTransformer implements IClassTransformer {
         if (bytecode == null)
             return null;
 
-        if(transformedName.equals("net/minecraft/block/Block")) block = name;
-
         ClassNode classNode = new ClassNode(ASM5);
-        ClassReader classReader = new ClassReader(bytecode);
+
+        //If the instance is obfuscated, then it will run though the deobf transformer to make sure that the src is deobfucated
+        ClassReader classReader = new ClassReader(isObf ? deobfTransformer.transform(name, transformedName, bytecode) : bytecode);
         classReader.accept(classNode, ClassReader.EXPAND_FRAMES);
 
         //Uses a custom class writer to load classes from the Vanilla Class loader, to ensure no the classes can be found
         MinecraftClassWriter classWriter = new MinecraftClassWriter(classNode.name, ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
 
-        boolean isBlockClass = classNode.name.equals(block);
+        boolean isBlockClass = classNode.name.equals("net/minecraft/block/Block");
+
+        if(isBlockClass){
+            log.info("Found the Block Class");
+            logger.println("==== Transformers ====");
+            for(IClassTransformer transformer : Launch.classLoader.getTransformers())
+                logger.println("Transformer: " + transformer.getClass().getName());
+        }
 
         //Checks if the ClassNode is the Block class or a subclass
-        if(!isBlockClass && (bannedSuperClasses.contains(classNode.superName) || !checkIfisBlock(classNode.superName))) return bytecode;
-
-        //Gets block methods after the block class has already been loaded into the class loader
-        if(!isBlockClass && hasBlockLoaded && blockMethods == null && (classNode.superName.equals("net/minecraft/block/Block") || classNode.superName.equals(block))){
-            try {
-                logger.println("Block class has already been loaded, getting block methods for lookup");
-                blockMethods = new ArrayList<String>();
-                for (Method method : Block.class.getDeclaredMethods())
-                    blockMethods.add(method.getName());
-            }catch (Throwable t){
-                handleCrash(transformedName, t);
-                logger.println("Crash caused by Block class not being loaded before this class");
-                return bytecode;
-            }
-        }else if(!isBlockClass && blockMethods == null) return bytecode;
+        if(!isBlockClass && !checkIfisBlock(classNode.superName)) return bytecode;
 
         boolean hasInjectedCode = false;
 
@@ -104,7 +95,7 @@ public class BlockTransformer implements IClassTransformer {
                 if(method.access != 1 && method.access != 2) continue;
 
                 //Checks if the method is a block method
-                if(!isBlockClass && !blockMethods.contains(method.name) && !vanillaObfMethods.contains(method.name))
+                if(!isBlockClass && !blockMethods.contains(method.name))
                     continue;
 
                 Type[] pars = Type.getArgumentTypes(method.desc);
@@ -114,44 +105,60 @@ public class BlockTransformer implements IClassTransformer {
                 if (worldPars == null)
                     continue;
 
-                //If the class is the Block class, adds the obfuscated method names for other vanilla classes
-                if(isBlockClass)
-                    vanillaObfMethods.add(method.name);
+                if(isBlockClass) blockMethods.add(method.name);
 
                 // Sets up the conditional statements
                 int returnType = Type.getReturnType(method.desc).getOpcode(IRETURN);
+
+                //Checks to make sure that the methods has not already been injected
+                boolean skip = false;
+                for(AbstractInsnNode node : method.instructions.toArray()){
+                    if(node != null && node instanceof MethodInsnNode && ((MethodInsnNode) node).owner.equals("drunkmafia/thaumicinfusion/common/block/BlockHandler")) {
+                        logger.println(methodNo++ + ") Already Injected into: " + method.name + " " + method.desc + " Access: " + method.access + " skipping to avoid conflicts");
+                        skip = true;
+                        break;
+                    }
+                }
+
+                //Skips the method if it has already been injected into
+                if(skip) continue;
 
                 InsnList toInsert = new InsnList();
 
                 worldPars.loadPars(toInsert);
                 toInsert.add(new VarInsnNode(ALOAD, 0));
-                toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockHandler", "hasWorldData", "(L" + (worldPars.isBlockAccess ? iBlockAccess : world) + ";IIIL" + block + ";)Z", false));
+                toInsert.add(new LdcInsnNode(method.name));
 
-                LabelNode l1 = new LabelNode();
-                toInsert.add(new JumpInsnNode(IFEQ, l1));
+                toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockHandler", "hasWorldData", "(Lnet/minecraft/world/IBlockAccess;IIILnet/minecraft/block/Block;Ljava/lang/String;)Z", false));
+
+                LabelNode hasWorldData = new LabelNode();
+                toInsert.add(new JumpInsnNode(IFEQ, hasWorldData));
                 toInsert.add(new LabelNode());
 
                 worldPars.loadPars(toInsert);
-                toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockHandler", "overrideBlockFunctionality", "(L" + (worldPars.isBlockAccess ? iBlockAccess : world) + ";III)Z", false));
+                toInsert.add(new LdcInsnNode(method.name));
+                toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockHandler", "overrideBlockFunctionality", "(Lnet/minecraft/world/IBlockAccess;IIILjava/lang/String;)Z", false));
 
-                LabelNode l2 = new LabelNode();
-                toInsert.add(new JumpInsnNode(IFEQ, l2));
+                LabelNode overrideBlockFunctionality = new LabelNode();
+                toInsert.add(new JumpInsnNode(IFEQ, overrideBlockFunctionality));
                 toInsert.add(new LabelNode());
 
                 //Injects Block Invocation Code
                 injectInvokeBlock(toInsert, method, pars);
 
+                //If override returns true then it skips the blocks code by returning
                 toInsert.add(new InsnNode(returnType));
 
-                toInsert.add(l2);
+                toInsert.add(overrideBlockFunctionality);
 
+                //If override return false then it runs the effects code and continues with the rest of the method. This is what most effects do, which allows blocks to retain their core functionality
                 //Injects Block Invocation Code
                 injectInvokeBlock(toInsert, method, pars);
 
                 //If the method has a return type, it pops the object off the stack
                 if (returnType != RETURN) toInsert.add(new InsnNode(POP));
 
-                toInsert.add(l1);
+                toInsert.add(hasWorldData);
 
                 //Adds above code into the method
                 method.instructions.insert(toInsert);
@@ -161,7 +168,7 @@ public class BlockTransformer implements IClassTransformer {
                     hasInjectedCode = true;
                 }
 
-                logger.println(methodNo++ + ") Injected block code into: " + method.name + " " + method.desc + " Access: " + method.access);
+                logger.println(methodNo++ + ") Injected hook into: " + method.name + " " + method.desc + " Access: " + method.access);
             }
         } catch (Throwable t) {
             handleCrash(transformedName, t);
@@ -171,8 +178,7 @@ public class BlockTransformer implements IClassTransformer {
         logger.flush();
 
         //If no code has been injected returns original bytecode
-        if(!hasInjectedCode)
-            return bytecode;
+        if(!hasInjectedCode) return bytecode;
 
         try {
             classNode.accept(classWriter);
@@ -180,12 +186,6 @@ public class BlockTransformer implements IClassTransformer {
             handleCrash(transformedName, t);
             return bytecode;
         }
-
-        //Adds the de & obfuscated names to a map, which help mod classes find the correct superclass name to load
-        if(!name.equals(transformedName)) obfClassNames.put(transformedName.replace('.', '/'), name);
-
-        //Enables the loading of block subclasses
-        if(isBlockClass) hasBlockLoaded = true;
 
         //Returns new bytecode
         return classWriter.toByteArray();
@@ -205,8 +205,8 @@ public class BlockTransformer implements IClassTransformer {
      * @return true if the class is a Block Subclass
      */
     private boolean checkIfisBlock(String superName){
-        if(superName != null && blockClasses.contains(obfClassNames.containsKey(superName.replace('.', '/')) ? obfClassNames.get(superName.replace('.', '/')) : superName)) return true;
-        if(superName == null || !hasBlockLoaded || bannedSuperClasses.contains(superName.replace('.', '/'))) return false;
+        if(superName == null) return false;
+        if(blockClasses.contains(superName)) return true;
 
         try {
             ClassReader reader = new ClassReader(Launch.classLoader.getClassBytes(superName.replace('/', '.')));
@@ -214,7 +214,7 @@ public class BlockTransformer implements IClassTransformer {
                 blockClasses.add(superName);
                 return true;
             }
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {/* Try 'N Catch only added as a fail safe, if this crashes out then the class is not a block class & does not need logging */}
         return false;
     }
 

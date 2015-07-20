@@ -46,8 +46,6 @@ public class ChunkSyncPacketC implements IMessage {
         try {
             if (data != null)
                 new PacketBuffer(buf).writeNBTTagCompoundToBuffer(SavableHelper.saveDataToNBT(data));
-            new PacketBuffer(buf).writeNBTTagCompoundToBuffer(SavableHelper.saveDataToNBT(data));
-
         } catch (Exception e) {}
     }
 

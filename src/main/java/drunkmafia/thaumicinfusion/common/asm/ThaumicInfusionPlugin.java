@@ -14,17 +14,15 @@ import net.minecraft.launchwrapper.Launch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.PrintWriter;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Map;
 
-@IFMLLoadingPlugin.Name(value = ModInfo.MODID)
-@IFMLLoadingPlugin.TransformerExclusions({ "drunkmafia.thaumicinfusion.common.asm.", "drunkmafia.thaumicinfusion.common.aspect" })
-@IFMLLoadingPlugin.MCVersion(value = "1.7.10")
+@IFMLLoadingPlugin.Name(ModInfo.MODID)
+@IFMLLoadingPlugin.TransformerExclusions({ "drunkmafia.thaumicinfusion.common.asm.", "drunkmafia.thaumicinfusion.common.aspect", "java."})
+@IFMLLoadingPlugin.MCVersion("1.7.10")
 public class ThaumicInfusionPlugin implements IFMLLoadingPlugin {
 
     public static Logger log = LogManager.getLogger("TI Transformer");
@@ -33,7 +31,7 @@ public class ThaumicInfusionPlugin implements IFMLLoadingPlugin {
 
     public static String block, world, iBlockAccess;
 
-    public ThaumicInfusionPlugin() {
+    public ThaumicInfusionPlugin() throws FileNotFoundException, UnsupportedEncodingException {
         try {
             Field deobfuscatedEnvironment = CoreModManager.class.getDeclaredField("deobfuscatedEnvironment");
             deobfuscatedEnvironment.setAccessible(true);
@@ -70,7 +68,6 @@ public class ThaumicInfusionPlugin implements IFMLLoadingPlugin {
         return null;
     }
 
-    @Override
     public void injectData(Map<String, Object> data) {
     }
 

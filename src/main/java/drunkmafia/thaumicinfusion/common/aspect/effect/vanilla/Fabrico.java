@@ -49,7 +49,7 @@ public class Fabrico extends AspectEffect {
         if(phial != null && phial.getItem() instanceof IEssentiaContainerItem){
             AspectList aspects = ((IEssentiaContainerItem)phial.getItem()).getAspects(phial);
             aspect = aspects != null ? aspects.getAspects()[0] : null;
-            ChannelHandler.instance().sendToAll(new EffectSyncPacketC(this));
+            ChannelHandler.instance().sendToAll(new EffectSyncPacketC(this, true));
         }
     }
 

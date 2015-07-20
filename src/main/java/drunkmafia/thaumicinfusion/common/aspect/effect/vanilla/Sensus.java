@@ -28,11 +28,11 @@ public class Sensus extends AspectEffect {
 
         if(player.isSneaking()) {
             disguisedBlock = null;
-            ChannelHandler.instance().sendToDimension(new EffectSyncPacketC(this), world.provider.dimensionId);
+            ChannelHandler.instance().sendToDimension(new EffectSyncPacketC(this, true), world.provider.dimensionId);
         }else if(stackInHand != null && stackInHand.getItem() instanceof ItemBlock){
             disguisedBlock = Block.getBlockFromItem(stackInHand.getItem());
             metadata = stackInHand.getItemDamage();
-            ChannelHandler.instance().sendToDimension(new EffectSyncPacketC(this), world.provider.dimensionId);
+            ChannelHandler.instance().sendToDimension(new EffectSyncPacketC(this, true), world.provider.dimensionId);
         }
     }
 
@@ -40,6 +40,16 @@ public class Sensus extends AspectEffect {
     public IIcon getIcon(IBlockAccess access, int x, int y, int z, int side) {
         IIcon icon = disguisedBlock != null ? disguisedBlock.getIcon(side, metadata) : null;
         return icon != null ? icon : access.getBlock(x, y, z).getIcon(side, access.getBlockMetadata(x, y, z));
+    }
+
+    @Override
+    public boolean shouldSideBeRendered(IBlockAccess access, int x, int y, int z, int side) {
+        return disguisedBlock == null;
+    }
+
+    @Override
+    public boolean isBlockSolid(IBlockAccess access, int x, int y, int z, int side) {
+        return disguisedBlock == null;
     }
 
     @Override

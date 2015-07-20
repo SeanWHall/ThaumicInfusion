@@ -14,8 +14,10 @@ import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.data.BlockData;
+import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -33,6 +35,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ItemFocusInfusing extends ItemFocusBasic {
+
+    private static List<Block> blockblacklist = new ArrayList<Block>();
+
+    static{
+        String[] blocks = ThaumicInfusion.instance.config.get("Block Blacklist", "Blocks that are banned from being infused", new String[] {"bedrock"}).getStringList();
+        for(String block : blocks) blockblacklist.add(Block.getBlockFromName(block));
+    }
 
     public IIcon iconOrnament, depthIcon = null;;
 
@@ -77,12 +86,14 @@ public class ItemFocusInfusing extends ItemFocusBasic {
     public ItemStack onFocusRightClick(ItemStack itemstack, World world, EntityPlayer player, MovingObjectPosition mop) {
         player.swingItem();
         if (mop != null && mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
+            if(blockblacklist.contains(world.getBlock(mop.blockX, mop.blockY, mop.blockZ))) return itemstack;
+
             NBTTagCompound wandNBT = itemstack.getTagCompound() != null ? itemstack.getTagCompound() : new NBTTagCompound();
             if (wandNBT.hasKey("InfusionAspect") && !world.isRemote) {
                 Aspect aspect = Aspect.getAspect(wandNBT.getString("InfusionAspect"));
                 if (aspect != null) {
                     placeAspect(player, new WorldCoordinates(mop.blockX, mop.blockY, mop.blockZ, player.dimension), aspect);
-                    world.playSoundEffect((double) mop.blockX + 0.5D, (double) mop.blockY + 0.5D, (double) mop.blockZ + 0.5D, "thaumcraft:zap", 0.25F, 1.0F);
+                    world.playSoundEffect((double) mop.blockX + 0.5D, (double) mop.blockY + 0.5D, (double) mop.blockZ + 0.5D, "thaumcraft:wand", 0.7F, world.rand.nextFloat() * 0.1F + 0.9F);
                 }
             }
         } else player.openGui(ThaumicInfusion.instance, 0, world, (int) player.posX, (int) player.posY, (int) player.posZ);

@@ -23,12 +23,14 @@ import thaumcraft.api.WorldCoordinates;
 
 public class EffectSyncPacketC  implements IMessage {
 
+    private boolean updateRendering;
     private AspectEffect effect;
     private NBTTagCompound tagCompound;
     public EffectSyncPacketC() {}
 
-    public EffectSyncPacketC(AspectEffect effect) {
+    public EffectSyncPacketC(AspectEffect effect, boolean updateRendering) {
         this.effect = effect;
+        this.updateRendering = updateRendering;
     }
 
     @Override
@@ -38,6 +40,7 @@ public class EffectSyncPacketC  implements IMessage {
             if (tag != null) {
                 tagCompound = tag;
                 effect = SavableHelper.loadDataFromNBT(tag);
+                updateRendering = buf.readByte() == 1;
             }
         } catch (Exception e) {}
     }
@@ -45,9 +48,10 @@ public class EffectSyncPacketC  implements IMessage {
     @Override
     public void toBytes(ByteBuf buf) {
         try {
-            if (effect != null)
+            if (effect != null) {
                 new PacketBuffer(buf).writeNBTTagCompoundToBuffer(SavableHelper.saveDataToNBT(effect));
-
+                buf.writeByte(updateRendering ? 1 : 0);
+            }
         } catch (Exception e) {}
     }
 
@@ -62,7 +66,7 @@ public class EffectSyncPacketC  implements IMessage {
             if(data != null &&  data.getEffect(effect.getClass()) != null)
                 data.getEffect(effect.getClass()).readNBT(message.tagCompound);
 
-            Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.x, pos.y, pos.z);
+            if(message.updateRendering) Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.x, pos.y, pos.z);
             return null;
         }
     }

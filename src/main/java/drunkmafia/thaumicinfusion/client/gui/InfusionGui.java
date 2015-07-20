@@ -78,7 +78,7 @@ public class InfusionGui extends GuiContainer {
             GL11.glPushMatrix();
             GL11.glTranslatef((float) guiLeft, (float) guiTop, 0.0F);
             GL11.glDisable(GL11.GL_LIGHTING);
-            fontRendererObj.drawSplitString(ThaumicInfusion.translate("ti.effect_info." + scrollRect.selected.aspect.getName().toUpperCase()), parchment.x + 10, parchment.y + 5, width - 10, 1);
+            fontRendererObj.drawSplitString(ThaumicInfusion.translate("ti.effect_info." + scrollRect.selected.aspect.getName().toUpperCase()), parchment.x + 10, parchment.y + 5, parchment.width - 10, 1);
             GL11.glEnable(GL11.GL_LIGHTING);
             GL11.glPopMatrix();
         }

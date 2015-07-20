@@ -10,6 +10,7 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
+import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import drunkmafia.thaumicinfusion.common.item.ItemFocusInfusing;
 import drunkmafia.thaumicinfusion.common.util.RGB;
 import drunkmafia.thaumicinfusion.common.util.helper.MathHelper;
@@ -30,6 +31,7 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.util.ForgeDirection;
 import org.lwjgl.opengl.GL11;
@@ -73,9 +75,8 @@ public class ClientEventContainer {
 
 //    @SubscribeEvent
 //    public void onDrawDebugText(RenderGameOverlayEvent.Text event) {
-//        World world = Minecraft.getMinecraft().theWorld;
 //        if(Minecraft.getMinecraft().gameSettings.showDebugInfo)
-//
+//            event.left.add("Detection time (Inaccurate) " + BlockHandler.blockHandlerTime + " ns");
 //    }
 
     public static ItemFocusBasic getFocus(ItemStack stack) {
