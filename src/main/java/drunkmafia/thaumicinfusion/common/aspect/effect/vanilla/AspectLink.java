@@ -46,6 +46,7 @@ public class AspectLink extends AspectEffect {
     @OverrideBlock(overrideBlockFunc = false)
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
         ItemStack paper = player.getCurrentEquippedItem();
+
         if (world.isRemote || paper == null || (paper.getItem() != TIItems.coordinatePaper && paper.getItem() != Items.paper))
             return false;
 
@@ -57,13 +58,12 @@ public class AspectLink extends AspectEffect {
             World worldDest = DimensionManager.getWorld(storedDest.dim);
 
             BlockData data = TIWorldData.getWorldData(worldDest).getBlock(BlockData.class, storedDest);
-            AspectLink linkDest;
-            if (data == null || (linkDest = data.getEffect(getClass())) == null || linkDest == this){
+            if (data == null || data.getEffect(getClass()) == null || data.getEffect(getClass()) == this){
                 player.addChatMessage(new ChatComponentText(ThaumicInfusion.translate("ti.linking.fail")));
                 return false;
             }
 
-            linkDest.destination = pos;
+            ((AspectLink)data.getEffect(getClass())).destination = pos;
             destination = storedDest;
 
             player.inventory.mainInventory[player.inventory.currentItem] = new ItemStack(Items.paper);
@@ -108,7 +108,6 @@ public class AspectLink extends AspectEffect {
     @Override
     public void writeNBT(NBTTagCompound nbt) {
         super.writeNBT(nbt);
-
         if(destination == null)
             return;
         destination.writeNBT(nbt);

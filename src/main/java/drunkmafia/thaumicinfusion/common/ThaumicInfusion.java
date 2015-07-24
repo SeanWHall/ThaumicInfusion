@@ -23,6 +23,8 @@ import drunkmafia.thaumicinfusion.common.event.CommonEventContainer;
 import drunkmafia.thaumicinfusion.common.intergration.ThaumcraftIntergration;
 import drunkmafia.thaumicinfusion.common.item.TIItems;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
+import drunkmafia.thaumicinfusion.common.world.TIWorldData;
+import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import net.minecraft.command.ServerCommandManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
@@ -31,6 +33,9 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.Hashtable;
 
 import static drunkmafia.thaumicinfusion.common.lib.ModInfo.*;
 
@@ -43,7 +48,6 @@ public class ThaumicInfusion {
     @SidedProxy(clientSide = CLIENT_PROXY_PATH, serverSide = COMMON_PROXY_PATH)
     public static CommonProxy proxy;
 
-    public Side side = Side.CLIENT;
     public Configuration config;
     public CreativeTabs tab = new CreativeTabs(ModInfo.CREATIVETAB_UNLOCAL) {
         @Override
@@ -62,7 +66,6 @@ public class ThaumicInfusion {
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        side = event.getSide();
         config = new Configuration(event.getSuggestedConfigurationFile());
 
         TIItems.init();
@@ -76,7 +79,9 @@ public class ThaumicInfusion {
     public void init(FMLInitializationEvent event) {
         MinecraftForge.EVENT_BUS.register(new CommonEventContainer());
         NetworkRegistry.INSTANCE.registerGuiHandler(instance, proxy);
+
         proxy.initRenderers();
+        ChannelHandler.registerPackets();
     }
 
     @EventHandler
@@ -84,7 +89,8 @@ public class ThaumicInfusion {
         AspectHandler.postInit();
         ThaumcraftIntergration.init();
 
-        ThaumicInfusionPlugin.logger.close();
+        if(ThaumicInfusionPlugin.logger != null) ThaumicInfusionPlugin.logger.close();
+        else getLogger().info("Thaumic Infusion has detected that it's logger is null, this might mean that the Transformers have not been registered!");
     }
 
     @EventHandler

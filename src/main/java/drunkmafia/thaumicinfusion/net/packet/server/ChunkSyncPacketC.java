@@ -62,7 +62,7 @@ public class ChunkSyncPacketC implements IMessage {
             for (BlockSavable block : data.getAllBlocks())
                 block.dataLoad(world);
 
-            worldData.chunkDatas.set(data, chunkPos.getCenterXPos(), chunkPos.getCenterZPosition());
+            worldData.chunkDatas.set(chunkPos.getCenterXPos(), chunkPos.getCenterZPosition(), data);
 
             for (BlockSavable savable : data.getAllBlocks()) {
                 WorldCoordinates blockPos = savable.getCoords();

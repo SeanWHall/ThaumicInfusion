@@ -1,5 +1,6 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
+import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
@@ -13,12 +14,19 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import thaumcraft.api.WorldCoordinates;
 
 @Effect(aspect = "sensus", cost = 2)
 public class Sensus extends AspectEffect {
 
     private Block disguisedBlock;
     private int metadata;
+
+    @Override
+    public void aspectInit(World world, WorldCoordinates pos) {
+        super.aspectInit(world, pos);
+        if(!world.isRemote) ChannelHandler.instance().sendToDimension(new EffectSyncPacketC(this, true), world.provider.dimensionId);
+    }
 
     @OverrideBlock(overrideBlockFunc = false)
     public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player) {
@@ -30,9 +38,12 @@ public class Sensus extends AspectEffect {
             disguisedBlock = null;
             ChannelHandler.instance().sendToDimension(new EffectSyncPacketC(this, true), world.provider.dimensionId);
         }else if(stackInHand != null && stackInHand.getItem() instanceof ItemBlock){
-            disguisedBlock = Block.getBlockFromItem(stackInHand.getItem());
-            metadata = stackInHand.getItemDamage();
-            ChannelHandler.instance().sendToDimension(new EffectSyncPacketC(this, true), world.provider.dimensionId);
+            Block block = Block.getBlockFromItem(stackInHand.getItem());
+            if(block.isNormalCube() && block.renderAsNormalBlock()) {
+                disguisedBlock = block;
+                metadata = stackInHand.getItemDamage();
+                ChannelHandler.instance().sendToDimension(new EffectSyncPacketC(this, true), world.provider.dimensionId);
+            }
         }
     }
 
@@ -40,16 +51,6 @@ public class Sensus extends AspectEffect {
     public IIcon getIcon(IBlockAccess access, int x, int y, int z, int side) {
         IIcon icon = disguisedBlock != null ? disguisedBlock.getIcon(side, metadata) : null;
         return icon != null ? icon : access.getBlock(x, y, z).getIcon(side, access.getBlockMetadata(x, y, z));
-    }
-
-    @Override
-    public boolean shouldSideBeRendered(IBlockAccess access, int x, int y, int z, int side) {
-        return disguisedBlock == null;
-    }
-
-    @Override
-    public boolean isBlockSolid(IBlockAccess access, int x, int y, int z, int side) {
-        return disguisedBlock == null;
     }
 
     @Override

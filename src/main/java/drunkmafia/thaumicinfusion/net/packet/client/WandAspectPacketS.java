@@ -65,10 +65,10 @@ public class WandAspectPacketS implements IMessage {
                     NBTTagCompound compound = stack.getTagCompound() != null ? stack.getTagCompound() : new NBTTagCompound();
                     compound.setString("InfusionAspect", message.aspect.getTag());
                     stack.setTagCompound(compound);
+                    player.inventory.mainInventory[message.slot] = stack;
                     return null;
                 }
             }
-
             return null;
         }
     }

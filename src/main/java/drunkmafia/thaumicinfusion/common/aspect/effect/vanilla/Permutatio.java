@@ -87,12 +87,6 @@ public class Permutatio extends AspectLink {
     }
 
     @OverrideBlock(overrideBlockFunc = false)
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
-        return false;
-    }
-
-    @OverrideBlock(overrideBlockFunc = false)
     public void onBlockAdded(World world, int x, int y, int z) {
         world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
     }

@@ -10,6 +10,7 @@ import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import drunkmafia.thaumicinfusion.net.packet.client.ChunkRequestPacketS;
 import drunkmafia.thaumicinfusion.net.packet.client.WandAspectPacketS;
@@ -25,19 +26,23 @@ public class ChannelHandler extends SimpleNetworkWrapper {
 
     public ChannelHandler(String channelName) {
         super(channelName);
+    }
 
+    public static void registerPackets(){
         Side S = Side.SERVER, C = Side.CLIENT;
 
+        ChannelHandler handler = instance();
+
         //Server Handled Packets
-        registerMessage(ChunkRequestPacketS.Handler.class, ChunkRequestPacketS.class, getOrdinal(), S);
-        registerMessage(WandAspectPacketS.Handler.class, WandAspectPacketS.class, getOrdinal(), S);
+        handler.registerMessage(ChunkRequestPacketS.Handler.class, ChunkRequestPacketS.class, handler.getOrdinal(), S);
+        handler.registerMessage(WandAspectPacketS.Handler.class, WandAspectPacketS.class, handler.getOrdinal(), S);
 
         //Client Handled Packets
-        registerMessage(ChunkSyncPacketC.Handler.class, ChunkSyncPacketC.class, getOrdinal(), C);
-        registerMessage(BlockSyncPacketC.Handler.class, BlockSyncPacketC.class, getOrdinal(), C);
-        registerMessage(EffectSyncPacketC.Handler.class, EffectSyncPacketC.class, getOrdinal(), C);
-        registerMessage(EntitySyncPacketC.Handler.class, EntitySyncPacketC.class, getOrdinal(), C);
-        registerMessage(DataRemovePacketC.Handler.class, DataRemovePacketC.class, getOrdinal(), C);
+        handler.registerMessage(ChunkSyncPacketC.Handler.class, ChunkSyncPacketC.class, handler.getOrdinal(), C);
+        handler.registerMessage(BlockSyncPacketC.Handler.class, BlockSyncPacketC.class, handler.getOrdinal(), C);
+        handler.registerMessage(EffectSyncPacketC.Handler.class, EffectSyncPacketC.class, handler.getOrdinal(), C);
+        handler.registerMessage(EntitySyncPacketC.Handler.class, EntitySyncPacketC.class, handler.getOrdinal(), C);
+        handler.registerMessage(DataRemovePacketC.Handler.class, DataRemovePacketC.class, handler.getOrdinal(), C);
     }
 
     public static ChannelHandler instance() {

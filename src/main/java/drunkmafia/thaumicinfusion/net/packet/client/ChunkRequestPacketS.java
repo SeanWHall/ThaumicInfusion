@@ -52,7 +52,7 @@ public class ChunkRequestPacketS implements IMessage {
             TIWorldData worldData = TIWorldData.getWorldData(ChannelHandler.getServerWorld(message.dim));
             if (worldData == null) return null;
 
-            ChunkData data = worldData.chunkDatas.get(pos.getCenterXPos(), pos.getCenterZPosition());
+            ChunkData data = (ChunkData) worldData.chunkDatas.get(pos.getCenterXPos(), pos.getCenterZPosition(), null);
             if (data == null)
                 return new ChunkSyncPacketC(data);
             return null;

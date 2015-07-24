@@ -60,7 +60,7 @@ public class CommonEventContainer {
 
         TIWorldData worldData = TIWorldData.getWorldData(world);
         ChunkCoordIntPair pos = event.getChunk().getChunkCoordIntPair();
-        worldData.chunkDatas.set(null, pos.getCenterXPos(), pos.getCenterZPosition());
+        worldData.chunkDatas.remove(pos.getCenterXPos(), pos.getCenterZPosition());
     }
 
     @SubscribeEvent
@@ -81,7 +81,8 @@ public class CommonEventContainer {
 
             if (data != null) {
                 data.postLoad();
-                ((IWorldDataProvider) world).setWorldData(data);
+                data.world = world;
+                ((IWorldDataProvider)world).setWorldData(data);
             }
         } catch (Throwable e) {
             e.printStackTrace();

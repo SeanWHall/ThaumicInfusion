@@ -6,6 +6,7 @@
 
 package drunkmafia.thaumicinfusion.common.world;
 
+import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.world.data.BlockSavable;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.ChunkCoordIntPair;
@@ -69,9 +70,8 @@ public class ChunkData implements ISavable{
     public <T>T getBlock(Class<T> type, int x, int y, int z){
         if(y < 0 || y > 256) return null;
 
-        List<BlockSavable> datas = blockdata[x & 15][y][z & 15];
-        if(datas != null) {
-            for (BlockSavable block : datas) {
+        if(blockdata[x & 15][y][z & 15] != null) {
+            for (BlockSavable block : blockdata[x & 15][y][z & 15]) {
                 if (type.isAssignableFrom(block.getClass())) {
                     return type.cast(block);
                 }
@@ -92,11 +92,10 @@ public class ChunkData implements ISavable{
         for(int x = 0; x < blockdata.length; x++){
             for(int y = 0; y < blockdata[x].length; y++){
                 for(int z = 0; z < blockdata[x][y].length; z++){
-                    List<BlockSavable> datas = blockdata[x][y][z];
-                    if(datas != null){
-                        tagCompound.setInteger("SIZE X:" + x + "Y:" + y + "Z:" + z, datas.size());
-                        for(int i = 0; i < datas.size(); i++)
-                            tagCompound.setTag("Chunk:" + ChunkCoordIntPair.chunkXZ2Int(chunkPos.chunkXPos, chunkPos.chunkZPos) + "X:" + x + "Y:" + y + "Z:" + z + "ID:" + i, SavableHelper.saveDataToNBT(datas.get(i)));
+                    if(blockdata[x][y][z] != null){
+                        tagCompound.setInteger("SIZE X:" + x + "Y:" + y + "Z:" + z, blockdata[x][y][z].size());
+                        for(int i = 0; i < blockdata[x][y][z].size(); i++)
+                            tagCompound.setTag("Chunk:" + ChunkCoordIntPair.chunkXZ2Int(chunkPos.chunkXPos, chunkPos.chunkZPos) + "X:" + x + "Y:" + y + "Z:" + z + "ID:" + i, SavableHelper.saveDataToNBT(blockdata[x][y][z].get(i)));
                     }
                 }
             }
