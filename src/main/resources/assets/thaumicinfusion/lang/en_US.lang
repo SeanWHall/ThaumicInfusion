@@ -16,6 +16,7 @@ key.essentiaBlock.chiseled=Chiseled
 # Item
 
 item.FocusInfusion.name=Wand Focus: Infusing
+item.CoordinatePaper.name=Coordinate Imbued Paper
 
 # Research
 tc.research_category.THAUMICINFUSION=Thaumic Infusion
