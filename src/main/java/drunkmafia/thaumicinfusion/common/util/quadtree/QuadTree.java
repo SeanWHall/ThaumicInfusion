@@ -477,10 +477,4 @@ public class QuadTree<T> {
     public interface Func {
         public void call(QuadTree quadTree, Node node);
     }
-
-    public class QuadTreeException extends RuntimeException {
-        public QuadTreeException(String s) {
-            super(s);
-        }
-    }
 }

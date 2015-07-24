@@ -48,16 +48,16 @@ public class BlockTransformer implements IClassTransformer {
         if (bytecode == null)
             return null;
 
-        ClassNode classNode = new ClassNode(ASM5);
+        ClassNode classNode = new ClassNode(ASM5), deobfClassNode = new ClassNode(ASM5);
 
         //If the instance is obfuscated, then it will run though the deobf transformer to make sure that the src is deobfucated
-        ClassReader classReader = isObf ? getDeobfReader(bytecode) : new ClassReader(bytecode);
-        classReader.accept(classNode, ClassReader.EXPAND_FRAMES);
+        new ClassReader(bytecode).accept(classNode, ClassReader.EXPAND_FRAMES);
+        getDeobfReader(bytecode).accept(deobfClassNode, ClassReader.EXPAND_FRAMES);
 
         //Uses a custom class writer to load classes from the Vanilla Class loader, to ensure no the classes can be found
-        MinecraftClassWriter classWriter = new MinecraftClassWriter(classNode.name, ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+        ClassWriter classWriter = new MinecraftClassWriter(classNode.name, ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
 
-        boolean isBlockClass = classNode.name.equals("net/minecraft/block/Block");
+        boolean isBlockClass = deobfClassNode.name.equals("net/minecraft/block/Block");
 
         if(isBlockClass){
             log.info("Found the Block Class");
@@ -80,24 +80,40 @@ public class BlockTransformer implements IClassTransformer {
                     inter.injectMethodsIntoClass(classNode);
             }
 
+
+            if(isBlockClass) {
+                logger.println("==== Searching for methods in Block ====");
+                for (MethodNode method : deobfClassNode.methods) {
+                    //Checks to make sure that the method is public or protected & Checks if the method is a block method
+                    if (method.access != 1 && method.access != 2) continue;
+
+                    Type[] pars = Type.getArgumentTypes(method.desc);
+                    WorldParamaters worldPars = getWorldPars(pars);
+
+                    //Makes sure that the method has a world object and three integers after it which is then inferred as coordinates.
+                    if (worldPars != null) {
+                        blockMethods.add(method.name);
+                        logger.println(methodNo++ + ") Found new method: " + method.name + " " + method.desc + " Access: " + method.access);
+                    }
+                }
+            }
+
+            methodNo = 0;
+
             //Iterates though class methods to find block methods and inject code into them
-            for (MethodNode method : classNode.methods) {
+            for (int i = 0; i < classNode.methods.size(); i++) {
+                if(i >= deobfClassNode.methods.size()) break;
 
-                //Checks if the method is not static
-                if(method.access != 1 && method.access != 2) continue;
+                MethodNode method = classNode.methods.get(i), deobfMethod = deobfClassNode.methods.get(i);
 
-                //Checks if the method is a block method
-                if(!isBlockClass && !blockMethods.contains(method.name))
-                    continue;
+                //Checks to make sure that the method is public or protected & Checks if the method is a block method
+                if(!blockMethods.contains(deobfMethod.name)) continue;
 
                 Type[] pars = Type.getArgumentTypes(method.desc);
                 WorldParamaters worldPars = getWorldPars(pars);
 
                 //Makes sure that the method has a world object and three integers after it which is then inferred as coordinates.
-                if (worldPars == null)
-                    continue;
-
-                if(isBlockClass) blockMethods.add(method.name);
+                if (worldPars == null) continue;
 
                 // Sets up the conditional statements
                 int returnType = Type.getReturnType(method.desc).getOpcode(IRETURN);
@@ -163,7 +179,7 @@ public class BlockTransformer implements IClassTransformer {
                     hasInjectedCode = true;
                 }
 
-                logger.println(methodNo++ + ") Injected hook into: " + method.name + " " + method.desc + " Access: " + method.access);
+                logger.println(methodNo++ + ") Injected hook into: " + deobfMethod.name + " " + method.desc + " Access: " + method.access);
             }
 
             logger.flush();
@@ -202,7 +218,7 @@ public class BlockTransformer implements IClassTransformer {
             byte[] bytecode = Launch.classLoader.getClassBytes(superName.replace('/', '.'));
             if(bytecode == null){
                 if(isObf) bytecode = Launch.classLoader.getClassBytes(FMLDeobfuscatingRemapper.INSTANCE.unmap(superName.replace('.', '/')).replace('/', '.'));
-                else return false;
+                if(!isObf || bytecode == null) return false;
             }
 
             ClassReader reader = isObf ? getDeobfReader(bytecode) : new ClassReader(bytecode);
@@ -211,10 +227,13 @@ public class BlockTransformer implements IClassTransformer {
                 blockClasses.add(superName);
                 return true;
             }
-        } catch (Throwable ignored) {/* Try 'N Catch only added as a fail safe, if this crashes out then the class is not a block class & does not need logging */}
+        } catch (Throwable ignored) {/* Try 'N Catch is only here as a fail safe, if the code crashes out then the class it is stepping though is not a subclass of the Block */}
         return false;
     }
 
+    /**
+     * This method grabs the block object which is set when hasWorldData is called, it then proceeds to invoke the method that is currently being called
+     */
     private void injectInvokeBlock(InsnList isnList, MethodNode method, Type[] pars) {
         isnList.add(new FieldInsnNode(GETSTATIC, "drunkmafia/thaumicinfusion/common/block/BlockHandler", "block", "L" + block + ";"));
 
@@ -231,7 +250,7 @@ public class BlockTransformer implements IClassTransformer {
     /**
      * Use in obfuscated environments to make it easier to parse though code, this is required because this transformer is loaded
      * before the {@link cpw.mods.fml.common.asm.transformers.DeobfuscationTransformer} which does exactly what this method does
-     * but for every class. This transformer is unable to be placed after this transformer as the FMLPlugin Sorting index will
+     * but for every class. This transformer is unable to be placed after the deobf transformer, as the FMLPlugin Sorting index will
      * cause the transformer to miss it's chance to inject into the {@link net.minecraft.block.Block}.
      *
      * @param bytecode The bytecode of the class which will be remapped to have deobfucated names
@@ -301,7 +320,7 @@ public class BlockTransformer implements IClassTransformer {
                 if(c != null && d == null) return c.isInterface() ? "java/lang/Object" : type1;
                 if(c == null) throw new RuntimeException("Unable to find common super class of " + className);
             } catch (Exception e) {
-                throw new RuntimeException(e.toString());
+                return null;
             }
 
             if (c.isAssignableFrom(d)) return type1;

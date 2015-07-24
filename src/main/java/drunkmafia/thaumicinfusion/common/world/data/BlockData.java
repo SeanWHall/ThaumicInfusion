@@ -138,9 +138,7 @@ public class BlockData extends BlockSavable implements IBlockHook {
     @Override
     public Block getBlock(String method) {
         Integer index = methodsToBlock.get(method);
-        if (index != null)
-            return dataEffects.get(index);
-        return null;
+        return index != null ? dataEffects.get(index) : null;
     }
 
     @Override
