@@ -23,37 +23,50 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SideOnly(Side.CLIENT)
-public class InfusionGui extends GuiContainer {
+public class InfusionGui extends TIGui {
+
     private Image background;
     private Image parchment;
 
     private EntityPlayer player;
     private ItemStack wand;
 
-    private ScrollRect scrollRect;
+    private ScrollRect normalScrollRect, guiScrollRect;
+    private RadioButton shouldOpenGUI;
 
     public InfusionGui(EntityPlayer player, ItemStack wand) {
-        super(new InfusionContainer(player.inventory));
-
         this.player = player;
         this.wand = wand;
 
-        xSize = 190;
-        ySize = 232;
+        xSize = 105;
+        ySize = 113;
     }
 
     @Override
     public void initGui() {
         super.initGui();
+
+        background = new Image(this, new ResourceLocation(ModInfo.MODID, "textures/gui/gui_infusion.png"), 0, 0, 0, 0, xSize, ySize);
+        parchment = new Image(this, new ResourceLocation("thaumcraft", "textures/misc/parchment3.png"), 110, -20, 0, 0, 150, 150);
+
         NBTTagCompound tagCompound = wand.getTagCompound();
         Aspect selected = null;
-        AspectSlot slot = null;
-        if (tagCompound != null && tagCompound.hasKey("InfusionAspect"))
+        boolean isSelected = false;
+        if (tagCompound != null && tagCompound.hasKey("InfusionAspect")) {
             selected = Aspect.getAspect(tagCompound.getString("InfusionAspect"));
+            isSelected = tagCompound.getBoolean("isSelected");
+        }
 
-        Aspect[] aspects = AspectHandler.getAspects();
+        shouldOpenGUI = new RadioButton(new Image(this, background.image, 120, 95, 192, 15, 8, 8), new Image(this, background.image, 120, 95, 200, 15, 8, 8), isSelected, "Should Open Effect GUIS?");
+        normalScrollRect = getScrollRect(AspectHandler.getRegisteredAspects(), selected);
+        guiScrollRect = getScrollRect(AspectHandler.getGUIAspects(), selected);
+    }
+
+    private ScrollRect getScrollRect(Aspect[] aspects, Aspect selected){
         AspectList knownAspects = Thaumcraft.proxy.getPlayerKnowledge().getAspectsDiscovered(player.getCommandSenderName());
         List<AspectSlot> aspectSlots = new ArrayList<AspectSlot>();
+
+        AspectSlot slot = null;
 
         for (Aspect aspect : aspects) {
             if(knownAspects.getAmount(aspect) <= 0) continue;
@@ -62,23 +75,24 @@ public class InfusionGui extends GuiContainer {
             if (aspect == selected) slot = aspectSlot;
         }
 
-        background = new Image(new ResourceLocation(ModInfo.MODID, "textures/gui/gui_infusion.png"), 0, 0, 0, 0, xSize, ySize);
-        parchment = new Image(new ResourceLocation("thaumcraft", "textures/misc/parchment3.png"), 145, -20, 0, 0, 150, 150);
-
-        scrollRect = new ScrollRect(54, 14, 76, 76, new Image(background.image, 70, 93, 191, 7, 24, 8), new Image(background.image, 92, 93, 215, 7, 24, 8), aspectSlots.toArray(new AspectSlot[aspectSlots.size()]));
+        ScrollRect scrollRect = new ScrollRect(14, 14, 76, 76, 16, 16, new Image(this, background.image, 28, 93, 191, 7, 24, 8), new Image(this, background.image, 52, 93, 215, 7, 24, 8), aspectSlots.toArray(new AspectSlot[aspectSlots.size()]));
         scrollRect.selected = slot;
+        return scrollRect;
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(float tpf, int mouseX, int mouseY) {
+    public void drawScreen(int mouseX, int mouseY, float tpf) {
+        this.drawDefaultBackground();
         background.drawImage();
-        if(scrollRect.selected != null) parchment.drawImage();
-        scrollRect.drawScrollBackground(mouseX, mouseY);
-        if(scrollRect.selected != null) {
+        //TODO shouldOpenGUI.drawImage(mouseX, mouseY);
+        ScrollRect rect = shouldOpenGUI.isChecked ? guiScrollRect : normalScrollRect;
+        if(rect.selected != null) parchment.drawImage();
+        rect.drawScrollBackground(mouseX, mouseY);
+        if(rect.selected != null) {
             GL11.glPushMatrix();
             GL11.glTranslatef((float) guiLeft, (float) guiTop, 0.0F);
             GL11.glDisable(GL11.GL_LIGHTING);
-            fontRendererObj.drawSplitString(ThaumicInfusion.translate("ti.effect_info." + scrollRect.selected.aspect.getName().toUpperCase()), parchment.x + 10, parchment.y + 5, parchment.width - 10, 1);
+            fontRendererObj.drawSplitString(ThaumicInfusion.translate("ti.effect_info." + rect.selected.aspect.getName().toUpperCase()), parchment.x + 10, parchment.y + 5, parchment.width - 10, 1);
             GL11.glEnable(GL11.GL_LIGHTING);
             GL11.glPopMatrix();
         }
@@ -87,7 +101,14 @@ public class InfusionGui extends GuiContainer {
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int clickedTime) {
         super.mouseClicked(mouseX, mouseY, clickedTime);
-        scrollRect.onMouseClicked(mouseX, mouseY);
+        //TODO shouldOpenGUI.onMouseClick(mouseX, mouseY);
+
+        ScrollRect rect = shouldOpenGUI.isChecked ? guiScrollRect : normalScrollRect;
+        rect.onMouseClicked(mouseX, mouseY);
+        if(rect.selected != null) {
+            if (rect != normalScrollRect) normalScrollRect.selected = normalScrollRect.findAspect(rect.selected.aspect);
+            if (rect != guiScrollRect) guiScrollRect.selected = guiScrollRect.findAspect(rect.selected.aspect);
+        }
     }
 
     class AspectSlot {
@@ -99,40 +120,6 @@ public class InfusionGui extends GuiContainer {
             this.aspect = aspect;
             this.width = width;
             this.height = height;
-        }
-    }
-
-    class Image {
-
-        public ResourceLocation image;
-        public int x, y, u, v, width, height;
-
-        private Object[] objects;
-
-        public Image(ResourceLocation image, int x, int y, int u, int v, int width, int height, Object... objects) {
-            this.image = image;
-
-            this.x = x;
-            this.y = y;
-            this.u = u;
-            this.v = v;
-            this.width = width;
-            this.height = height;
-
-            this.objects = objects;
-        }
-
-        public void drawImage() {
-            GL11.glPushMatrix();
-            mc.renderEngine.bindTexture(image);
-            GL11.glEnable(3042);
-            drawTexturedModalRect(guiLeft + x, guiTop + y, u, v, width, height);
-            GL11.glDisable(3042);
-            GL11.glPopMatrix();
-        }
-
-        public boolean isInRect(int mouseX, int mouseY) {
-            return mouseX >= guiLeft + x && mouseX <= guiLeft + x + width && mouseY >= guiTop + y && mouseY <= guiTop + y + height;
         }
     }
 
@@ -148,7 +135,7 @@ public class InfusionGui extends GuiContainer {
         private AspectSlot selected;
         private AspectSlot[][] slots;
 
-        public ScrollRect(int xPos, int yPos, int width, int height, Image left, Image right, AspectSlot... aspects) {
+        public ScrollRect(int xPos, int yPos, int width, int height, int aspectWidth, int aspectHeight, Image left, Image right, AspectSlot... aspects) {
             this.xPos = xPos;
             this.yPos = yPos;
             this.width = width;
@@ -157,8 +144,8 @@ public class InfusionGui extends GuiContainer {
             this.left = left;
             this.right = right;
 
-            xAmount = width / aspects[0].width;
-            yAmount = height / aspects[0].height;
+            xAmount = width / aspectWidth;
+            yAmount = height / aspectHeight;
             xMargin = 4;
             yMargin = 4;
 
@@ -181,7 +168,7 @@ public class InfusionGui extends GuiContainer {
             if (mouseOver != null) {
                 selected = mouseOver;
                 if (player.inventory.getCurrentItem() != null)
-                    ChannelHandler.instance().sendToServer(new WandAspectPacketS(player, player.inventory.currentItem, selected.aspect));
+                    ChannelHandler.instance().sendToServer(new WandAspectPacketS(player, player.inventory.currentItem, selected.aspect, shouldOpenGUI.isChecked));
             }
 
             if (left.isInRect(mouseX, mouseY)) {
@@ -234,6 +221,15 @@ public class InfusionGui extends GuiContainer {
                 drawHoveringText(tooltip, mouseX, mouseY, fontRendererObj);
                 GL11.glPopMatrix();
             }
+        }
+
+        private AspectSlot findAspect(Aspect aspect){
+            for(AspectSlot[] xSlots : slots){
+                for(AspectSlot slot : xSlots){
+                    if(slot != null && aspect != null && slot.aspect.getTag().equals(aspect.getTag())) return slot;
+                }
+            }
+            return null;
         }
     }
 }

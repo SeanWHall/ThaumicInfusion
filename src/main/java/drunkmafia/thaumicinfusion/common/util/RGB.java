@@ -12,6 +12,7 @@ import java.util.Random;
 
 public class RGB {
     private float r, g, b;
+    private int rgb;
 
     public RGB(){
         Random rand = new Random();
@@ -27,6 +28,7 @@ public class RGB {
     }
 
     public RGB(int rgb){
+        this.rgb = rgb;
         r = (float)(rgb >> 16 & 255) / 255.0F;
         g = (float)(rgb >> 8 & 255) / 255.0F;
         b = (float)(rgb & 255) / 255.0F;
@@ -38,8 +40,18 @@ public class RGB {
         b += Math.min(255, rgb.b);
     }
 
+    public void takeRGB(RGB rgb){
+        r += Math.min(0, rgb.r);
+        g += Math.min(0, rgb.g);
+        b += Math.min(0, rgb.b);
+    }
+
     public void glColor3f(){
         GL11.glColor3f(r, g, b);
+    }
+
+    public float getRGB(){
+        return rgb;
     }
 
     public float getB() {

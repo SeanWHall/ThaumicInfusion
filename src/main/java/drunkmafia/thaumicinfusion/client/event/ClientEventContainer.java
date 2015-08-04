@@ -9,9 +9,11 @@ package drunkmafia.thaumicinfusion.client.event;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import drunkmafia.thaumicinfusion.common.item.ItemFocusInfusing;
+import drunkmafia.thaumicinfusion.common.util.IClientTickable;
 import drunkmafia.thaumicinfusion.common.util.RGB;
 import drunkmafia.thaumicinfusion.common.util.helper.MathHelper;
 import drunkmafia.thaumicinfusion.common.world.ChunkData;
@@ -117,8 +119,11 @@ public class ClientEventContainer {
 
     @SubscribeEvent
     public void renderLast(RenderWorldLastEvent event) throws Exception {
-
         float partialTicks = event.partialTicks;
+        renderInfusedBlocks(partialTicks);
+    }
+
+    private void renderInfusedBlocks(float partialTicks){
         if (Minecraft.getMinecraft().renderViewEntity instanceof EntityPlayer) {
             EntityPlayer player = (EntityPlayer) Minecraft.getMinecraft().renderViewEntity;
             World world = player.worldObj;
@@ -140,6 +145,11 @@ public class ClientEventContainer {
                         double iPX = player.prevPosX + (player.posX - player.prevPosX) * (double) partialTicks;
                         double iPY = player.prevPosY + (player.posY - player.prevPosY) * (double) partialTicks;
                         double iPZ = player.prevPosZ + (player.posZ - player.prevPosZ) * (double) partialTicks;
+
+                        for(AspectEffect effect : data.getEffects()) {
+                            if (effect instanceof IClientTickable)
+                                ((IClientTickable) effect).clientTick(world, (int) -iPX + x, (int) -iPY + y, (int) -iPZ + z, partialTicks);
+                        }
 
                         GL11.glPushMatrix();
                         GL11.glEnable(3042);
@@ -212,7 +222,7 @@ public class ClientEventContainer {
         return same == data.getAspects().length;
     }
 
-    private IIcon getIconOnSide(World world, int x, int y, int z, int side, int ticks) throws Exception {
+    private IIcon getIconOnSide(World world, int x, int y, int z, int side, int ticks) {
         WorldCoordinates wc = new WorldCoordinates(x, y, z, side);
         IIcon out = iconCache.get(wc);
         if ((ticks + side) % 10 == 0 || out == null) {
@@ -256,8 +266,13 @@ public class ClientEventContainer {
                 idBuilder += bitMatrix[i] ? (i == 0 ? 1 : (i == 1 ? 2 : (i == 2 ? 4 : (i == 3 ? 8 : (i == 4 ? 16 : (i == 5 ? 32 : (i == 6 ? 64 : 128))))))) : 0;
 
 
-            if (wardedGlassIcon == null)
-                wardedGlassIcon = (IIcon[]) Class.forName("thaumcraft.common.blocks.BlockCosmeticOpaque").getDeclaredField("wardedGlassIcon").get(null);
+            if (wardedGlassIcon == null) {
+                try {
+                    wardedGlassIcon = (IIcon[]) Class.forName("thaumcraft.common.blocks.BlockCosmeticOpaque").getDeclaredField("wardedGlassIcon").get(null);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
 
             out = (idBuilder <= 255 && idBuilder >= 0) ? wardedGlassIcon[connectedTextureRefByID[idBuilder]] : wardedGlassIcon[0];
             iconCache.put(wc, out);

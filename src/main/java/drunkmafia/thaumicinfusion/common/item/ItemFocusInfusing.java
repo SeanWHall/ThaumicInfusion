@@ -12,6 +12,7 @@ import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
+import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.data.BlockData;
 import net.minecraft.block.Block;
@@ -89,6 +90,11 @@ public class ItemFocusInfusing extends ItemFocusBasic {
             if(blockblacklist.contains(world.getBlock(mop.blockX, mop.blockY, mop.blockZ))) return itemstack;
 
             NBTTagCompound wandNBT = itemstack.getTagCompound() != null ? itemstack.getTagCompound() : new NBTTagCompound();
+            if(wandNBT.hasKey("isSelected") && wandNBT.hasKey("InfusionAspect") && wandNBT.getBoolean("isSelected") ){
+                Class<? extends AspectEffect> effect = AspectHandler.getEffectFromAspect(Aspect.getAspect(wandNBT.getString("InfusionAspect")));
+                if (effect != null && AspectHandler.getGUI(effect) != null) player.openGui(ThaumicInfusion.instance, AspectHandler.getGUI(effect).guiID, world, mop.blockX, mop.blockY, mop.blockZ);
+            }
+
             if (wandNBT.hasKey("InfusionAspect") && !world.isRemote) {
                 Aspect aspect = Aspect.getAspect(wandNBT.getString("InfusionAspect"));
                 if (aspect != null) {

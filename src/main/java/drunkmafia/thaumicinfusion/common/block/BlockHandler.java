@@ -6,6 +6,7 @@
 
 package drunkmafia.thaumicinfusion.common.block;
 
+import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.util.IBlockHook;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import net.minecraft.block.Block;

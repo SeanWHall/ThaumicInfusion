@@ -97,18 +97,21 @@ public class EssentiaBlock extends Block {
 
     @Override
     public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z, EntityPlayer player) {
-        EssentiaData data = TIWorldData.getWorldData(world).getBlock(EssentiaData.class, new WorldCoordinates(x, y, z, player.dimension));
-        if(data != null) {
-            int meta = world.getBlockMetadata(x, y, z);
-            ItemStack stack = new ItemStack(this, 1, meta);
-            NBTTagCompound tagCompound = new NBTTagCompound();
+        TIWorldData worldData = TIWorldData.getWorldData(world);
+        if(worldData != null) {
+            EssentiaData data = worldData.getBlock(EssentiaData.class, new WorldCoordinates(x, y, z, player.dimension));
+            if (data != null) {
+                int meta = world.getBlockMetadata(x, y, z);
+                ItemStack stack = new ItemStack(this, 1, meta);
+                NBTTagCompound tagCompound = new NBTTagCompound();
 
-            Aspect aspect = data.getAspect();
-            tagCompound.setString("aspectTag", aspect.getTag());
-            stack.setTagCompound(tagCompound);
-            stack.setStackDisplayName(aspect.getName() + (meta != 0 ? (meta == 1 ? " Brick" : " chiseled") : ""));
+                Aspect aspect = data.getAspect();
+                tagCompound.setString("aspectTag", aspect.getTag());
+                stack.setTagCompound(tagCompound);
+                stack.setStackDisplayName(aspect.getName() + (meta != 0 ? (meta == 1 ? " Brick" : " chiseled") : ""));
 
-            return stack;
+                return stack;
+            }
         }
         return null;
     }
@@ -120,26 +123,30 @@ public class EssentiaBlock extends Block {
 
         world.setBlockMetadataWithNotify(coord.x, coord.y, coord.z, stack.getItemDamage(), 3);
         NBTTagCompound tagCompound = stack.getTagCompound();
-        if(tagCompound != null)
+        if(tagCompound != null && worldData != null)
             worldData.addBlock(new EssentiaData(coord, Aspect.getAspect(tagCompound.getString("aspectTag"))));
     }
 
     @Override
     public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune) {
-        EssentiaData data = TIWorldData.getWorldData(world).getBlock(EssentiaData.class, new WorldCoordinates(x, y, z, world.provider.dimensionId));
+        TIWorldData worldData = TIWorldData.getWorldData(world);
+        if(worldData != null) {
+            EssentiaData data = worldData.getBlock(EssentiaData.class, new WorldCoordinates(x, y, z, world.provider.dimensionId));
 
-        int meta = world.getBlockMetadata(x, y, z);
-        ItemStack stack = new ItemStack(TIBlocks.essentiaBlock, 1, meta);
+            int meta = world.getBlockMetadata(x, y, z);
+            ItemStack stack = new ItemStack(TIBlocks.essentiaBlock, 1, meta);
 
-        NBTTagCompound tagCompound = new NBTTagCompound();
-        Aspect aspect = data.getAspect();
-        tagCompound.setString("aspectTag", aspect.getTag());
-        stack.setTagCompound(tagCompound);
-        stack.setStackDisplayName(aspect.getName() + (meta != 0 ? (meta == 1 ? " Brick" : " chiseled") : ""));
+            NBTTagCompound tagCompound = new NBTTagCompound();
+            Aspect aspect = data.getAspect();
+            tagCompound.setString("aspectTag", aspect.getTag());
+            stack.setTagCompound(tagCompound);
+            stack.setStackDisplayName(aspect.getName() + (meta != 0 ? (meta == 1 ? " Brick" : " chiseled") : ""));
 
-        ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
-        stacks.add(stack);
-        return stacks;
+            ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
+            stacks.add(stack);
+            return stacks;
+        }
+        return new ArrayList<ItemStack>();
     }
 
     @Override
@@ -147,15 +154,20 @@ public class EssentiaBlock extends Block {
 
     @Override
     public void onBlockPreDestroy(World world, int x, int y, int z, int meta) {
-        if (!world.isRemote)
-            TIWorldData.getWorldData(world).removeData(EssentiaData.class, new WorldCoordinates(x, y, z, world.provider.dimensionId), true);
+        if (!world.isRemote) {
+            TIWorldData worldData = TIWorldData.getWorldData(world);
+            if(worldData != null) worldData.removeData(EssentiaData.class, new WorldCoordinates(x, y, z, world.provider.dimensionId), true);
+        }
     }
 
     @SideOnly(Side.CLIENT)
     public int colorMultiplier(IBlockAccess access, int x, int y, int z){
-        EssentiaData data = TIWorldData.getWorldData(TIWorldData.getWorld(access)).getBlock(EssentiaData.class, new WorldCoordinates(x, y, z, Minecraft.getMinecraft().thePlayer.dimension));
+        TIWorldData worldData = TIWorldData.getWorldData(TIWorldData.getWorld(access));
+        if(worldData == null) return getBlockColor();
+
+        EssentiaData data = worldData.getBlock(EssentiaData.class, new WorldCoordinates(x, y, z, Minecraft.getMinecraft().thePlayer.dimension));
         if(data == null || data.getAspect() == null)
-            return 0;
+            return getBlockColor();
         return data.getAspect().getColor();
     }
 }

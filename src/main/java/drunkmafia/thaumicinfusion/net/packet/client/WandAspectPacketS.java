@@ -18,14 +18,16 @@ public class WandAspectPacketS implements IMessage {
 
     private int playerName, slot, dim;
     private Aspect aspect;
+    private boolean shouldOpenGUI;
 
     public WandAspectPacketS() {
     }
 
-    public WandAspectPacketS(EntityPlayer player, int slotNumber, Aspect aspect) {
+    public WandAspectPacketS(EntityPlayer player, int slotNumber, Aspect aspect, boolean shouldOpenGUI) {
         playerName = player.getCommandSenderName().hashCode();
         dim = player.dimension;
         slot = slotNumber;
+        this.shouldOpenGUI = shouldOpenGUI;
         this.aspect = aspect;
     }
 
@@ -36,12 +38,13 @@ public class WandAspectPacketS implements IMessage {
         int hash = buf.readInt();
         dim = buf.readInt();
 
-        for (Aspect aspect : AspectHandler.getAspects()) {
+        for (Aspect aspect : AspectHandler.getRegisteredAspects()) {
             if (aspect.getTag().hashCode() == hash) {
                 this.aspect = aspect;
                 break;
             }
         }
+        shouldOpenGUI = buf.readByte() == 1;
     }
 
     @Override
@@ -50,6 +53,7 @@ public class WandAspectPacketS implements IMessage {
         buf.writeInt(slot);
         buf.writeInt(aspect.getTag().hashCode());
         buf.writeInt(dim);
+        buf.writeByte(shouldOpenGUI ? 1 : 0);
     }
 
     public static class Handler implements IMessageHandler<WandAspectPacketS, IMessage> {
@@ -64,6 +68,7 @@ public class WandAspectPacketS implements IMessage {
                     ItemStack stack = player.inventory.mainInventory[message.slot];
                     NBTTagCompound compound = stack.getTagCompound() != null ? stack.getTagCompound() : new NBTTagCompound();
                     compound.setString("InfusionAspect", message.aspect.getTag());
+                    compound.setBoolean("isSelected", message.shouldOpenGUI);
                     stack.setTagCompound(compound);
                     player.inventory.mainInventory[message.slot] = stack;
                     return null;

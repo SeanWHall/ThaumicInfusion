@@ -6,7 +6,7 @@
 
 package drunkmafia.thaumicinfusion.common.world;
 
-import drunkmafia.thaumicinfusion.common.util.helper.ReflectionHelper;
+import drunkmafia.thaumicinfusion.common.util.helper.ReflectionLookup;
 import drunkmafia.thaumicinfusion.common.util.quadtree.QuadTree;
 import drunkmafia.thaumicinfusion.common.world.data.BlockSavable;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
@@ -19,13 +19,18 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import thaumcraft.api.WorldCoordinates;
 
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNullableByDefault;
 import java.util.*;
 
 public class TIWorldData implements ISavable {
-    public World world;
 
+    private static ReflectionLookup<World> worldLookup = new ReflectionLookup<World>(World.class);
+
+    public World world;
     public QuadTree<ChunkData> chunkDatas = new QuadTree<ChunkData>(ChunkData.class, -2000000, -2000000, 2000000, 2000000);
 
+    @Nullable
     public static TIWorldData getWorldData(World world) {
         if (world == null || !(world instanceof IWorldDataProvider))
             return null;
@@ -41,7 +46,7 @@ public class TIWorldData implements ISavable {
     }
 
     public static World getWorld(IBlockAccess blockAccess) {
-        return blockAccess != null ? blockAccess instanceof World ? (World) blockAccess : ReflectionHelper.getObjFromField(World.class, blockAccess) : null;
+        return blockAccess != null ? blockAccess instanceof World ? (World) blockAccess : worldLookup.getObjectFrom(blockAccess) : null;
     }
 
     /**

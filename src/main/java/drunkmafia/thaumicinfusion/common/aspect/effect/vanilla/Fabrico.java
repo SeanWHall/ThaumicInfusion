@@ -20,6 +20,7 @@ import net.minecraft.world.World;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.aspects.IEssentiaContainerItem;
+import thaumcraft.common.Thaumcraft;
 
 @Effect(aspect = "fabrico", cost = 4)
 public class Fabrico extends AspectEffect {
@@ -41,6 +42,8 @@ public class Fabrico extends AspectEffect {
                     world.playSound((double) ((float) x + 0.5F), (double) ((float) y + 0.5F), (double) ((float) z + 0.5F), "game.neutral.swim", 0.5F, 1.0F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.3F, false);
 
                     RGB rgb = new RGB(((IEssentiaContainerItem) phial.getItem()).getAspects(phial).getAspects()[0].getColor());
+                    for (int i = 0; i < 5; i++)
+                        Thaumcraft.proxy.crucibleBubble(world, x, y, z, rgb.getR(), rgb.getG(), rgb.getB());
                 }
             }
             return;

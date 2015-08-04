@@ -66,8 +66,9 @@ public class AspectEffect extends Block implements ISavable {
         AspectHandler.registerEffect(Machina.class);
         AspectHandler.registerEffect(Messis.class);
         AspectHandler.registerEffect(Mortuus.class);
-        AspectHandler.registerEffect(Pannus.class);
+        //TODO AspectHandler.registerEffect(Motus.class);
 
+        AspectHandler.registerEffect(Pannus.class);
         AspectHandler.registerEffect(Perditio.class);
         AspectHandler.registerEffect(Potentia.class);
         AspectHandler.registerEffect(Permutatio.class);
@@ -131,7 +132,7 @@ public class AspectEffect extends Block implements ISavable {
     }
 
     public boolean shouldRegister(){
-        return true;
+        return shouldRegister;
     }
 
     public boolean hasMethod(String methName){
