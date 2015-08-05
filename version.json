@@ -2,6 +2,18 @@
 	"versionList": [
 		{
 		  "mcVersion": "Minecraft 1.7.*",
+		  "modVersion": " 4.18",
+		  "changeLog": [
+		  	"Aspect bug fixes",
+		  	"Thermal dynamics crash resolved",
+		  	"Code cleaned up"
+		  ],
+		  "updateURL": "http://www.curse.com/mc-mods/minecraft/220308-thaumic-infusion",
+		  "isDirectLink": "false",
+		  "newFileName": ""
+		},
+		{
+		  "mcVersion": "Minecraft 1.7.*",
 		  "modVersion": " 4.17",
 		  "changeLog": [
 		  	"Fixed incompatibility with Extra Utilities",
