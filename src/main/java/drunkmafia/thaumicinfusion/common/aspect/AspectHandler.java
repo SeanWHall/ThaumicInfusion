@@ -80,16 +80,8 @@ public final class AspectHandler {
             Effect annotation = effect.getAnnotation(Effect.class);
             Aspect aspect = Aspect.getAspect(annotation.aspect().toLowerCase());
             if(aspect != null) {
-                if (!registeredEffects.containsKey(aspect)) {
+                if (!registeredEffects.containsKey(aspect))
                     registeredEffects.put(aspect, effect);
-                    if(annotation.getGUIClass() != EffectGui.class){
-                        EffectBundle bundle = new EffectBundle();
-                        bundle.guiID = guiEffects.size() + 1;
-                        bundle.effect = effect;
-                        bundle.gui = annotation.getGUIClass();
-                        guiEffects.add(bundle);
-                    }
-                }
             }else logger.log(Level.ERROR, "Aspect: " + annotation.aspect() + " does not exist in the instance");
         }
 
@@ -158,8 +150,7 @@ public final class AspectHandler {
 
         for(Aspect aspect : getRegisteredAspects()){
             Class<? extends AspectEffect> effect = getEffectFromAspect(aspect);
-            if(effect != null && effect.getAnnotation(Effect.class).getGUIClass() != EffectGui.class) aspects.add(aspect);
-
+            //if(effect != null && effect.getAnnotation(Effect.class).getGUIClass() != EffectGui.class) aspects.add(aspect);
         }
         return aspects.toArray(new Aspect[aspects.size()]);
     }
@@ -193,7 +184,7 @@ public final class AspectHandler {
      */
     public static int getCostOfEffect(Aspect aspect){
         Class<? extends AspectEffect> c = getEffectFromAspect(aspect);
-        return c == null || c.getAnnotation(Effect.class) == null ? -1 : ((Effect) c.getAnnotation(Effect.class)).cost();
+        return c == null || c.getAnnotation(Effect.class) == null ? -1 : c.getAnnotation(Effect.class).cost();
     }
 
     /**
@@ -217,10 +208,7 @@ public final class AspectHandler {
      * @return A Full array of all the aspects
      */
     public static Aspect[] getAllAspects() {
-        List<Aspect> aspects = new ArrayList<Aspect>();
-        aspects.addAll(Aspect.getPrimalAspects());
-        aspects.addAll(Aspect.getCompoundAspects());
-        return aspects.toArray(new Aspect[aspects.size()]);
+        return Aspect.aspects.values().toArray(new Aspect[1]);
     }
     /**
      * Converts an AspectEffect Class to its registered Aspect

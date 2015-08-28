@@ -6,7 +6,6 @@
 
 package drunkmafia.thaumicinfusion.common.block;
 
-import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.util.IBlockHook;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import net.minecraft.block.Block;
@@ -16,11 +15,11 @@ import net.minecraft.world.World;
 import thaumcraft.api.WorldCoordinates;
 
 /**
- * The middle man class between Blocks and Effects, the following methods are invoked by every block method & so have been optimized
+ * A wrapper class between Blocks and Effects, the following methods are invoked by every block method & so have been optimized
  * with speed in mind, the approximate run time for this is: 1400 NS with a successful detection & invocation of the aspects code.
  * Meaning the performance impact that TI has on blocks is negligible, this is ridiculously fast that vanillas own getBlock Method.
  */
-public final class BlockHandler {
+public final class BlockWrapper {
     /**
      * Accessed by block methods to invoke code dynamically, this is done over storing the object locally in the methods
      * as TI does not want to alter the block methods anymore than is required. Which means there is less room for error.
@@ -49,7 +48,7 @@ public final class BlockHandler {
 
         for (String blockMethodName : hook.hookMethods(block)) {
             if (methodName.equals(blockMethodName)) {
-                BlockHandler.block = hook.getBlock(blockMethodName);
+                BlockWrapper.block = hook.getBlock(blockMethodName);
                 lastHook = hook;
                 lastX = x;
                 lastY = y;

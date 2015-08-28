@@ -6,7 +6,6 @@
 
 package drunkmafia.thaumicinfusion.common.world;
 
-import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.world.data.BlockSavable;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.ChunkCoordIntPair;
@@ -68,7 +67,7 @@ public class ChunkData implements ISavable{
     }
 
     public <T>T getBlock(Class<T> type, int x, int y, int z){
-        if(y < 0 || y > 256) return null;
+        if (y < 0 || y >= 256) return null;
 
         if(blockdata[x & 15][y][z & 15] != null) {
             for (BlockSavable block : blockdata[x & 15][y][z & 15]) {

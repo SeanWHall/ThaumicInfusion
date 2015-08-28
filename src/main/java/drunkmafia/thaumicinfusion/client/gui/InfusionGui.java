@@ -4,11 +4,9 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
-import drunkmafia.thaumicinfusion.common.container.InfusionContainer;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.client.WandAspectPacketS;
-import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -149,13 +147,16 @@ public class InfusionGui extends TIGui {
             xMargin = 4;
             yMargin = 4;
 
-            slots = new AspectSlot[(int) xAmount][(int) Math.ceil(aspects.length / xAmount)];
+            int totalY = (int) Math.ceil(aspects.length / xAmount);
+
+            slots = new AspectSlot[(int) xAmount][totalY];
 
             maxYIndex = (int) (slots[0].length - Math.ceil(yAmount));
 
             int i = 0;
-            for (int x = 0; x < slots.length; x++) {
-                for (int y = 0; y < slots[x].length; y++) {
+            for (int x = 0; x < xAmount; x++) {
+                slots[x] = new AspectSlot[totalY];
+                for (int y = 0; y < totalY; y++) {
                     if (i >= aspects.length)
                         break;
                     slots[x][y] = aspects[i++];

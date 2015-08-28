@@ -6,8 +6,6 @@
 
 package drunkmafia.thaumicinfusion.common.intergration;
 
-import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
-import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.EssentiaBlock;
 import drunkmafia.thaumicinfusion.common.item.TIItems;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
@@ -24,8 +22,6 @@ import thaumcraft.api.crafting.ShapedArcaneRecipe;
 import thaumcraft.api.research.ResearchCategories;
 import thaumcraft.api.research.ResearchItem;
 import thaumcraft.api.research.ResearchPage;
-
-import java.util.ArrayList;
 
 public class ThaumcraftIntergration {
 

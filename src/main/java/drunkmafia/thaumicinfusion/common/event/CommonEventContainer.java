@@ -36,6 +36,7 @@ public class CommonEventContainer {
             return;
 
         TIWorldData worldData = TIWorldData.getWorldData(event.world);
+        if (worldData == null) return;
         for(BlockSavable savable : worldData.getAllStoredData()) {
             if (savable != null)
                 ChannelHandler.instance().sendTo(new BlockSyncPacketC(savable), (EntityPlayerMP) event.entity);

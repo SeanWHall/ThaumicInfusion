@@ -15,6 +15,8 @@ import static org.objectweb.asm.Opcodes.*;
  */
 public class WorldTransformer implements IClassTransformer {
 
+    public static boolean hasInjectedIntoWorld;
+
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytecode) {
         if (!transformedName.equals("net.minecraft.world.World"))
@@ -57,6 +59,7 @@ public class WorldTransformer implements IClassTransformer {
         classNode.accept(classWriter);
 
         log.info("Injected interface into World Class");
+        hasInjectedIntoWorld = true;
 
         return classWriter.toByteArray();
     }

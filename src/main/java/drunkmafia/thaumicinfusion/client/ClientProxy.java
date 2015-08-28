@@ -9,28 +9,25 @@ package drunkmafia.thaumicinfusion.client;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import drunkmafia.thaumicinfusion.client.event.ClientEventContainer;
 import drunkmafia.thaumicinfusion.client.gui.InfusionGui;
-import drunkmafia.thaumicinfusion.client.gui.aspect.LuxGui;
 import drunkmafia.thaumicinfusion.client.renderer.InfusedBlockFallingRenderer;
 import drunkmafia.thaumicinfusion.client.renderer.item.EssentiaBlockRenderer;
 import drunkmafia.thaumicinfusion.common.CommonProxy;
-import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.aspect.entity.InfusedBlockFalling;
 import drunkmafia.thaumicinfusion.common.block.TIBlocks;
 import drunkmafia.thaumicinfusion.common.item.ItemFocusInfusing;
-import drunkmafia.thaumicinfusion.common.world.TIWorldData;
-import drunkmafia.thaumicinfusion.common.world.data.BlockData;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.MinecraftForge;
 import thaumcraft.api.ItemApi;
-import thaumcraft.api.WorldCoordinates;
 
 public class ClientProxy extends CommonProxy {
 
     @Override
     public void initRenderers() {
+        isClient = true;
+
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(TIBlocks.essentiaBlock), new EssentiaBlockRenderer());
         RenderingRegistry.registerEntityRenderingHandler(InfusedBlockFalling.class, new InfusedBlockFallingRenderer());
         MinecraftForge.EVENT_BUS.register(new ClientEventContainer());
@@ -40,17 +37,6 @@ public class ClientProxy extends CommonProxy {
     public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {
         if (ID == 0 && player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().getItem().getClass().isAssignableFrom(ItemApi.getItem("itemWandCasting", 0).getItem().getClass()) && ClientEventContainer.getFocus(player.getCurrentEquippedItem()) != null && ClientEventContainer.getFocus(player.getCurrentEquippedItem()) instanceof ItemFocusInfusing)
             return new InfusionGui(player, player.getCurrentEquippedItem());
-
-//        AspectHandler.EffectBundle effectBundle = AspectHandler.getGUI(ID);
-//        BlockData blockData = TIWorldData.getWorldData(world).getBlock(BlockData.class, new WorldCoordinates(x, y, z, player.dimension));
-//        if(effectBundle != null && blockData != null && blockData.hasEffect(effectBundle.effect)) {
-//            try {
-//                return effectBundle.gui.newInstance();
-//            }catch (Exception e){
-//                e.printStackTrace();
-//            }
-//        }
-
         return null;
     }
 }

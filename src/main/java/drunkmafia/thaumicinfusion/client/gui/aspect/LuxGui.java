@@ -1,6 +1,5 @@
 package drunkmafia.thaumicinfusion.client.gui.aspect;
 
-import drunkmafia.thaumicinfusion.client.gui.TIGui;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 
 public class LuxGui extends EffectGui {

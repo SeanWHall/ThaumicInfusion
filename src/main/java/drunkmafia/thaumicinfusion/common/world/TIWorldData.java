@@ -19,9 +19,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import thaumcraft.api.WorldCoordinates;
 
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNullableByDefault;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class TIWorldData implements ISavable {
 
@@ -30,7 +30,6 @@ public class TIWorldData implements ISavable {
     public World world;
     public QuadTree<ChunkData> chunkDatas = new QuadTree<ChunkData>(ChunkData.class, -2000000, -2000000, 2000000, 2000000);
 
-    @Nullable
     public static TIWorldData getWorldData(World world) {
         if (world == null || !(world instanceof IWorldDataProvider))
             return null;
@@ -46,6 +45,7 @@ public class TIWorldData implements ISavable {
     }
 
     public static World getWorld(IBlockAccess blockAccess) {
+        if (worldLookup == null) worldLookup = new ReflectionLookup<World>(World.class);
         return blockAccess != null ? blockAccess instanceof World ? (World) blockAccess : worldLookup.getObjectFrom(blockAccess) : null;
     }
 
@@ -60,8 +60,8 @@ public class TIWorldData implements ISavable {
         if (block == null)
             return;
 
-        if (world == null)
-            world = DimensionManager.getWorld(block.getCoords().dim);
+        if (world == null || (world = DimensionManager.getWorld(block.getCoords().dim)) == null)
+            return;
 
         if (init && !block.isInit())
             block.dataLoad(world);
@@ -80,15 +80,8 @@ public class TIWorldData implements ISavable {
             ChannelHandler.instance().sendToDimension(new BlockSyncPacketC(block), world.provider.dimensionId);
     }
 
-    public ChunkData[] getChunksInRange(int xPos, int zPos, int xRange, int zRange) {
-        ChunkData[] chunks = new ChunkData[xRange * zRange];
-        int i = 0;
-        for (int x = 0; x < xRange; x++) {
-            for (int z = 0; z < zRange; z++) {
-                chunks[i++] = chunkDatas.get(x + xPos, z + zPos, null);
-            }
-        }
-        return chunks;
+    public List<ChunkData> getChunksInRange(int xMin, int zMin, int xMax, int zMax) {
+        return chunkDatas.searchWithinObject(xMin, zMin, xMax, zMax);
     }
 
     public void addBlock(BlockSavable block){
@@ -128,7 +121,7 @@ public class TIWorldData implements ISavable {
         ArrayList<BlockSavable> savables = new ArrayList<BlockSavable>();
         for(ChunkData chunks : chunkDatas.getValues())
             Collections.addAll(savables, chunks.getAllBlocks());
-        return savables.toArray(new BlockSavable[1]);
+        return savables.size() != 0 ? savables.toArray(new BlockSavable[1]) : new BlockSavable[0];
     }
 
     @Override

@@ -9,15 +9,13 @@ package drunkmafia.thaumicinfusion.common.asm;
 import cpw.mods.fml.relauncher.CoreModManager;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
-import net.minecraft.block.Block;
-import net.minecraft.launchwrapper.Launch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Map;
 
 @IFMLLoadingPlugin.Name(ModInfo.MODID)

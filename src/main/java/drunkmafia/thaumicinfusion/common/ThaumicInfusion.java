@@ -12,9 +12,6 @@ import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.*;
 import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.relauncher.Side;
-import drunkmafia.thaumicinfusion.common.asm.BlockTransformer;
-import drunkmafia.thaumicinfusion.common.asm.ThaumicInfusionPlugin;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.TIBlocks;
@@ -23,7 +20,6 @@ import drunkmafia.thaumicinfusion.common.event.CommonEventContainer;
 import drunkmafia.thaumicinfusion.common.intergration.ThaumcraftIntergration;
 import drunkmafia.thaumicinfusion.common.item.TIItems;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
-import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import net.minecraft.command.ServerCommandManager;
 import net.minecraft.creativetab.CreativeTabs;
@@ -33,9 +29,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.ArrayList;
-import java.util.Hashtable;
 
 import static drunkmafia.thaumicinfusion.common.lib.ModInfo.*;
 
@@ -88,9 +81,6 @@ public class ThaumicInfusion {
     public void postInit(FMLPostInitializationEvent event){
         AspectHandler.postInit();
         ThaumcraftIntergration.init();
-
-        if(ThaumicInfusionPlugin.logger != null) ThaumicInfusionPlugin.logger.close();
-        else getLogger().info("Thaumic Infusion has detected that it's logger is null, this might mean that the Transformers have not been registered!");
     }
 
     @EventHandler

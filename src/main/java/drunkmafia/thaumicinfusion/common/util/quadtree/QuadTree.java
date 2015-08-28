@@ -167,35 +167,43 @@ public class QuadTree<T> {
         return  arr.toArray((T[]) Array.newInstance(tClass, arr.size()));
     }
 
-    public Point[] searchIntersect(final double xmin, final double ymin, final double xmax, final double ymax) {
+    public Point<T>[] searchIntersect(final double xmin, final double ymin, final double xmax, final double ymax) {
         final List<Point> arr = new ArrayList<Point>();
         this.navigate(this.root_, new Func() {
             @Override
             public void call(QuadTree quadTree, Node node) {
                 Point pt = node.getPoint();
-                if (pt.getX() < xmin || pt.getX() > xmax || pt.getY() < ymin || pt.getY() > ymax) {
-                    // Definitely not within the polygon!
-                } else {
+                if (pt.getX() >= xmin && pt.getX() <= xmax && pt.getY() >= ymin && pt.getY() <= ymax)
                     arr.add(node.getPoint());
-                }
-
             }
         }, xmin, ymin, xmax, ymax);
         return arr.toArray(new Point[arr.size()]);
     }
 
-    public Point[] searchWithin(final double xmin, final double ymin, final double xmax, final double ymax) {
+    public Point<T>[] searchWithin(final double xmin, final double ymin, final double xmax, final double ymax) {
         final List<Point> arr = new ArrayList<Point>();
         this.navigate(this.root_, new Func() {
             @Override
             public void call(QuadTree quadTree, Node node) {
                 Point pt = node.getPoint();
-                if (pt.getX() > xmin && pt.getX() < xmax && pt.getY() > ymin && pt.getY() < ymax) {
+                if (pt.getX() > xmin && pt.getX() < xmax && pt.getY() > ymin && pt.getY() < ymax)
                     arr.add(node.getPoint());
-                }
             }
         }, xmin, ymin, xmax, ymax);
         return arr.toArray(new Point[arr.size()]);
+    }
+
+    public List<T> searchWithinObject(final double xmin, final double ymin, final double xmax, final double ymax) {
+        final List<T> arr = new ArrayList<T>();
+        this.navigate(this.root_, new Func() {
+            @Override
+            public void call(QuadTree quadTree, Node node) {
+                Point pt = node.getPoint();
+                if (pt.getX() > xmin && pt.getX() < xmax && pt.getY() > ymin && pt.getY() < ymax)
+                    arr.add((T) node.getPoint().getValue());
+            }
+        }, xmin, ymin, xmax, ymax);
+        return arr;
     }
 
     public void navigate(Node node, Func func, double xmin, double ymin, double xmax, double ymax) {
@@ -316,7 +324,7 @@ public class QuadTree<T> {
      *     reset.
      */
     private boolean insert(Node parent, Point point) {
-        Boolean result = false;
+        Boolean result;
         switch (parent.getNodeType()) {
             case EMPTY:
                 this.setPointForNode(parent, point);
@@ -475,6 +483,6 @@ public class QuadTree<T> {
     }
 
     public interface Func {
-        public void call(QuadTree quadTree, Node node);
+        void call(QuadTree quadTree, Node node);
     }
 }

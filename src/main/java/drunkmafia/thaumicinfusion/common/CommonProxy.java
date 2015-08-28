@@ -7,14 +7,13 @@
 package drunkmafia.thaumicinfusion.common;
 
 import cpw.mods.fml.common.network.IGuiHandler;
-import drunkmafia.thaumicinfusion.client.event.ClientEventContainer;
-import drunkmafia.thaumicinfusion.common.container.InfusionContainer;
-import drunkmafia.thaumicinfusion.common.item.ItemFocusInfusing;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
-import thaumcraft.api.ItemApi;
 
 public class CommonProxy implements IGuiHandler {
+
+    public static boolean isClient;
+
     public void initRenderers() {}
 
     @Override

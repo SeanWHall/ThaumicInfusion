@@ -8,8 +8,11 @@ package drunkmafia.thaumicinfusion.common.asm;
 
 import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 import cpw.mods.fml.common.asm.transformers.deobf.FMLRemappingAdapter;
-import net.minecraft.launchwrapper.*;
-import org.objectweb.asm.*;
+import net.minecraft.launchwrapper.IClassTransformer;
+import net.minecraft.launchwrapper.Launch;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
 import java.util.ArrayList;
@@ -21,19 +24,19 @@ import static org.objectweb.asm.Opcodes.*;
 /**
  * This transformer injects code into every single block and the main class itself, the code it injects looks like this:
  * {@code
- * if(BlockHandler.hasWorldData(world, x, y, z, this, "onBlockActivated")){
- *      if(BlockHandler.overrideBlockFunctionality(world, x, y, z, "onBlockActivated")){
- *          return BlockHandler.block.onBlockActivated(World, x, y, z, player, side, hitX, hitY, hitZ);
+ * if(BlockWrapper.hasWorldData(world, x, y, z, this, "onBlockActivated")){
+ *      if(BlockWrapper.overrideBlockFunctionality(world, x, y, z, "onBlockActivated")){
+ *          return BlockWrapper.block.onBlockActivated(World, x, y, z, player, side, hitX, hitY, hitZ);
  *      }else{
- *          BlockHandler.block.onBlockActivated(World, x, y, z, player, side, hitX, hitY, hitZ);
+ *          BlockWrapper.block.onBlockActivated(World, x, y, z, player, side, hitX, hitY, hitZ);
  *      }
  * }}
  */
 public class BlockTransformer implements IClassTransformer {
 
-    private static List<String> blockMethods = new ArrayList<String>(), blockClasses = new ArrayList<String>();
-
+    public static boolean hasInjectedIntoBlock;
     public static List<Interface> blockInterfaces = new ArrayList<Interface>();
+    private static List<String> blockMethods = new ArrayList<String>(), blockClasses = new ArrayList<String>();
 
     static{
         Interface infusionStabiliser = new Interface("thaumcraft/api/crafting/IInfusionStabiliser");
@@ -104,7 +107,7 @@ public class BlockTransformer implements IClassTransformer {
                 //Checks to make sure that the methods has not already been injected
                 boolean skip = false;
                 for(AbstractInsnNode node : method.instructions.toArray()){
-                    if(node != null && node instanceof MethodInsnNode && ((MethodInsnNode) node).owner.equals("drunkmafia/thaumicinfusion/common/block/BlockHandler")) {
+                    if (node != null && node instanceof MethodInsnNode && ((MethodInsnNode) node).owner.equals("drunkmafia/thaumicinfusion/common/block/BlockWrapper")) {
                         logger.println(methodNo++ + ") Already Injected into: " + method.name + " " + method.desc + " Access: " + method.access + " skipping to avoid conflicts");
                         skip = true;
                         break;
@@ -123,7 +126,7 @@ public class BlockTransformer implements IClassTransformer {
                 //Passes in the method name to make the process of data detection even faster since method lookup is skipped
                 toInsert.add(new LdcInsnNode(deobfMethod.name));
 
-                toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockHandler", "hasWorldData", "(Lnet/minecraft/world/IBlockAccess;IIILnet/minecraft/block/Block;Ljava/lang/String;)Z", false));
+                toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockWrapper", "hasWorldData", "(Lnet/minecraft/world/IBlockAccess;IIILnet/minecraft/block/Block;Ljava/lang/String;)Z", false));
 
                 LabelNode hasWorldData = new LabelNode();
                 toInsert.add(new JumpInsnNode(IFEQ, hasWorldData));
@@ -131,7 +134,7 @@ public class BlockTransformer implements IClassTransformer {
 
                 worldPars.loadPars(toInsert);
                 toInsert.add(new LdcInsnNode(deobfMethod.name));
-                toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockHandler", "overrideBlockFunctionality", "(Lnet/minecraft/world/IBlockAccess;IIILjava/lang/String;)Z", false));
+                toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockWrapper", "overrideBlockFunctionality", "(Lnet/minecraft/world/IBlockAccess;IIILjava/lang/String;)Z", false));
 
                 LabelNode overrideBlockFunctionality = new LabelNode();
                 toInsert.add(new JumpInsnNode(IFEQ, overrideBlockFunctionality));
@@ -218,7 +221,7 @@ public class BlockTransformer implements IClassTransformer {
      * This method grabs the block object which is set when hasWorldData is called, it then proceeds to invoke the method that is currently being called
      */
     private void injectInvokeBlock(InsnList isnList, MethodNode method, Type[] pars) {
-        isnList.add(new FieldInsnNode(GETSTATIC, "drunkmafia/thaumicinfusion/common/block/BlockHandler", "block", "L" + block + ";"));
+        isnList.add(new FieldInsnNode(GETSTATIC, "drunkmafia/thaumicinfusion/common/block/BlockWrapper", "block", "L" + block + ";"));
 
         int stackIndex = 1;
         for (Type par : pars) {

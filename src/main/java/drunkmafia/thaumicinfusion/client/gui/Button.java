@@ -1,16 +1,13 @@
 package drunkmafia.thaumicinfusion.client.gui;
 
-import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import org.lwjgl.opengl.GL11;
 
 public class Button {
 
+    public boolean isSelected;
     private Image normal, hover, selected, icon;
     private String text;
     private Runnable runnable;
-
-    public boolean isSelected;
-
     private TIGui gui;
 
     public Button(Image normal, Image hover, Image selected, Image icon, String text, Runnable runnable){

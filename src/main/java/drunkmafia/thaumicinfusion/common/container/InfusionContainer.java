@@ -1,12 +1,9 @@
 package drunkmafia.thaumicinfusion.common.container;
 
-import drunkmafia.thaumicinfusion.client.event.ClientEventContainer;
-import drunkmafia.thaumicinfusion.common.item.ItemFocusInfusing;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
-import thaumcraft.api.ItemApi;
 
 public class InfusionContainer extends Container {
 

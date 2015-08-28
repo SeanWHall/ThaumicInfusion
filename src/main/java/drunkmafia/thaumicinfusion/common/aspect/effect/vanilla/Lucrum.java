@@ -19,7 +19,10 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.config.Configuration;
 import thaumcraft.api.WorldCoordinates;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 @Effect(aspect = "lucrum", cost = 4)
 public class Lucrum extends AspectEffect {

@@ -12,13 +12,11 @@ import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
-import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.data.BlockData;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -28,7 +26,6 @@ import net.minecraft.world.World;
 import thaumcraft.api.WorldCoordinates;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
-import thaumcraft.api.aspects.IAspectContainer;
 import thaumcraft.api.aspects.IAspectSource;
 import thaumcraft.api.wands.ItemFocusBasic;
 
@@ -44,7 +41,7 @@ public class ItemFocusInfusing extends ItemFocusBasic {
         for(String block : blocks) blockblacklist.add(Block.getBlockFromName(block));
     }
 
-    public IIcon iconOrnament, depthIcon = null;;
+    public IIcon iconOrnament, depthIcon = null;
 
     public ItemFocusInfusing(){
         this.setCreativeTab(ThaumicInfusion.instance.tab);
@@ -90,10 +87,6 @@ public class ItemFocusInfusing extends ItemFocusBasic {
             if(blockblacklist.contains(world.getBlock(mop.blockX, mop.blockY, mop.blockZ))) return itemstack;
 
             NBTTagCompound wandNBT = itemstack.getTagCompound() != null ? itemstack.getTagCompound() : new NBTTagCompound();
-            if(wandNBT.hasKey("isSelected") && wandNBT.hasKey("InfusionAspect") && wandNBT.getBoolean("isSelected") ){
-                Class<? extends AspectEffect> effect = AspectHandler.getEffectFromAspect(Aspect.getAspect(wandNBT.getString("InfusionAspect")));
-                if (effect != null && AspectHandler.getGUI(effect) != null) player.openGui(ThaumicInfusion.instance, AspectHandler.getGUI(effect).guiID, world, mop.blockX, mop.blockY, mop.blockZ);
-            }
 
             if (wandNBT.hasKey("InfusionAspect") && !world.isRemote) {
                 Aspect aspect = Aspect.getAspect(wandNBT.getString("InfusionAspect"));

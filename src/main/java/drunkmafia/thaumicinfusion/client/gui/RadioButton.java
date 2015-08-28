@@ -4,10 +4,9 @@ import java.util.Arrays;
 
 public class RadioButton {
 
-    private Image background, checked;
-
     public String[] hoverText;
     public boolean isChecked;
+    private Image background, checked;
 
     public RadioButton(Image background, Image checked, boolean isChecked, String... hoverText){
         this.isChecked = isChecked;

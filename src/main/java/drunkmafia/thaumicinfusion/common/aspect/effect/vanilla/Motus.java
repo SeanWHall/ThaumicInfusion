@@ -22,6 +22,7 @@ public class Motus extends AspectEffect {
     private ForgeDirection direction = ForgeDirection.NORTH;
     private long cooldown, maxCooldown = 10000L;
     private int maxSteps = 20;
+    private int step = 0;
 
     @Override
     public void readConfig(Configuration config) {
@@ -73,8 +74,6 @@ public class Motus extends AspectEffect {
             cooldown = System.currentTimeMillis() + maxCooldown;
         }
     }
-
-    private int step = 0;
 
     private int canPushBlock(World world, int x, int y, int z, Block block){
         if(block instanceof BlockAir) return step;

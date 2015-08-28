@@ -24,21 +24,22 @@ public class ReflectionLookup<T> {
         if(field != null) return field;
 
         for(Field foundField: clazz.getDeclaredFields()){
-            if(foundField.getType().isAssignableFrom(typeClass)){
+            if (typeClass.isAssignableFrom(foundField.getType())) {
                 field = foundField;
                 break;
             }
         }
         if(field == null) return null;
         field.setAccessible(true);
-        return cachedFields.put(clazz, field);
+        cachedFields.put(clazz, field);
+        return field;
     }
 
     public T getObjectFrom(Object clazz){
         Field field = findFieldInClass(clazz.getClass());
         if(field != null){
             try {
-                return (T) field.get(clazz);
+                return typeClass.cast(field.get(clazz));
             }catch (Exception e){
                 e.printStackTrace();
             }

@@ -16,7 +16,8 @@ buildscript {
 }
 
 apply plugin: 'forge'
-version = "4.15"
+
+version = "4.19"
 group= "drunkmafia.thaumicinfusion"
 archivesBaseName = "ThaumicInfusion"
 

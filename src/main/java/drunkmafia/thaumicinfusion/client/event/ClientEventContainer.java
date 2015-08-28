@@ -11,7 +11,6 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
-import drunkmafia.thaumicinfusion.common.block.BlockHandler;
 import drunkmafia.thaumicinfusion.common.item.ItemFocusInfusing;
 import drunkmafia.thaumicinfusion.common.util.IClientTickable;
 import drunkmafia.thaumicinfusion.common.util.RGB;
@@ -33,7 +32,6 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.util.ForgeDirection;
 import org.lwjgl.opengl.GL11;
@@ -57,7 +55,7 @@ public class ClientEventContainer {
     private static Object obj;
     private static Method drawTagsOnContainer;
     private static Field tagscale;
-    private static HashMap<WorldCoordinates, IIcon> iconCache = new HashMap();
+    private static HashMap<WorldCoordinates, IIcon> iconCache = new HashMap<WorldCoordinates, IIcon>();
 
     static {
         try {
@@ -78,7 +76,7 @@ public class ClientEventContainer {
 //    @SubscribeEvent
 //    public void onDrawDebugText(RenderGameOverlayEvent.Text event) {
 //        if(Minecraft.getMinecraft().gameSettings.showDebugInfo)
-//            event.left.add("Detection time (Inaccurate) " + BlockHandler.blockHandlerTime + " ns");
+//            event.left.add("Detection time (Inaccurate) " + BlockWrapper.blockHandlerTime + " ns");
 //    }
 
     public static ItemFocusBasic getFocus(ItemStack stack) {
@@ -132,8 +130,14 @@ public class ClientEventContainer {
                 TIWorldData worldData = TIWorldData.getWorldData(world);
                 if (worldData == null)
                     return;
-                for (ChunkData chunk : worldData.getChunksInRange((int) player.posX - 40, (int) player.posZ - 40, 80, 80)) {
+
+                int chunkX = (int) player.posX >> 4, chunkZ = (int) player.posZ >> 4;
+                for (ChunkData chunk : worldData.getChunksInRange(chunkX - 3000, chunkZ - 3000, chunkX + 3000, chunkX + 3000)) {
                     if (chunk == null) continue;
+
+                    double iPX = player.prevPosX + (player.posX - player.prevPosX) * (double) partialTicks;
+                    double iPY = player.prevPosY + (player.posY - player.prevPosY) * (double) partialTicks;
+                    double iPZ = player.prevPosZ + (player.posZ - player.prevPosZ) * (double) partialTicks;
 
                     for (BlockSavable savable : chunk.getAllBlocks()) {
                         if (savable == null || !(savable instanceof BlockData)) continue;
@@ -141,10 +145,6 @@ public class ClientEventContainer {
                         BlockData data = (BlockData) savable;
                         int x = data.getCoords().x, y = data.getCoords().y, z = data.getCoords().z;
                         currentdata = data;
-
-                        double iPX = player.prevPosX + (player.posX - player.prevPosX) * (double) partialTicks;
-                        double iPY = player.prevPosY + (player.posY - player.prevPosY) * (double) partialTicks;
-                        double iPZ = player.prevPosZ + (player.posZ - player.prevPosZ) * (double) partialTicks;
 
                         for(AspectEffect effect : data.getEffects()) {
                             if (effect instanceof IClientTickable)
@@ -162,7 +162,7 @@ public class ClientEventContainer {
                         Tessellator t = Tessellator.instance;
                         renderBlocks.setRenderBounds(-0.0010000000474974513D, -0.0010000000474974513D, -0.0010000000474974513D, 1.0010000467300415D, 1.0010000467300415D, 1.0010000467300415D);
                         Aspect[] aspects = data.getAspects();
-                        if (aspects == null)
+                        if (aspects == null || aspects.length == 0)
                             return;
 
                         new RGB(aspects[0].getColor()).glColor3f();
@@ -174,23 +174,23 @@ public class ClientEventContainer {
 
                         Block blockJar = Block.getBlockFromItem(ItemApi.getBlock("blockJar", 0).getItem());
 
-                        if (!isConnectedBlock(world, x - Facing.offsetsXForSide[1], y - Facing.offsetsYForSide[1], z - Facing.offsetsZForSide[1]))
-                            renderBlocks.renderFaceYNeg(blockJar, -0.5001D, 0.0D, -0.5001D, this.getIconOnSide(world, x, y, z, 0, player.ticksExisted));
+                        if (!isConnectedBlock(worldData, x - Facing.offsetsXForSide[1], y - Facing.offsetsYForSide[1], z - Facing.offsetsZForSide[1]))
+                            renderBlocks.renderFaceYNeg(blockJar, -0.5001D, 0.0D, -0.5001D, this.getIconOnSide(worldData, x, y, z, 0, player.ticksExisted));
 
-                        if (!isConnectedBlock(world, x - Facing.offsetsXForSide[0], y - Facing.offsetsYForSide[0], z - Facing.offsetsZForSide[0]))
-                            renderBlocks.renderFaceYPos(blockJar, -0.5001D, 0.0D, -0.5001D, this.getIconOnSide(world, x, y, z, 1, player.ticksExisted));
+                        if (!isConnectedBlock(worldData, x - Facing.offsetsXForSide[0], y - Facing.offsetsYForSide[0], z - Facing.offsetsZForSide[0]))
+                            renderBlocks.renderFaceYPos(blockJar, -0.5001D, 0.0D, -0.5001D, this.getIconOnSide(worldData, x, y, z, 1, player.ticksExisted));
 
-                        if (!isConnectedBlock(world, x - Facing.offsetsXForSide[3], y - Facing.offsetsYForSide[3], z - Facing.offsetsZForSide[3]))
-                            renderBlocks.renderFaceZNeg(blockJar, -0.5001D, 0.0D, -0.5001D, this.getIconOnSide(world, x, y, z, 2, player.ticksExisted));
+                        if (!isConnectedBlock(worldData, x - Facing.offsetsXForSide[3], y - Facing.offsetsYForSide[3], z - Facing.offsetsZForSide[3]))
+                            renderBlocks.renderFaceZNeg(blockJar, -0.5001D, 0.0D, -0.5001D, this.getIconOnSide(worldData, x, y, z, 2, player.ticksExisted));
 
-                        if (!isConnectedBlock(world, x - Facing.offsetsXForSide[2], y - Facing.offsetsYForSide[2], z - Facing.offsetsZForSide[2]))
-                            renderBlocks.renderFaceZPos(blockJar, -0.5001D, 0.0D, -0.5001D, this.getIconOnSide(world, x, y, z, 3, player.ticksExisted));
+                        if (!isConnectedBlock(worldData, x - Facing.offsetsXForSide[2], y - Facing.offsetsYForSide[2], z - Facing.offsetsZForSide[2]))
+                            renderBlocks.renderFaceZPos(blockJar, -0.5001D, 0.0D, -0.5001D, this.getIconOnSide(worldData, x, y, z, 3, player.ticksExisted));
 
-                        if (!isConnectedBlock(world, x - Facing.offsetsXForSide[5], y - Facing.offsetsYForSide[5], z - Facing.offsetsZForSide[5]))
-                            renderBlocks.renderFaceXNeg(blockJar, -0.5001D, 0.0D, -0.5001D, this.getIconOnSide(world, x, y, z, 4, player.ticksExisted));
+                        if (!isConnectedBlock(worldData, x - Facing.offsetsXForSide[5], y - Facing.offsetsYForSide[5], z - Facing.offsetsZForSide[5]))
+                            renderBlocks.renderFaceXNeg(blockJar, -0.5001D, 0.0D, -0.5001D, this.getIconOnSide(worldData, x, y, z, 4, player.ticksExisted));
 
-                        if (!isConnectedBlock(world, x - Facing.offsetsXForSide[4], y - Facing.offsetsYForSide[4], z - Facing.offsetsZForSide[4]))
-                            renderBlocks.renderFaceXPos(blockJar, -0.5001D, 0.0D, -0.5001D, this.getIconOnSide(world, x, y, z, 5, player.ticksExisted));
+                        if (!isConnectedBlock(worldData, x - Facing.offsetsXForSide[4], y - Facing.offsetsYForSide[4], z - Facing.offsetsZForSide[4]))
+                            renderBlocks.renderFaceXPos(blockJar, -0.5001D, 0.0D, -0.5001D, this.getIconOnSide(worldData, x, y, z, 5, player.ticksExisted));
 
                         t.draw();
                         GL11.glTexEnvi(8960, 8704, 8448);
@@ -205,8 +205,8 @@ public class ClientEventContainer {
         }
     }
 
-    private boolean isConnectedBlock(World world, int x, int y, int z) {
-        BlockData data = TIWorldData.getWorldData(world).getBlock(BlockData.class, new WorldCoordinates(x, y, z, world.provider.dimensionId));
+    private boolean isConnectedBlock(TIWorldData world, int x, int y, int z) {
+        BlockData data = world.getBlock(BlockData.class, new WorldCoordinates(x, y, z, 0));
         if (data == null)
             return false;
 
@@ -222,7 +222,7 @@ public class ClientEventContainer {
         return same == data.getAspects().length;
     }
 
-    private IIcon getIconOnSide(World world, int x, int y, int z, int side, int ticks) {
+    private IIcon getIconOnSide(TIWorldData world, int x, int y, int z, int side, int ticks) {
         WorldCoordinates wc = new WorldCoordinates(x, y, z, side);
         IIcon out = iconCache.get(wc);
         if ((ticks + side) % 10 == 0 || out == null) {

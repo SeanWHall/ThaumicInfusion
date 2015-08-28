@@ -11,7 +11,6 @@ import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.util.IBlockHook;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
-import drunkmafia.thaumicinfusion.common.world.ISavable;
 import drunkmafia.thaumicinfusion.common.world.SavableHelper;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import net.minecraft.block.Block;
@@ -83,6 +82,18 @@ public class BlockData extends BlockSavable implements IBlockHook {
             if(obj.getClass() == effect)
                 return effect.cast(obj);
         return null;
+    }
+
+    public void removeEffect(Class<? extends AspectEffect> effect) {
+        for (AspectEffect aspectEffect : dataEffects) {
+            if (!(aspectEffect.getClass() == effect)) continue;
+            for (AspectEffect.MethodInfo method : AspectEffect.getMethods(aspectEffect.getClass())) {
+                methodsToBlock.remove(method.methodName);
+                methodsOverrides.remove(method.methodName);
+            }
+            dataEffects.remove(aspectEffect);
+            return;
+        }
     }
 
     public boolean hasEffect(Class<? extends AspectEffect> effect){
