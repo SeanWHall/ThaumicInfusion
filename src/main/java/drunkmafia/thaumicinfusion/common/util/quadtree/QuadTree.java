@@ -199,7 +199,7 @@ public class QuadTree<T> {
             @Override
             public void call(QuadTree quadTree, Node node) {
                 Point pt = node.getPoint();
-                if (pt.getX() > xmin && pt.getX() < xmax && pt.getY() > ymin && pt.getY() < ymax)
+                if (pt.getX() >= xmin && pt.getX() <= xmax && pt.getY() >= ymin && pt.getY() <= ymax)
                     arr.add((T) node.getPoint().getValue());
             }
         }, xmin, ymin, xmax, ymax);

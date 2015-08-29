@@ -12,9 +12,7 @@ import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.util.Map;
 
@@ -29,7 +27,7 @@ public class ThaumicInfusionPlugin implements IFMLLoadingPlugin {
 
     public static String block, world, iBlockAccess;
 
-    public ThaumicInfusionPlugin() throws FileNotFoundException, UnsupportedEncodingException {
+    public ThaumicInfusionPlugin() {
         try {
             Field deobfuscatedEnvironment = CoreModManager.class.getDeclaredField("deobfuscatedEnvironment");
             deobfuscatedEnvironment.setAccessible(true);
@@ -58,7 +56,6 @@ public class ThaumicInfusionPlugin implements IFMLLoadingPlugin {
 
     @Override
     public String getSetupClass() {
-
         return null;
     }
 

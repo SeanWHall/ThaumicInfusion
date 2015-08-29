@@ -39,7 +39,7 @@ public class CommonEventContainer {
         if (worldData == null) return;
         for(BlockSavable savable : worldData.getAllStoredData()) {
             if (savable != null)
-                ChannelHandler.instance().sendTo(new BlockSyncPacketC(savable), (EntityPlayerMP) event.entity);
+                ChannelHandler.instance().sendTo(new BlockSyncPacketC(savable, -1), (EntityPlayerMP) event.entity);
         }
     }
 

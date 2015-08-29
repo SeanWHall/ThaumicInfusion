@@ -132,7 +132,7 @@ public class ClientEventContainer {
                     return;
 
                 int chunkX = (int) player.posX >> 4, chunkZ = (int) player.posZ >> 4;
-                for (ChunkData chunk : worldData.getChunksInRange(chunkX - 3000, chunkZ - 3000, chunkX + 3000, chunkX + 3000)) {
+                for (ChunkData chunk : worldData.getChunksInRange((int) player.posX - 3000, (int) player.posZ - 3000, (int) player.posX + 3000, (int) player.posZ + 3000)) {
                     if (chunk == null) continue;
 
                     double iPX = player.prevPosX + (player.posX - player.prevPosX) * (double) partialTicks;

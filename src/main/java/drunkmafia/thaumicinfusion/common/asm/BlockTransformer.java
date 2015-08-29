@@ -31,12 +31,17 @@ import static org.objectweb.asm.Opcodes.*;
  *          BlockWrapper.block.onBlockActivated(World, x, y, z, player, side, hitX, hitY, hitZ);
  *      }
  * }}
+ *
+ * This class is heavily annotated to help debugging if future issues arise & it is essential that this transformer does not conflict with any other mod
  */
 public class BlockTransformer implements IClassTransformer {
 
-    public static boolean hasInjectedIntoBlock;
+    //Interfaces that will be injected into the base block class
     public static List<Interface> blockInterfaces = new ArrayList<Interface>();
-    private static List<String> blockMethods = new ArrayList<String>(), blockClasses = new ArrayList<String>();
+    //The Block method which are compatible with the system
+    private static List<String> blockMethods = new ArrayList<String>();
+    //All the sub classes of the block class that have been found, makes it easier to step though the super classes of the current class being transformed
+    private static List<String> blockClasses = new ArrayList<String>();
 
     static{
         Interface infusionStabiliser = new Interface("thaumcraft/api/crafting/IInfusionStabiliser");
