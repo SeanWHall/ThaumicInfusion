@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-@Effect(aspect = "lucrum", cost = 4)
+@Effect(aspect = "lucrum")
 public class Lucrum extends AspectEffect {
 
     private int range = 10, tickTime = 4;
@@ -37,6 +37,10 @@ public class Lucrum extends AspectEffect {
         tickTime = config.getInt("Tick Time", "Lucrum", tickTime, 1, 20, "Delay before the effect ticks again");
     }
 
+    @Override
+    public int getCost() {
+        return 4;
+    }
 
     @Override
     public void aspectInit(World world, WorldCoordinates pos) {

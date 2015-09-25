@@ -20,13 +20,18 @@ import thaumcraft.api.WorldCoordinates;
 import java.util.ArrayList;
 import java.util.Random;
 
-@Effect(aspect = ("vinculum"), cost = 4)
+@Effect(aspect = ("vinculum"))
 public class Vinculum extends AspectEffect {
 
     public void aspectInit(World world, WorldCoordinates pos) {
         super.aspectInit(world, pos);
         if(!world.isRemote)
             updateTick(world, pos.x, pos.y, pos.z, new Random());
+    }
+
+    @Override
+    public int getCost() {
+        return 4;
     }
 
     @OverrideBlock

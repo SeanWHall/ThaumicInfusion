@@ -379,7 +379,7 @@ public class QuadTree<T> {
      * are empty or it contains just one leaf.
      * {@param QuadTree.Node node The node to balance.}
      */
-    private void balance(Node node) {
+    public void balance(Node node) {
         switch (node.getNodeType()) {
             case EMPTY:
             case LEAF:

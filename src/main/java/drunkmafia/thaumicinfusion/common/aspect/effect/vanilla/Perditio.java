@@ -19,7 +19,7 @@ import thaumcraft.api.WorldCoordinates;
 import java.util.ArrayList;
 import java.util.Random;
 
-@Effect(aspect = ("perditio"), cost = 4)
+@Effect(aspect = ("perditio"))
 public class Perditio extends AspectEffect {
 
     Random rand = new Random();
@@ -29,6 +29,11 @@ public class Perditio extends AspectEffect {
         super.aspectInit(world, pos);
         if (!world.isRemote)
             updateTick(world, pos.x, pos.y, pos.z, world.rand);
+    }
+
+    @Override
+    public int getCost() {
+        return 4;
     }
 
     @OverrideBlock(overrideBlockFunc = false)

@@ -13,7 +13,7 @@ import thaumcraft.api.WorldCoordinates;
 
 import java.util.Random;
 
-@Effect(aspect = "gelum", cost = 1)
+@Effect(aspect = "gelum")
 public class Gelum extends AspectEffect {
 
     public static long cooldownTimer = 10000L;
@@ -25,6 +25,11 @@ public class Gelum extends AspectEffect {
         super.aspectInit(world, pos);
         if (!world.isRemote)
             updateTick(world, pos.x, pos.y, pos.z, world.rand);
+    }
+
+    @Override
+    public int getCost() {
+        return 1;
     }
 
     @OverrideBlock(overrideBlockFunc = false)

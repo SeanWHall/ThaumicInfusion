@@ -19,7 +19,7 @@ import thaumcraft.api.WorldCoordinates;
 import java.util.ArrayList;
 import java.util.Random;
 
-@Effect(aspect = ("iter"), cost = 4)
+@Effect(aspect = ("iter"))
 public class Iter extends AspectLink {
 
     @Override
@@ -27,6 +27,11 @@ public class Iter extends AspectLink {
         super.aspectInit(world, pos);
         if (!world.isRemote)
             updateTick(world, pos.x, pos.y, pos.z, world.rand);
+    }
+
+    @Override
+    public int getCost() {
+        return 8;
     }
 
     @OverrideBlock(overrideBlockFunc = false)

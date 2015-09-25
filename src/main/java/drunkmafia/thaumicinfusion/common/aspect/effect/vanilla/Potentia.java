@@ -11,8 +11,13 @@ import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import net.minecraft.world.IBlockAccess;
 
-@Effect(aspect = "potentia", cost = 1)
+@Effect(aspect = "potentia")
 public class Potentia extends AspectEffect {
+
+    @Override
+    public int getCost() {
+        return 1;
+    }
 
     @OverrideBlock
     public int isProvidingWeakPower(IBlockAccess access, int x, int y, int z, int side) {

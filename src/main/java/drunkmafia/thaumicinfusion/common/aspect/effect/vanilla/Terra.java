@@ -21,14 +21,19 @@ import thaumcraft.api.WorldCoordinates;
 
 import java.util.Random;
 
-@Effect(aspect = "terra", cost = 2)
+@Effect(aspect = "terra")
 public class Terra extends AspectEffect{
 
     @Override
     public void aspectInit(World world, WorldCoordinates pos) {
         super.aspectInit(world, pos);
         if (!world.isRemote)
-            updateTick(world, pos.x, pos.y, pos.z, world.rand);
+            world.scheduleBlockUpdate(pos.x, pos.y, pos.z, world.getBlock(pos.x, pos.y, pos.z), 1);
+    }
+
+    @Override
+    public int getCost() {
+        return 2;
     }
 
     @OverrideBlock(overrideBlockFunc = false)

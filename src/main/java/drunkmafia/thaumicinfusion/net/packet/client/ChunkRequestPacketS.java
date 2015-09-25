@@ -37,8 +37,8 @@ public class ChunkRequestPacketS implements IMessage {
 
     @Override
     public void toBytes(ByteBuf buf) {
-        buf.writeInt(pos.getCenterXPos());
-        buf.writeInt(pos.getCenterZPosition());
+        buf.writeInt(pos.getCenterXPos() >> 4);
+        buf.writeInt(pos.getCenterZPosition() >> 4);
 
         buf.writeInt(dim);
     }
@@ -49,12 +49,15 @@ public class ChunkRequestPacketS implements IMessage {
             ChunkCoordIntPair pos = message.pos;
             if (pos == null || ctx.side.isClient())
                 return null;
+
             TIWorldData worldData = TIWorldData.getWorldData(ChannelHandler.getServerWorld(message.dim));
-            if (worldData == null) return null;
+            if (worldData == null)
+                return null;
 
             ChunkData data = worldData.chunkDatas.get(pos.getCenterXPos(), pos.getCenterZPosition(), null);
-            if (data == null)
+            if (data != null)
                 return new ChunkSyncPacketC(data);
+
             return null;
         }
     }

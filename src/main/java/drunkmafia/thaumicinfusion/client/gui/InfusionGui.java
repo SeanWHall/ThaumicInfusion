@@ -29,8 +29,7 @@ public class InfusionGui extends TIGui {
     private EntityPlayer player;
     private ItemStack wand;
 
-    private ScrollRect normalScrollRect, guiScrollRect;
-    private RadioButton shouldOpenGUI;
+    private ScrollRect normalScrollRect;
 
     public InfusionGui(EntityPlayer player, ItemStack wand) {
         this.player = player;
@@ -49,15 +48,10 @@ public class InfusionGui extends TIGui {
 
         NBTTagCompound tagCompound = wand.getTagCompound();
         Aspect selected = null;
-        boolean isSelected = false;
-        if (tagCompound != null && tagCompound.hasKey("InfusionAspect")) {
+        if (tagCompound != null && tagCompound.hasKey("InfusionAspect"))
             selected = Aspect.getAspect(tagCompound.getString("InfusionAspect"));
-            isSelected = tagCompound.getBoolean("isSelected");
-        }
 
-        shouldOpenGUI = new RadioButton(new Image(this, background.image, 120, 95, 192, 15, 8, 8), new Image(this, background.image, 120, 95, 200, 15, 8, 8), isSelected, "Should Open Effect GUIS?");
         normalScrollRect = getScrollRect(AspectHandler.getRegisteredAspects(), selected);
-        guiScrollRect = getScrollRect(AspectHandler.getGUIAspects(), selected);
     }
 
     private ScrollRect getScrollRect(Aspect[] aspects, Aspect selected){
@@ -82,15 +76,14 @@ public class InfusionGui extends TIGui {
     public void drawScreen(int mouseX, int mouseY, float tpf) {
         this.drawDefaultBackground();
         background.drawImage();
-        //TODO shouldOpenGUI.drawImage(mouseX, mouseY);
-        ScrollRect rect = shouldOpenGUI.isChecked ? guiScrollRect : normalScrollRect;
-        if(rect.selected != null) parchment.drawImage();
-        rect.drawScrollBackground(mouseX, mouseY);
-        if(rect.selected != null) {
+
+        if(normalScrollRect.selected != null) parchment.drawImage();
+        normalScrollRect.drawScrollBackground(mouseX, mouseY);
+        if(normalScrollRect.selected != null) {
             GL11.glPushMatrix();
             GL11.glTranslatef((float) guiLeft, (float) guiTop, 0.0F);
             GL11.glDisable(GL11.GL_LIGHTING);
-            fontRendererObj.drawSplitString(ThaumicInfusion.translate("ti.effect_info." + rect.selected.aspect.getName().toUpperCase()), parchment.x + 10, parchment.y + 5, parchment.width - 10, 1);
+            fontRendererObj.drawSplitString(ThaumicInfusion.translate("ti.effect_info." + normalScrollRect.selected.aspect.getName().toUpperCase()), parchment.x + 10, parchment.y + 5, parchment.width - 10, 1);
             GL11.glEnable(GL11.GL_LIGHTING);
             GL11.glPopMatrix();
         }
@@ -99,14 +92,10 @@ public class InfusionGui extends TIGui {
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int clickedTime) {
         super.mouseClicked(mouseX, mouseY, clickedTime);
-        //TODO shouldOpenGUI.onMouseClick(mouseX, mouseY);
 
-        ScrollRect rect = shouldOpenGUI.isChecked ? guiScrollRect : normalScrollRect;
-        rect.onMouseClicked(mouseX, mouseY);
-        if(rect.selected != null) {
-            if (rect != normalScrollRect) normalScrollRect.selected = normalScrollRect.findAspect(rect.selected.aspect);
-            if (rect != guiScrollRect) guiScrollRect.selected = guiScrollRect.findAspect(rect.selected.aspect);
-        }
+        normalScrollRect.onMouseClicked(mouseX, mouseY);
+        if(normalScrollRect.selected != null)
+            normalScrollRect.selected = normalScrollRect.findAspect(normalScrollRect.selected.aspect);
     }
 
     class AspectSlot {
@@ -169,7 +158,7 @@ public class InfusionGui extends TIGui {
             if (mouseOver != null) {
                 selected = mouseOver;
                 if (player.inventory.getCurrentItem() != null)
-                    ChannelHandler.instance().sendToServer(new WandAspectPacketS(player, player.inventory.currentItem, selected.aspect, shouldOpenGUI.isChecked));
+                    ChannelHandler.instance().sendToServer(new WandAspectPacketS(player, player.inventory.currentItem, selected.aspect, false));
             }
 
             if (left.isInRect(mouseX, mouseY)) {

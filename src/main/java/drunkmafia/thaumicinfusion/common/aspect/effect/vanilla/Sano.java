@@ -20,13 +20,18 @@ import thaumcraft.api.WorldCoordinates;
 import java.util.List;
 import java.util.Random;
 
-@Effect(aspect = "sano", cost = 1)
+@Effect(aspect = "sano")
 public class Sano extends AspectEffect {
     @Override
     public void aspectInit(World world, WorldCoordinates pos) {
         super.aspectInit(world, pos);
         if(!world.isRemote)
             updateTick(world, pos.x, pos.y, pos.z, new Random());
+    }
+
+    @Override
+    public int getCost() {
+        return 1;
     }
 
     @OverrideBlock(overrideBlockFunc = false)

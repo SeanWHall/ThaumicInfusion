@@ -14,8 +14,13 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.util.ForgeDirection;
 
-@Effect(aspect = ("messis"), cost = 1)
+@Effect(aspect = ("messis"))
 public class Messis extends AspectEffect {
+
+    @Override
+    public int getCost() {
+        return 1;
+    }
 
     @OverrideBlock
     public boolean canSustainPlant(IBlockAccess access, int x, int y, int z, ForgeDirection direction, IPlantable plantable) {

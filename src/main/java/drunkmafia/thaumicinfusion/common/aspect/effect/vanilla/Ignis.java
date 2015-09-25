@@ -13,8 +13,13 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
-@Effect(aspect = ("ignis"), cost = 1)
+@Effect(aspect = ("ignis"))
 public class Ignis  extends AspectEffect {
+
+    @Override
+    public int getCost() {
+        return 1;
+    }
 
     @OverrideBlock
     public int getFlammability(IBlockAccess world, int x, int y, int z, ForgeDirection face){

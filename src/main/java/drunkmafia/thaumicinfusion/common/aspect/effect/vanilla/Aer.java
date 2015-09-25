@@ -19,11 +19,16 @@ import thaumcraft.api.WorldCoordinates;
 import java.util.List;
 import java.util.Random;
 
-@Effect(aspect = "aer", cost = 2)
+@Effect(aspect = "aer")
 public class Aer extends AspectEffect {
 
     static long maxCooldown = 2000L;
     long cooldown;
+
+    @Override
+    public int getCost() {
+        return 2;
+    }
 
     @Override
     public void aspectInit(World world, WorldCoordinates pos) {

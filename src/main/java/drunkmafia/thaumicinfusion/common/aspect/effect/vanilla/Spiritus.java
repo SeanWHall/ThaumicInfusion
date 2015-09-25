@@ -13,8 +13,13 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-@Effect(aspect = ("spiritus"), cost = 4)
+@Effect(aspect = ("spiritus"))
 public class Spiritus extends AspectEffect {
+
+    @Override
+    public int getCost() {
+        return 4;
+    }
 
     @OverrideBlock
     public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z) {

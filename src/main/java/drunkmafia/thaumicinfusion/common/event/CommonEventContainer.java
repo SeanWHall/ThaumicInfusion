@@ -7,6 +7,8 @@
 package drunkmafia.thaumicinfusion.common.event;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
+import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.world.IWorldDataProvider;
 import drunkmafia.thaumicinfusion.common.world.SavableHelper;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
@@ -30,6 +32,16 @@ import java.io.IOException;
 
 public class CommonEventContainer {
 
+    //Tick Syncing
+
+    @SubscribeEvent
+    public void onWorldTick(TickEvent.WorldTickEvent event) {
+        if(ThaumicInfusion.instance.stablizerThread != null)
+            ThaumicInfusion.instance.stablizerThread.setFlags(true, false);
+    }
+
+    //Client Data Syncing
+
     @SubscribeEvent
     public void onPlayerJoin(EntityJoinWorldEvent event) {
         if (event.world == null || event.world.isRemote || !(event.entity instanceof EntityPlayer))
@@ -39,16 +51,17 @@ public class CommonEventContainer {
         if (worldData == null) return;
         for(BlockSavable savable : worldData.getAllStoredData()) {
             if (savable != null)
-                ChannelHandler.instance().sendTo(new BlockSyncPacketC(savable, -1), (EntityPlayerMP) event.entity);
+                ChannelHandler.instance().sendTo(new BlockSyncPacketC(savable), (EntityPlayerMP) event.entity);
         }
     }
 
+    //Client Side Chunk Managing
+
     @SubscribeEvent
     public void loadChunk(ChunkEvent.Load event) {
-        if (event.world == null) return;
-
         World world = event.world;
-        if (world.isRemote)
+
+        if (world != null && world.isRemote)
             ChannelHandler.instance().sendToServer(new ChunkRequestPacketS(event.getChunk().getChunkCoordIntPair(), world.provider.dimensionId));
     }
 
@@ -59,16 +72,17 @@ public class CommonEventContainer {
         World world = event.world;
         if (!world.isRemote) return;
 
-        TIWorldData worldData = TIWorldData.getWorldData(world);
         ChunkCoordIntPair pos = event.getChunk().getChunkCoordIntPair();
-        worldData.chunkDatas.remove(pos.getCenterXPos(), pos.getCenterZPosition());
+        TIWorldData.getWorldData(world).chunkDatas.remove(pos.getCenterXPos(), pos.getCenterZPosition());
     }
+
+    //Server Side World Loading/Saving
 
     @SubscribeEvent
     public void load(WorldEvent.Load event) {
-        if (event.world == null) return;
-
         World world = event.world;
+        if (world == null || world.isRemote) return;
+
         try {
             File file = new File("TIWorldData/" + world.getWorldInfo().getWorldName() + "_" + world.provider.dimensionId + "_TIWorldData.dat");
             if (!file.exists())
@@ -81,9 +95,9 @@ public class CommonEventContainer {
             TIWorldData data = SavableHelper.loadDataFromNBT(tagCompound);
 
             if (data != null) {
-                data.postLoad();
                 data.world = world;
                 ((IWorldDataProvider)world).setWorldData(data);
+                data.postLoad();
             }
         } catch (Throwable e) {
             e.printStackTrace();
@@ -92,9 +106,9 @@ public class CommonEventContainer {
 
     @SubscribeEvent
     public void save(WorldEvent.Save event) {
-        if (event.world == null) return;
-
         World world = event.world;
+        if (world == null || world.isRemote) return;
+
         try {
             TIWorldData worldData = TIWorldData.getWorldData(world);
             NBTTagCompound tagCompound = SavableHelper.saveDataToNBT(worldData);

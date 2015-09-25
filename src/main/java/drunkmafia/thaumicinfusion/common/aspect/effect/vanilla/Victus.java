@@ -22,7 +22,7 @@ import thaumcraft.api.aspects.IAspectSource;
 
 import java.util.Random;
 
-@Effect(aspect = "victus", cost = 4)
+@Effect(aspect = "victus")
 public class Victus extends AspectEffect {
 
     static final long maxCooldown = 2000L;
@@ -39,6 +39,11 @@ public class Victus extends AspectEffect {
         super.aspectInit(world, pos);
         if (!world.isRemote)
             updateTick(world, pos.x, pos.y, pos.z, world.rand);
+    }
+
+    @Override
+    public int getCost() {
+        return 8;
     }
 
     @OverrideBlock(overrideBlockFunc = false)

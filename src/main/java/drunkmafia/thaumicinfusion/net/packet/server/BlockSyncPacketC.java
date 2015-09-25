@@ -9,7 +9,6 @@ package drunkmafia.thaumicinfusion.net.packet.server;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.world.SavableHelper;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.data.BlockSavable;
@@ -24,14 +23,12 @@ import thaumcraft.api.WorldCoordinates;
 public class BlockSyncPacketC implements IMessage {
 
     private BlockSavable data;
-    private int chunkCount = 0;
 
     public BlockSyncPacketC() {
     }
 
-    public BlockSyncPacketC(BlockSavable data, int chunkCount) {
+    public BlockSyncPacketC(BlockSavable data) {
         this.data = data;
-        this.chunkCount = chunkCount;
     }
 
     @Override
@@ -40,7 +37,6 @@ public class BlockSyncPacketC implements IMessage {
             NBTTagCompound tag = new PacketBuffer(buf).readNBTTagCompoundFromBuffer();
             if (tag != null) {
                 data = SavableHelper.loadDataFromNBT(tag);
-                chunkCount = buf.readInt();
             }
         } catch (Exception e) {}
     }
@@ -48,10 +44,8 @@ public class BlockSyncPacketC implements IMessage {
     @Override
     public void toBytes(ByteBuf buf) {
         try {
-            if (data != null) {
+            if (data != null)
                 new PacketBuffer(buf).writeNBTTagCompoundToBuffer(SavableHelper.saveDataToNBT(data));
-                buf.writeInt(chunkCount);
-            }
         } catch (Exception e) {}
     }
 
@@ -70,8 +64,6 @@ public class BlockSyncPacketC implements IMessage {
             worldData.addBlock(message.data, true, false);
             Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.x, pos.y, pos.z);
 
-            if (message.chunkCount != -1 && worldData.chunkDatas.getCount() != message.chunkCount)
-                ThaumicInfusion.getLogger().info("The Client has somehow become desynced with the server, please relog or reload this chunks!!");
             return null;
         }
     }

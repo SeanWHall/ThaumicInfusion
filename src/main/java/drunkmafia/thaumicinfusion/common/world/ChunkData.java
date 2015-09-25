@@ -17,6 +17,7 @@ public class ChunkData implements ISavable{
 
     protected ChunkCoordIntPair chunkPos;
     private List<BlockSavable>[][][] blockdata = new ArrayList[16][256][16];
+    public int instability = 0;
 
     public ChunkData(){}
 
@@ -88,6 +89,8 @@ public class ChunkData implements ISavable{
         tagCompound.setInteger("ChunkX", chunkPos.chunkXPos);
         tagCompound.setInteger("ChunkZ", chunkPos.chunkZPos);
 
+        tagCompound.setInteger("instability", instability);
+
         for(int x = 0; x < blockdata.length; x++){
             for(int y = 0; y < blockdata[x].length; y++){
                 for(int z = 0; z < blockdata[x][y].length; z++){
@@ -104,6 +107,7 @@ public class ChunkData implements ISavable{
     @Override
     public void readNBT(NBTTagCompound tagCompound) {
         chunkPos = new ChunkCoordIntPair(tagCompound.getInteger("ChunkX"), tagCompound.getInteger("ChunkZ"));
+        instability = tagCompound.getInteger("instability");
 
         for(int x = 0; x < blockdata.length; x++) {
             for (int y = 0; y < blockdata[x].length; y++) {

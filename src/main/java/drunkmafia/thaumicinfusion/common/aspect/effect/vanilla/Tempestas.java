@@ -18,7 +18,7 @@ import thaumcraft.api.WorldCoordinates;
 
 import java.util.Random;
 
-@Effect(aspect = ("tempestas"), cost = 1)
+@Effect(aspect = ("tempestas"))
 public class Tempestas extends AspectEffect {
 
     @OverrideBlock(overrideBlockFunc = false)
@@ -26,6 +26,11 @@ public class Tempestas extends AspectEffect {
         super.aspectInit(world, pos);
         if(!world.isRemote)
             updateTick(world, pos.x, pos.y, pos.z, new Random());
+    }
+
+    @Override
+    public int getCost() {
+        return 1;
     }
 
     @OverrideBlock(overrideBlockFunc = false)

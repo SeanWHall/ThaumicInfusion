@@ -184,7 +184,12 @@ public final class AspectHandler {
      */
     public static int getCostOfEffect(Aspect aspect){
         Class<? extends AspectEffect> c = getEffectFromAspect(aspect);
-        return c == null || c.getAnnotation(Effect.class) == null ? -1 : c.getAnnotation(Effect.class).cost();
+        try {
+            return c == null || c.getAnnotation(Effect.class) == null ? -1 : c.newInstance().getCost();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
     }
 
     /**

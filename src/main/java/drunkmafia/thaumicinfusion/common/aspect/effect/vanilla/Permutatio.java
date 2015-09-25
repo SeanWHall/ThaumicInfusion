@@ -18,7 +18,7 @@ import thaumcraft.api.WorldCoordinates;
 
 import java.util.Random;
 
-@Effect(aspect = ("permutatio"), cost = 4)
+@Effect(aspect = ("permutatio"))
 public class Permutatio extends AspectLink {
 
     private boolean lastRedstoneSignal;
@@ -28,6 +28,11 @@ public class Permutatio extends AspectLink {
         super.aspectInit(world, pos);
         if (!world.isRemote)
             updateTick(world, pos.x, pos.y, pos.z, world.rand);
+    }
+
+    @Override
+    public int getCost() {
+        return 8;
     }
 
     @OverrideBlock(overrideBlockFunc = false)

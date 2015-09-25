@@ -8,6 +8,7 @@ package drunkmafia.thaumicinfusion.common.aspect;
 
 import cpw.mods.fml.common.registry.EntityRegistry;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
+import drunkmafia.thaumicinfusion.common.asm.BlockTransformer;
 import drunkmafia.thaumicinfusion.common.aspect.effect.vanilla.*;
 import drunkmafia.thaumicinfusion.common.aspect.entity.InfusedBlockFalling;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
@@ -27,8 +28,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-@Effect(aspect = "default", cost = 0)
-public class AspectEffect extends Block implements ISavable {
+@Effect(aspect = "default")
+public abstract class AspectEffect extends Block implements ISavable {
 
     private static HashMap<Class, ArrayList<MethodInfo>> phasedMethods = new HashMap<Class, ArrayList<MethodInfo>>();
     public BlockData data;
@@ -39,6 +40,8 @@ public class AspectEffect extends Block implements ISavable {
         super(Material.air);
 
     }
+
+    public abstract int getCost();
 
     public static void init(){
         AspectHandler.registerEffect(Aer.class);
@@ -65,8 +68,8 @@ public class AspectEffect extends Block implements ISavable {
 
         AspectHandler.registerEffect(Machina.class);
         AspectHandler.registerEffect(Messis.class);
+        AspectHandler.registerEffect(Metallum.class);
         AspectHandler.registerEffect(Mortuus.class);
-        //TODO AspectHandler.registerEffect(Motus.class);
 
         AspectHandler.registerEffect(Pannus.class);
         AspectHandler.registerEffect(Perditio.class);
@@ -93,22 +96,27 @@ public class AspectEffect extends Block implements ISavable {
 
     public static List<MethodInfo> getMethods(Class<? extends AspectEffect> clazz) {
         List<MethodInfo> methods = phasedMethods.get(clazz);
-        return methods != null ? methods : phaseForMethods(clazz);
+        return methods != null ? methods : parseForMethods(clazz);
     }
 
-    private static List<MethodInfo> phaseForMethods(Class<? extends AspectEffect> c) {
+    private static List<MethodInfo> parseForMethods(Class<? extends AspectEffect> c) {
         Method[] effectMethods = c.getMethods();
         ArrayList<MethodInfo> meths = new ArrayList<MethodInfo>();
+
         for (Method meth : effectMethods) {
-            if (meth.getDeclaringClass() == Block.class)
+            if (!BlockTransformer.blockMethods.contains(meth.getName()) || meth.getDeclaringClass() == Block.class)
                 continue;
+
             OverrideBlock block = meth.getAnnotation(OverrideBlock.class);
-            if (block != null)
-                meths.add(new MethodInfo(meth.getName(), block));
+            if (block != null)  meths.add(new MethodInfo(meth.getName().hashCode(), block));
         }
 
         phasedMethods.put(c, meths);
         return meths;
+    }
+
+    public void renderEffect(EntityPlayer player, float partialTicks){
+
     }
 
     public void readConfig(Configuration config) {
@@ -151,11 +159,11 @@ public class AspectEffect extends Block implements ISavable {
 
     public static class MethodInfo {
 
-        public String methodName;
+        public int methodID;
         public OverrideBlock override;
 
-        public MethodInfo(String methodName, OverrideBlock override) {
-            this.methodName = methodName;
+        public MethodInfo(int methodID, OverrideBlock override) {
+            this.methodID = methodID;
             this.override = override;
         }
     }

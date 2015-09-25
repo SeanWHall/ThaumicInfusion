@@ -18,10 +18,15 @@ import thaumcraft.api.WorldCoordinates;
 
 import java.util.ArrayList;
 
-@Effect(aspect = "alienis", cost = 1)
+@Effect(aspect = "alienis")
 public class Alienis extends AspectEffect {
 
     private int size = 10;
+
+    @Override
+    public int getCost() {
+        return 1;
+    }
 
     @Override
     public void readConfig(Configuration config) {

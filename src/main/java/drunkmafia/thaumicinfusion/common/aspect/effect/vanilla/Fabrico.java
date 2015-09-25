@@ -22,10 +22,15 @@ import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.aspects.IEssentiaContainerItem;
 import thaumcraft.common.Thaumcraft;
 
-@Effect(aspect = "fabrico", cost = 4)
+@Effect(aspect = "fabrico")
 public class Fabrico extends AspectEffect {
 
     public Aspect aspect;
+
+    @Override
+    public int getCost() {
+        return 4;
+    }
 
     @OverrideBlock
     public int colorMultiplier(IBlockAccess access, int x, int y, int z) {

@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-@Effect(aspect = "exanimis", cost = 4)
+@Effect(aspect = "exanimis")
 public class Exanimis extends AspectEffect {
 
     private List<String> deadPlayers = new ArrayList<String>();
@@ -30,6 +30,11 @@ public class Exanimis extends AspectEffect {
         super.aspectInit(world, pos);
         if (!world.isRemote)
             updateTick(world, pos.x, pos.y, pos.z, world.rand);
+    }
+
+    @Override
+    public int getCost() {
+        return 4;
     }
 
     @OverrideBlock(overrideBlockFunc = false)

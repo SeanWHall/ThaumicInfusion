@@ -16,7 +16,7 @@ import net.minecraft.world.World;
 
 import java.util.Random;
 
-@Effect(aspect = "cognitio", cost = 1)
+@Effect(aspect = "cognitio")
 public class Cognitio extends AspectEffect {
     @OverrideBlock()
     public float getEnchantPowerBonus(World world, int x, int y, int z) {
@@ -43,5 +43,10 @@ public class Cognitio extends AspectEffect {
                 }
             }
         }
+    }
+
+    @Override
+    public int getCost() {
+        return 1;
     }
 }

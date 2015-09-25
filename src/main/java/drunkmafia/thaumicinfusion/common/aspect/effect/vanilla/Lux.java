@@ -14,7 +14,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import thaumcraft.api.WorldCoordinates;
 
-@Effect(aspect = ("lux"), cost = 1)
+@Effect(aspect = ("lux"))
 public class Lux extends AspectEffect {
 
     @Override
@@ -22,6 +22,11 @@ public class Lux extends AspectEffect {
         super.aspectInit(world, pos);
         if (world.isRemote)
             Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.x, pos.y, pos.z);
+    }
+
+    @Override
+    public int getCost() {
+        return 1;
     }
 
     @OverrideBlock(overrideBlockFunc = false)

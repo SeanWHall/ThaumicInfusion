@@ -13,8 +13,13 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.world.World;
 
-@Effect(aspect = ("infernus"), cost = 4)
+@Effect(aspect = ("infernus"))
 public class Infernus extends AspectEffect {
+
+    @Override
+    public int getCost() {
+        return 4;
+    }
 
     @OverrideBlock(overrideBlockFunc = false)
     public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity ent) {

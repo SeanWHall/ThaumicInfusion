@@ -8,6 +8,7 @@ package drunkmafia.thaumicinfusion.common.asm;
 
 import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 import cpw.mods.fml.common.asm.transformers.deobf.FMLRemappingAdapter;
+import net.minecraft.block.Block;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.Launch;
 import org.objectweb.asm.ClassReader;
@@ -15,8 +16,8 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
 
 import static drunkmafia.thaumicinfusion.common.asm.ThaumicInfusionPlugin.*;
 import static org.objectweb.asm.Opcodes.*;
@@ -24,8 +25,8 @@ import static org.objectweb.asm.Opcodes.*;
 /**
  * This transformer injects code into every single block and the main class itself, the code it injects looks like this:
  * {@code
- * if(BlockWrapper.hasWorldData(world, x, y, z, this, "onBlockActivated")){
- *      if(BlockWrapper.overrideBlockFunctionality(world, x, y, z, "onBlockActivated")){
+ * if(BlockWrapper.hasWorldData(world, x, y, z, this, 24)){
+ *      if(BlockWrapper.overrideBlockFunctionality(world, x, y, z, 24)){
  *          return BlockWrapper.block.onBlockActivated(World, x, y, z, player, side, hitX, hitY, hitZ);
  *      }else{
  *          BlockWrapper.block.onBlockActivated(World, x, y, z, player, side, hitX, hitY, hitZ);
@@ -36,12 +37,16 @@ import static org.objectweb.asm.Opcodes.*;
  */
 public class BlockTransformer implements IClassTransformer {
 
+    private static boolean shouldInject = true;
+
     //Interfaces that will be injected into the base block class
     public static List<Interface> blockInterfaces = new ArrayList<Interface>();
     //The Block method which are compatible with the system
-    private static List<String> blockMethods = new ArrayList<String>();
+    public static List<String> blockMethods = new ArrayList<String>();
     //All the sub classes of the block class that have been found, makes it easier to step though the super classes of the current class being transformed
     private static List<String> blockClasses = new ArrayList<String>();
+
+    private static Map<String, List<String>> injectedClassess = new HashMap<String, List<String>>();
 
     static{
         Interface infusionStabiliser = new Interface("thaumcraft/api/crafting/IInfusionStabiliser");
@@ -53,8 +58,8 @@ public class BlockTransformer implements IClassTransformer {
 
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytecode) {
-        if (bytecode == null)
-            return null;
+        if (bytecode == null || !shouldInject)
+            return bytecode;
 
         ClassNode classNode = new ClassNode(ASM5), deobfClassNode = new ClassNode(ASM5);
 
@@ -85,9 +90,14 @@ public class BlockTransformer implements IClassTransformer {
 
             //Injects interfaces required by effects
             if (isBlockClass) {
-                for (Interface inter : blockInterfaces)
+                for (Interface inter : blockInterfaces) {
                     inter.injectMethodsIntoClass(classNode);
+                    for(IMethod method : inter.getMethods())
+                        blockMethods.add(method.getName());
+                }
             }
+
+            List<String> methodsInjected = new ArrayList<String>();
 
             //Iterates though class methods to find block methods and inject code into them
             for (int i = 0; i < classNode.methods.size(); i++) {
@@ -128,18 +138,19 @@ public class BlockTransformer implements IClassTransformer {
                 worldPars.loadPars(toInsert);
                 //Loads up the Block Object
                 toInsert.add(new VarInsnNode(ALOAD, 0));
-                //Passes in the method name to make the process of data detection even faster since method lookup is skipped
-                toInsert.add(new LdcInsnNode(deobfMethod.name));
+                //Passes in the method id to make the process of data detection even faster since method lookup is skipped
+                //The ID is the methods position in the base Block class, working with ints over strings saves performance and memory
+                toInsert.add(new LdcInsnNode(deobfMethod.name.hashCode()));
 
-                toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockWrapper", "hasWorldData", "(Lnet/minecraft/world/IBlockAccess;IIILnet/minecraft/block/Block;Ljava/lang/String;)Z", false));
+                toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockWrapper", "hasWorldData", "(Lnet/minecraft/world/IBlockAccess;IIILnet/minecraft/block/Block;I)Z", false));
 
                 LabelNode hasWorldData = new LabelNode();
                 toInsert.add(new JumpInsnNode(IFEQ, hasWorldData));
                 toInsert.add(new LabelNode());
 
                 worldPars.loadPars(toInsert);
-                toInsert.add(new LdcInsnNode(deobfMethod.name));
-                toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockWrapper", "overrideBlockFunctionality", "(Lnet/minecraft/world/IBlockAccess;IIILjava/lang/String;)Z", false));
+                toInsert.add(new LdcInsnNode(deobfMethod.name.hashCode()));
+                toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockWrapper", "overrideBlockFunctionality", "(Lnet/minecraft/world/IBlockAccess;IIII)Z", false));
 
                 LabelNode overrideBlockFunctionality = new LabelNode();
                 toInsert.add(new JumpInsnNode(IFEQ, overrideBlockFunctionality));
@@ -170,14 +181,18 @@ public class BlockTransformer implements IClassTransformer {
                     hasInjectedCode = true;
                 }
 
-                logger.println(methodNo++ + ") Injected hook into: " + deobfMethod.name + " " + method.desc + " Access: " + method.access);
+                logger.println(methodNo++ + ") Injected hook into: " + deobfMethod.name + " (" + deobfMethod.name.hashCode() + ") " + method.desc + " Access: " + method.access);
+                methodsInjected.add(deobfMethod.name);
             }
 
             logger.flush();
 
             //Will only return a modified bytecode if any code has been injected into the methods
             if(hasInjectedCode){
+
                 classNode.accept(classWriter);
+                injectedClassess.put(deobfClassNode.name.replace('/', '.'), methodsInjected);
+
                 return classWriter.toByteArray();
             }
         } catch (Throwable t) {
@@ -186,6 +201,51 @@ public class BlockTransformer implements IClassTransformer {
 
         //If no code is injected or an exception is thrown some how, it will revert to the original code
         return bytecode;
+    }
+
+    private static int injectedClasses, totalClasses;
+
+    public static void blockCheck(Iterator classesIter){
+        while(classesIter.hasNext()){
+            Object obj = classesIter.next();
+            if(obj instanceof Block) {
+                try {
+                    searchBlock( Launch.classLoader.getClassBytes(FMLDeobfuscatingRemapper.INSTANCE.unmap(obj.getClass().getName()).replace('/', '.')));
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        log.info("Thaumic Infusion has finished transforming Block Classes, a total of " + injectedClasses + " out of " + totalClasses + " have been found & transformed!");
+        log.info("Transformer has been disabled, since no more block classes should be getting loaded in!");
+
+        shouldInject = false;
+
+        injectedClassess = null;
+        blockClasses = null;
+    }
+
+    private static void searchBlock(byte[] bytecode) throws IOException {
+        if(bytecode == null) return;
+        ClassNode classNode = new ClassNode(ASM5);
+        new ClassReader(bytecode).accept(classNode, ClassReader.EXPAND_FRAMES);
+
+        if(classNode.superName == null) return;
+
+        if(!classNode.superName.replace('/', '.').equals(Block.class.getName())) searchBlock(Launch.classLoader.getClassBytes(FMLDeobfuscatingRemapper.INSTANCE.unmap(classNode.superName.replace('.', '/')).replace('/', '.')));
+
+        List<String> methods = injectedClassess.get(classNode.name.replace('/', '.'));
+        if(methods == null) return;
+
+        totalClasses++;
+
+        for(MethodNode method : classNode.methods){
+            if(methods.contains(method.name)){
+                injectedClasses++;
+                return;
+            }
+        }
     }
 
     private void handleCrash(String transformedName, Throwable t){

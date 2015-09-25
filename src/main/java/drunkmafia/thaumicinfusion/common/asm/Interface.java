@@ -33,6 +33,10 @@ public class Interface {
             node.methods.add(method.getMethodNode(node.name));
     }
 
+    public List<IMethod> getMethods(){
+        return methods;
+    }
+
     public String getClassName() {
         return className;
     }

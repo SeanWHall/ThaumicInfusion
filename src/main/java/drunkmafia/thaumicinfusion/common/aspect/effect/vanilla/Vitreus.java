@@ -11,8 +11,14 @@ import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import net.minecraft.world.IBlockAccess;
 
-@Effect(aspect = "vitreus", cost = 2)
+@Effect(aspect = "vitreus")
 public class Vitreus extends AspectEffect {
+
+    @Override
+    public int getCost() {
+        return 2;
+    }
+
     @OverrideBlock
     public int getLightOpacity(IBlockAccess world, int x, int y, int z) {
         return 0;

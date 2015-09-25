@@ -12,8 +12,13 @@ import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
 
-@Effect(aspect = ("pannus"), cost = 1)
+@Effect(aspect = ("pannus"))
 public class Pannus extends AspectEffect {
+
+    @Override
+    public int getCost() {
+        return 1;
+    }
 
     @OverrideBlock(overrideBlockFunc = false)
     public void onFallenUpon(World world, int x, int y, int z, Entity ent, float fall) {

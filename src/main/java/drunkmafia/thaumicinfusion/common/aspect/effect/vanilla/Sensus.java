@@ -15,7 +15,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import thaumcraft.api.WorldCoordinates;
 
-@Effect(aspect = "sensus", cost = 2)
+@Effect(aspect = "sensus")
 public class Sensus extends AspectEffect {
 
     private Block disguisedBlock;
@@ -25,6 +25,11 @@ public class Sensus extends AspectEffect {
     public void aspectInit(World world, WorldCoordinates pos) {
         super.aspectInit(world, pos);
         if(!world.isRemote) ChannelHandler.instance().sendToDimension(new EffectSyncPacketC(this, true), world.provider.dimensionId);
+    }
+
+    @Override
+    public int getCost() {
+        return 4;
     }
 
     @OverrideBlock(overrideBlockFunc = false)

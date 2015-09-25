@@ -16,8 +16,14 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import thaumcraft.api.WorldCoordinates;
 
-@Effect(aspect = "machina", cost = 2)
+@Effect(aspect = "machina")
 public class Machina extends AspectLink {
+
+    @Override
+    public int getCost() {
+        return 2;
+    }
+
     @OverrideBlock
     public int isProvidingWeakPower(IBlockAccess access, int x, int y, int z, int side) {
         World destinationWorld;

@@ -23,11 +23,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-@Effect(aspect = "volatus", cost = 4)
+@Effect(aspect = "volatus")
 public class Volatus extends AspectEffect {
 
     private int defSize = 10, tickTime = 1;
     private List<Integer> isFlying = new ArrayList<Integer>();
+
+    @Override
+    public int getCost() {
+        return 8;
+    }
 
     @Override
     public void readConfig(Configuration config) {

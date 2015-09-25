@@ -15,8 +15,13 @@ import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-@Effect(aspect = "humanus", cost = 4)
+@Effect(aspect = "humanus")
 public class Humanus extends AspectEffect {
+
+    @Override
+    public int getCost() {
+        return 8;
+    }
 
     @OverrideBlock()
     public boolean canBeReplacedByLeaves(IBlockAccess world, int x, int y, int z) {

@@ -21,7 +21,7 @@ import thaumcraft.api.WorldCoordinates;
 import java.util.List;
 import java.util.Random;
 
-@Effect(aspect = "venenum", cost = 4)
+@Effect(aspect = "venenum")
 public class Venenum extends AspectEffect {
 
     static long maxCooldown = 4000L;
@@ -32,6 +32,11 @@ public class Venenum extends AspectEffect {
         super.aspectInit(world, pos);
         if (!world.isRemote)
             updateTick(world, pos.x, pos.y, pos.z, world.rand);
+    }
+
+    @Override
+    public int getCost() {
+        return 4;
     }
 
     @OverrideBlock(overrideBlockFunc = false)

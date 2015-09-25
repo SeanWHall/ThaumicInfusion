@@ -9,32 +9,23 @@ package drunkmafia.thaumicinfusion.client.event;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.item.ItemFocusInfusing;
-import drunkmafia.thaumicinfusion.common.util.IClientTickable;
-import drunkmafia.thaumicinfusion.common.util.RGB;
 import drunkmafia.thaumicinfusion.common.util.helper.MathHelper;
 import drunkmafia.thaumicinfusion.common.world.ChunkData;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.data.BlockData;
 import drunkmafia.thaumicinfusion.common.world.data.BlockSavable;
-import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderBlocks;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.Facing;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.util.ForgeDirection;
-import org.lwjgl.opengl.GL11;
 import thaumcraft.api.ItemApi;
 import thaumcraft.api.WorldCoordinates;
 import thaumcraft.api.aspects.Aspect;
@@ -118,87 +109,23 @@ public class ClientEventContainer {
     @SubscribeEvent
     public void renderLast(RenderWorldLastEvent event) throws Exception {
         float partialTicks = event.partialTicks;
-        renderInfusedBlocks(partialTicks);
-    }
 
-    private void renderInfusedBlocks(float partialTicks){
         if (Minecraft.getMinecraft().renderViewEntity instanceof EntityPlayer) {
             EntityPlayer player = (EntityPlayer) Minecraft.getMinecraft().renderViewEntity;
             World world = player.worldObj;
 
-            if (player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().getItem().getClass().isAssignableFrom(ItemApi.getItem("itemWandCasting", 0).getItem().getClass()) && getFocus(player.getCurrentEquippedItem()) != null && getFocus(player.getCurrentEquippedItem()) instanceof ItemFocusInfusing) {
-                TIWorldData worldData = TIWorldData.getWorldData(world);
-                if (worldData == null)
-                    return;
+            TIWorldData worldData = TIWorldData.getWorldData(world);
+            if (worldData == null)
+                return;
 
-                int chunkX = (int) player.posX >> 4, chunkZ = (int) player.posZ >> 4;
-                for (ChunkData chunk : worldData.getChunksInRange((int) player.posX - 3000, (int) player.posZ - 3000, (int) player.posX + 3000, (int) player.posZ + 3000)) {
-                    if (chunk == null) continue;
+            for (ChunkData chunk : worldData.getChunksInRange((int) player.posX - 64, (int) player.posZ - 64, (int) player.posX + 64, (int) player.posZ + 64)) {
+                if (chunk == null) continue;
 
-                    double iPX = player.prevPosX + (player.posX - player.prevPosX) * (double) partialTicks;
-                    double iPY = player.prevPosY + (player.posY - player.prevPosY) * (double) partialTicks;
-                    double iPZ = player.prevPosZ + (player.posZ - player.prevPosZ) * (double) partialTicks;
 
-                    for (BlockSavable savable : chunk.getAllBlocks()) {
-                        if (savable == null || !(savable instanceof BlockData)) continue;
 
-                        BlockData data = (BlockData) savable;
-                        int x = data.getCoords().x, y = data.getCoords().y, z = data.getCoords().z;
-                        currentdata = data;
-
-                        for(AspectEffect effect : data.getEffects()) {
-                            if (effect instanceof IClientTickable)
-                                ((IClientTickable) effect).clientTick(world, (int) -iPX + x, (int) -iPY + y, (int) -iPZ + z, partialTicks);
-                        }
-
-                        GL11.glPushMatrix();
-                        GL11.glEnable(3042);
-                        GL11.glBlendFunc(770, 1);
-                        GL11.glAlphaFunc(516, 0.003921569F);
-                        GL11.glTranslated(-iPX + x + 0.5D, -iPY + y, -iPZ + z + 0.5D);
-
-                        RenderBlocks renderBlocks = new RenderBlocks();
-                        GL11.glDisable(2896);
-                        Tessellator t = Tessellator.instance;
-                        renderBlocks.setRenderBounds(-0.0010000000474974513D, -0.0010000000474974513D, -0.0010000000474974513D, 1.0010000467300415D, 1.0010000467300415D, 1.0010000467300415D);
-                        Aspect[] aspects = data.getAspects();
-                        if (aspects == null || aspects.length == 0)
-                            return;
-
-                        new RGB(aspects[0].getColor()).glColor3f();
-
-                        t.startDrawingQuads();
-                        t.setBrightness(200);
-                        Minecraft.getMinecraft().renderEngine.bindTexture(TextureMap.locationBlocksTexture);
-                        GL11.glTexEnvi(8960, 8704, 260);
-
-                        Block blockJar = Block.getBlockFromItem(ItemApi.getBlock("blockJar", 0).getItem());
-
-                        if (!isConnectedBlock(worldData, x - Facing.offsetsXForSide[1], y - Facing.offsetsYForSide[1], z - Facing.offsetsZForSide[1]))
-                            renderBlocks.renderFaceYNeg(blockJar, -0.5001D, 0.0D, -0.5001D, this.getIconOnSide(worldData, x, y, z, 0, player.ticksExisted));
-
-                        if (!isConnectedBlock(worldData, x - Facing.offsetsXForSide[0], y - Facing.offsetsYForSide[0], z - Facing.offsetsZForSide[0]))
-                            renderBlocks.renderFaceYPos(blockJar, -0.5001D, 0.0D, -0.5001D, this.getIconOnSide(worldData, x, y, z, 1, player.ticksExisted));
-
-                        if (!isConnectedBlock(worldData, x - Facing.offsetsXForSide[3], y - Facing.offsetsYForSide[3], z - Facing.offsetsZForSide[3]))
-                            renderBlocks.renderFaceZNeg(blockJar, -0.5001D, 0.0D, -0.5001D, this.getIconOnSide(worldData, x, y, z, 2, player.ticksExisted));
-
-                        if (!isConnectedBlock(worldData, x - Facing.offsetsXForSide[2], y - Facing.offsetsYForSide[2], z - Facing.offsetsZForSide[2]))
-                            renderBlocks.renderFaceZPos(blockJar, -0.5001D, 0.0D, -0.5001D, this.getIconOnSide(worldData, x, y, z, 3, player.ticksExisted));
-
-                        if (!isConnectedBlock(worldData, x - Facing.offsetsXForSide[5], y - Facing.offsetsYForSide[5], z - Facing.offsetsZForSide[5]))
-                            renderBlocks.renderFaceXNeg(blockJar, -0.5001D, 0.0D, -0.5001D, this.getIconOnSide(worldData, x, y, z, 4, player.ticksExisted));
-
-                        if (!isConnectedBlock(worldData, x - Facing.offsetsXForSide[4], y - Facing.offsetsYForSide[4], z - Facing.offsetsZForSide[4]))
-                            renderBlocks.renderFaceXPos(blockJar, -0.5001D, 0.0D, -0.5001D, this.getIconOnSide(worldData, x, y, z, 5, player.ticksExisted));
-
-                        t.draw();
-                        GL11.glTexEnvi(8960, 8704, 8448);
-                        GL11.glEnable(2896);
-                        GL11.glAlphaFunc(516, 0.1F);
-                        GL11.glDisable(3042);
-                        GL11.glColor3f(1.0F, 1.0F, 1.0F);
-                        GL11.glPopMatrix();
+                for (BlockSavable savable : chunk.getAllBlocks()) {
+                    if (savable != null && savable instanceof BlockData) {
+                        ((BlockData) savable).renderData(player, partialTicks);
                     }
                 }
             }

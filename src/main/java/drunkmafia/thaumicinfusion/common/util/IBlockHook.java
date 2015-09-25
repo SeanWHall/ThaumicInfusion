@@ -9,8 +9,8 @@ package drunkmafia.thaumicinfusion.common.util;
 import net.minecraft.block.Block;
 
 public interface IBlockHook {
-    String[] hookMethods(Block block);
-    Block getBlock(String method);
+    int[] hookMethods(Block block);
+    Block getBlock(int method);
 
-    boolean shouldOverride(String method);
+    boolean shouldOverride(int method);
 }

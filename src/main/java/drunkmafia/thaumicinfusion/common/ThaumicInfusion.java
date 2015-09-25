@@ -6,12 +6,14 @@
 
 package drunkmafia.thaumicinfusion.common;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.*;
 import cpw.mods.fml.common.network.NetworkRegistry;
+import drunkmafia.thaumicinfusion.common.asm.BlockTransformer;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.TIBlocks;
@@ -20,10 +22,13 @@ import drunkmafia.thaumicinfusion.common.event.CommonEventContainer;
 import drunkmafia.thaumicinfusion.common.intergration.ThaumcraftIntergration;
 import drunkmafia.thaumicinfusion.common.item.TIItems;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
+import drunkmafia.thaumicinfusion.common.world.AspectStablizer;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
+import net.minecraft.block.Block;
 import net.minecraft.command.ServerCommandManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
@@ -40,6 +45,9 @@ public class ThaumicInfusion {
     public static CommonProxy proxy;
     private static Logger logger;
     public Configuration config;
+
+    public AspectStablizer stablizerThread;
+
     public CreativeTabs tab = new CreativeTabs(ModInfo.CREATIVETAB_UNLOCAL) {
         @Override
         public Item getTabIconItem() {
@@ -70,6 +78,7 @@ public class ThaumicInfusion {
     @EventHandler
     public void init(FMLInitializationEvent event) {
         MinecraftForge.EVENT_BUS.register(new CommonEventContainer());
+        FMLCommonHandler.instance().bus().register(new CommonEventContainer());
         NetworkRegistry.INSTANCE.registerGuiHandler(instance, proxy);
 
         proxy.initRenderers();
@@ -80,10 +89,21 @@ public class ThaumicInfusion {
     public void postInit(FMLPostInitializationEvent event){
         AspectHandler.postInit();
         ThaumcraftIntergration.init();
+
+        BlockTransformer.blockCheck(Block.blockRegistry.iterator());
     }
 
     @EventHandler
     public void serverStart(FMLServerStartingEvent event){
-        TICommand.init((ServerCommandManager) event.getServer().getCommandManager());
+        MinecraftServer server = event.getServer();
+        TICommand.init((ServerCommandManager) server.getCommandManager());
+        stablizerThread = new AspectStablizer(server.worldServers);
+        new Thread(stablizerThread, "Aspect Stabilizer").start();
+    }
+
+    @EventHandler
+    public void serverStop(FMLServerStoppingEvent event){
+        stablizerThread.setFlags(false, false);
+        stablizerThread = null;
     }
 }
