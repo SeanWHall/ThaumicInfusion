@@ -2,6 +2,18 @@
 	"versionList": [
 		{
 		  "mcVersion": "Minecraft 1.7.*",
+		  "modVersion": " 4.3",
+		  "changeLog": [
+		  	"Allot of bug fixing",
+		  	"Performance increase",
+		  	"Mod compatability increased"
+		  ],
+		  "updateURL": "http://www.curse.com/mc-mods/minecraft/220308-thaumic-infusion",
+		  "isDirectLink": "false",
+		  "newFileName": ""
+		},
+		{
+		  "mcVersion": "Minecraft 1.7.*",
 		  "modVersion": " 4.21",
 		  "changeLog": [
 		  	"Allot of bug fixing",
