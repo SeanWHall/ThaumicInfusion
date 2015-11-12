@@ -115,6 +115,8 @@ public class BlockTransformer implements IClassTransformer {
 
                 MethodNode method = classNode.methods.get(i), deobfMethod = deobfClassNode.methods.get(i);
 
+                // START OF PRE INJECTION CHECKS //
+
                 //Checks to make sure that the method is public or protected & Checks if the method is a block method
                 if((method.access != 1 && method.access != 2) || (!isBlockClass && !blockMethods.contains(deobfMethod.name))) continue;
 
@@ -158,6 +160,10 @@ public class BlockTransformer implements IClassTransformer {
 
                 //Skips the method if it has already been injected into
                 if(skip) continue;
+
+                // END OF PRE INJECTION CHECKS //
+
+                // START OF CODE TO BE INJECTED //
 
                 InsnList toInsert = new InsnList();
 
@@ -203,6 +209,8 @@ public class BlockTransformer implements IClassTransformer {
 
                 //Adds above code into the method
                 method.instructions.insert(toInsert);
+
+                // END OF CODE TO BE INJECTED //
 
                 if(!hasInjectedCode) {
                     logger.println("==== " + transformedName + " (SuperClass: " + classNode.superName + ") ====");
