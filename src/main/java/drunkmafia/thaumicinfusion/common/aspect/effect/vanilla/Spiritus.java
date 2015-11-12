@@ -13,7 +13,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-@Effect(aspect = ("spiritus"))
+@Effect(aspect = "spiritus")
 public class Spiritus extends AspectEffect {
 
     @Override

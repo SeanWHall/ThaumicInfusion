@@ -26,8 +26,8 @@ import java.util.Random;
 @Effect(aspect = "volatus")
 public class Volatus extends AspectEffect {
 
+    private final List<Integer> isFlying = new ArrayList<Integer>();
     private int defSize = 10, tickTime = 1;
-    private List<Integer> isFlying = new ArrayList<Integer>();
 
     @Override
     public int getCost() {
@@ -37,20 +37,20 @@ public class Volatus extends AspectEffect {
     @Override
     public void readConfig(Configuration config) {
         super.readConfig(config);
-        defSize = config.getInt("Default Flying Range", "Volatus", defSize, 1, 100, "");
-        tickTime = config.getInt("Tick Time", "Volatus", tickTime, 1, 20, "Delay before the effect ticks again");
+        this.defSize = config.getInt("Default Flying Range", "Volatus", this.defSize, 1, 100, "");
+        this.tickTime = config.getInt("Tick Time", "Volatus", this.tickTime, 1, 20, "Delay before the effect ticks again");
     }
 
     @Override
     public void aspectInit(World world, WorldCoordinates pos) {
         super.aspectInit(world, pos);
         if (!world.isRemote)
-            updateTick(world, pos.x, pos.y, pos.z, world.rand);
+            this.updateTick(world, pos.x, pos.y, pos.z, world.rand);
     }
 
     @OverrideBlock(overrideBlockFunc = false)
     public void onBlockAdded(World world, int x, int y, int z) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), tickTime);
+        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), this.tickTime);
     }
 
     @OverrideBlock(overrideBlockFunc = false)
@@ -71,12 +71,12 @@ public class Volatus extends AspectEffect {
 
     @OverrideBlock(overrideBlockFunc = false)
     public void updateTick(World world, int x, int y, int z, Random random) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), tickTime);
-        WorldCoordinates pos = getPos();
+        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), this.tickTime);
+        WorldCoordinates pos = this.getPos();
         if (!world.isAirBlock(pos.x, pos.y + 1, pos.z))
             return;
 
-        float size = getSize(world);
+        float size = this.getSize(world);
 
         AxisAlignedBB axisalignedbb = AxisAlignedBB.getBoundingBox(pos.x, pos.y, pos.z, pos.x + 1, pos.y + size, pos.z + 1);
         List list = world.getEntitiesWithinAABB(EntityPlayer.class, axisalignedbb);
@@ -86,14 +86,14 @@ public class Volatus extends AspectEffect {
             int playerHash = player.getCommandSenderName().hashCode();
 
             if (list.contains(player)) {
-                isFlying.add(playerHash);
+                this.isFlying.add(playerHash);
 
                 player.capabilities.isFlying = true;
                 player.sendPlayerAbilities();
-            } else if (isFlying.contains(playerHash)) {
-                if (isPlayerAboveVolatusBlock(size, player))
+            } else if (this.isFlying.contains(playerHash)) {
+                if (this.isPlayerAboveVolatusBlock(size, player))
                     return;
-                isFlying.remove((Integer) playerHash);
+                this.isFlying.remove((Integer) playerHash);
 
                 player.capabilities.isFlying = false;
                 player.sendPlayerAbilities();
@@ -101,29 +101,29 @@ public class Volatus extends AspectEffect {
         }
     }
 
-    boolean isPlayerAboveVolatusBlock(float size, EntityPlayer player){
-        for(int y = 0; y < size; y++) {
+    boolean isPlayerAboveVolatusBlock(float size, EntityPlayer player) {
+        for (int y = 0; y < size; y++) {
             int posX = (int) player.posX, posY = (int) (player.posY - y), posZ = (int) player.posZ;
-            if(! player.worldObj.isAirBlock(posX, posY, posZ)) {
+            if (!player.worldObj.isAirBlock(posX, posY, posZ)) {
                 BlockData data = TIWorldData.getWorldData(player.worldObj).getBlock(BlockData.class, new WorldCoordinates(posX, posY, posZ, player.dimension));
                 if (data != null)
                     return true;
-            }else
+            } else
                 break;
         }
         return false;
     }
 
-    float getSize(World world){
-        WorldCoordinates pos = getPos();
-        float ret = defSize;
+    float getSize(World world) {
+        WorldCoordinates pos = this.getPos();
+        float ret = this.defSize;
         int curretY = pos.y - 1;
-        while(!world.isAirBlock(pos.x, curretY, pos.z)){
+        while (!world.isAirBlock(pos.x, curretY, pos.z)) {
             BlockData data = TIWorldData.getWorldData(world).getBlock(BlockData.class, new WorldCoordinates(pos.x, curretY, pos.z, world.provider.dimensionId));
             if (data != null && data.hasEffect(Volatus.class)) {
-                ret += defSize;
+                ret += this.defSize;
                 curretY--;
-            }else break;
+            } else break;
         }
         return ret;
     }

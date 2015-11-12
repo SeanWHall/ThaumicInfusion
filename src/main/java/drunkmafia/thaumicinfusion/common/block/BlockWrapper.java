@@ -32,32 +32,31 @@ public final class BlockWrapper {
 
     /**
      * Used to decided if an effects exists in this blocks position
+     *
      * @return If true then it triggers the ASM code within the block to run the effects code
      */
     public static boolean hasWorldData(IBlockAccess access, int x, int y, int z, Block block, int methodHash) {
         World world = TIWorldData.getWorld(access);
 
-        //Checks to increase performance, Air blocks are not infuseable & it checks if the same method is being called at the same possitons
+        //Checks to increase performance, Air blocks are not infuseable & it checks if the same method is being called at the same positions
         //Which deals with super calls by blocks, that way the effect is not invoked multiple times by the same block
-        if (world == null || block == Blocks.air)
-            return false;
+        if (world == null || block == Blocks.air) return false;
 
         TIWorldData worldData = TIWorldData.getWorldData(world);
         if (worldData == null) return false;
 
         IBlockHook hook = worldData.getBlock(IBlockHook.class, new WorldCoordinates(x, y, z, world.provider.dimensionId));
 
-        if (hook == null)
-            return false;
+        if (hook == null) return false;
 
         for (int method : hook.hookMethods(block)) {
             if (method == methodHash) {
                 BlockWrapper.block = hook.getBlock(methodHash);
-                lastHook = hook;
-                lastX = x;
-                lastY = y;
-                lastZ = z;
-                lastMethod = methodHash;
+                BlockWrapper.lastHook = hook;
+                BlockWrapper.lastX = x;
+                BlockWrapper.lastY = y;
+                BlockWrapper.lastZ = z;
+                BlockWrapper.lastMethod = methodHash;
 
                 //Ensures that the block method does not try to invoke its method off a null Block
                 return BlockWrapper.block != null;
@@ -73,7 +72,7 @@ public final class BlockWrapper {
      */
     public static boolean overrideBlockFunctionality(IBlockAccess access, int x, int y, int z, int methodName) {
         World world = TIWorldData.getWorld(access);
-        IBlockHook hook = (lastHook == null || lastX == x || lastY == y || lastZ == z) ? TIWorldData.getWorldData(world).getBlock(IBlockHook.class, new WorldCoordinates(x, y, z, world.provider.dimensionId)) : lastHook;
+        IBlockHook hook = lastHook == null || lastX == x || lastY == y || lastZ == z ? TIWorldData.getWorldData(world).getBlock(IBlockHook.class, new WorldCoordinates(x, y, z, world.provider.dimensionId)) : BlockWrapper.lastHook;
         return hook != null && hook.shouldOverride(methodName);
     }
 }

@@ -31,35 +31,35 @@ public class DataRemovePacketC implements IMessage {
 
     @Override
     public void fromBytes(ByteBuf buf) {
-        if(buf.readByte() == 1){
+        if (buf.readByte() == 1) {
             byte[] bytes = new byte[buf.readInt()];
-            for(int i = 0; i < bytes.length; i++)
+            for (int i = 0; i < bytes.length; i++)
                 bytes[i] = buf.readByte();
 
-            try{
-                clazz =  Class.forName(new String(bytes));
-            }catch (Exception e){
+            try {
+                this.clazz = Class.forName(new String(bytes));
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            coordinates = new WorldCoordinates(buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt());
+            this.coordinates = new WorldCoordinates(buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt());
         }
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
-        if(coordinates != null) {
+        if (this.coordinates != null) {
             buf.writeByte(1);
 
-            byte[] bytes = clazz.getName().getBytes();
+            byte[] bytes = this.clazz.getName().getBytes();
             buf.writeInt(bytes.length);
             for (byte aByte : bytes) buf.writeByte(aByte);
 
-            buf.writeInt(coordinates.x);
-            buf.writeInt(coordinates.y);
-            buf.writeInt(coordinates.z);
-            buf.writeInt(coordinates.dim);
-        }else buf.writeByte(0);
+            buf.writeInt(this.coordinates.x);
+            buf.writeInt(this.coordinates.y);
+            buf.writeInt(this.coordinates.z);
+            buf.writeInt(this.coordinates.dim);
+        } else buf.writeByte(0);
     }
 
     public static class Handler implements IMessageHandler<DataRemovePacketC, IMessage> {

@@ -4,13 +4,16 @@ import org.lwjgl.opengl.GL11;
 
 public class Button {
 
+    private final Image normal;
+    private final Image hover;
+    private final Image selected;
+    private final Image icon;
+    private final String text;
+    private final Runnable runnable;
+    private final TIGui gui;
     public boolean isSelected;
-    private Image normal, hover, selected, icon;
-    private String text;
-    private Runnable runnable;
-    private TIGui gui;
 
-    public Button(Image normal, Image hover, Image selected, Image icon, String text, Runnable runnable){
+    public Button(Image normal, Image hover, Image selected, Image icon, String text, Runnable runnable) {
         this.normal = normal;
         this.hover = hover;
         this.selected = selected;
@@ -18,31 +21,31 @@ public class Button {
         this.text = text;
         this.runnable = runnable;
 
-        gui = normal.getGui();
+        this.gui = normal.getGui();
     }
 
 
-    public void drawButton(int mouseX, int mouseY){
-        if(hover.isInRect(mouseX, mouseY)) hover.drawImage();
-        else if(isSelected) selected.drawImage();
-        else normal.drawImage();
+    public void drawButton(int mouseX, int mouseY) {
+        if (this.hover.isInRect(mouseX, mouseY)) this.hover.drawImage();
+        else if (this.isSelected) this.selected.drawImage();
+        else this.normal.drawImage();
 
-        if(icon != null) icon.drawImage();
+        if (this.icon != null) this.icon.drawImage();
 
-        if(text != null) {
+        if (this.text != null) {
             GL11.glPushMatrix();
-            GL11.glTranslatef(gui.getGuiLeft(), gui.getGuiTop(), 0.0F);
+            GL11.glTranslatef(this.gui.getGuiLeft(), this.gui.getGuiTop(), 0.0F);
             GL11.glDisable(GL11.GL_LIGHTING);
-            gui.getFontRenderer().drawString(text, normal.x, normal.y, 1);
+            this.gui.getFontRenderer().drawString(this.text, this.normal.x, this.normal.y, 1);
             GL11.glEnable(GL11.GL_LIGHTING);
             GL11.glPopMatrix();
         }
     }
 
-    public void onMouseClick(int mouseX, int mouseY){
-        if(normal.isInRect(mouseX, mouseY) || selected.isInRect(mouseX, mouseY) || hover.isInRect(mouseX, mouseY)){
-            isSelected = !isSelected;
-            if(runnable != null) runnable.run();
+    public void onMouseClick(int mouseX, int mouseY) {
+        if (this.normal.isInRect(mouseX, mouseY) || this.selected.isInRect(mouseX, mouseY) || this.hover.isInRect(mouseX, mouseY)) {
+            this.isSelected = !this.isSelected;
+            if (this.runnable != null) this.runnable.run();
         }
     }
 }

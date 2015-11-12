@@ -59,7 +59,7 @@ public class WorldTransformer implements IClassTransformer {
         classNode.accept(classWriter);
 
         log.info("Injected interface into World Class");
-        hasInjectedIntoWorld = true;
+        WorldTransformer.hasInjectedIntoWorld = true;
 
         return classWriter.toByteArray();
     }

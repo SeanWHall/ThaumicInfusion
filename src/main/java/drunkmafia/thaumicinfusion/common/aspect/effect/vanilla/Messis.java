@@ -14,7 +14,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.util.ForgeDirection;
 
-@Effect(aspect = ("messis"))
+@Effect(aspect = "messis")
 public class Messis extends AspectEffect {
 
     @Override

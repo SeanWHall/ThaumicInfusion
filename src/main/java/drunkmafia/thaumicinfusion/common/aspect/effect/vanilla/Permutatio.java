@@ -18,7 +18,7 @@ import thaumcraft.api.WorldCoordinates;
 
 import java.util.Random;
 
-@Effect(aspect = ("permutatio"))
+@Effect(aspect = "permutatio")
 public class Permutatio extends AspectLink {
 
     private boolean lastRedstoneSignal;
@@ -27,7 +27,7 @@ public class Permutatio extends AspectLink {
     public void aspectInit(World world, WorldCoordinates pos) {
         super.aspectInit(world, pos);
         if (!world.isRemote)
-            updateTick(world, pos.x, pos.y, pos.z, world.rand);
+            this.updateTick(world, pos.x, pos.y, pos.z, world.rand);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class Permutatio extends AspectLink {
     @OverrideBlock(overrideBlockFunc = false)
     public void updateTick(World world, int x, int y, int z, Random random) {
         if (world.isRemote) return;
-        WorldCoordinates destin = getDestination();
+        WorldCoordinates destin = this.getDestination();
         if (destin == null) {
             world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
             return;
@@ -46,8 +46,8 @@ public class Permutatio extends AspectLink {
 
         World destinationWorld = DimensionManager.getWorld(destin.dim);
         boolean power = world.isBlockIndirectlyGettingPowered(x, y, z);
-        if (power != lastRedstoneSignal) {
-            lastRedstoneSignal = power;
+        if (power != this.lastRedstoneSignal) {
+            this.lastRedstoneSignal = power;
 
             Block oldBlock = world.getBlock(x, y, z), newBlock = destinationWorld.getBlock(destin.x, destin.y, destin.z);
             TileEntity oldTile = world.getTileEntity(x, y, z), newTile = destinationWorld.getTileEntity(destin.x, destin.y, destin.z);

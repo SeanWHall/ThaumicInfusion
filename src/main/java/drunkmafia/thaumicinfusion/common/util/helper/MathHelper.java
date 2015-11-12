@@ -19,7 +19,7 @@ public final class MathHelper {
         return side == 0 ? ForgeDirection.DOWN : side == 1 ? ForgeDirection.UP : side == 2 ? ForgeDirection.NORTH : side == 3 ? ForgeDirection.SOUTH : side == 4 ? ForgeDirection.WEST : ForgeDirection.UNKNOWN;
     }
 
-    public static boolean withinThreshold(float a, float b, float threshold){
+    public static boolean withinThreshold(float a, float b, float threshold) {
         return Math.abs(a - b) < threshold;
     }
 }

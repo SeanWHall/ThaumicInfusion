@@ -24,18 +24,18 @@ public class WandAspectPacketS implements IMessage {
     }
 
     public WandAspectPacketS(EntityPlayer player, int slotNumber, Aspect aspect, boolean shouldOpenGUI) {
-        playerName = player.getCommandSenderName().hashCode();
-        dim = player.dimension;
-        slot = slotNumber;
+        this.playerName = player.getCommandSenderName().hashCode();
+        this.dim = player.dimension;
+        this.slot = slotNumber;
         this.shouldOpenGUI = shouldOpenGUI;
         this.aspect = aspect;
     }
 
     @Override
     public void fromBytes(ByteBuf buf) {
-        playerName = buf.readInt();
-        slot = buf.readInt();
-        if(buf.readInt() == 1) {
+        this.playerName = buf.readInt();
+        this.slot = buf.readInt();
+        if (buf.readInt() == 1) {
             int hash = buf.readInt();
             for (Aspect aspect : AspectHandler.getRegisteredAspects()) {
                 if (aspect.getTag().hashCode() == hash) {
@@ -45,20 +45,20 @@ public class WandAspectPacketS implements IMessage {
             }
         }
 
-        dim = buf.readInt();
-        shouldOpenGUI = buf.readByte() == 1;
+        this.dim = buf.readInt();
+        this.shouldOpenGUI = buf.readByte() == 1;
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
-        buf.writeInt(playerName);
-        buf.writeInt(slot);
+        buf.writeInt(this.playerName);
+        buf.writeInt(this.slot);
 
-        buf.writeInt(aspect != null ? 1 : -1);
-        if(aspect != null) buf.writeInt(aspect != null ? aspect.getTag().hashCode() : -1);
+        buf.writeInt(this.aspect != null ? 1 : -1);
+        if (this.aspect != null) buf.writeInt(this.aspect != null ? this.aspect.getTag().hashCode() : -1);
 
-        buf.writeInt(dim);
-        buf.writeByte(shouldOpenGUI ? 1 : 0);
+        buf.writeInt(this.dim);
+        buf.writeByte(this.shouldOpenGUI ? 1 : 0);
     }
 
     public static class Handler implements IMessageHandler<WandAspectPacketS, IMessage> {
@@ -73,8 +73,8 @@ public class WandAspectPacketS implements IMessage {
                     ItemStack stack = player.inventory.mainInventory[message.slot];
                     NBTTagCompound compound = stack.getTagCompound() != null ? stack.getTagCompound() : new NBTTagCompound();
 
-                    if(message.aspect != null) compound.setString("InfusionAspect", message.aspect.getTag());
-                    else if(compound.hasKey("InfusionAspect")) compound.removeTag("InfusionAspect");
+                    if (message.aspect != null) compound.setString("InfusionAspect", message.aspect.getTag());
+                    else if (compound.hasKey("InfusionAspect")) compound.removeTag("InfusionAspect");
 
                     compound.setBoolean("isSelected", message.shouldOpenGUI);
                     stack.setTagCompound(compound);

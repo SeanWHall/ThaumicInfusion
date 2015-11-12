@@ -14,55 +14,55 @@ public class RGB {
     private float r, g, b;
     private int rgb;
 
-    public RGB(){
+    public RGB() {
         Random rand = new Random();
-        r = rand.nextFloat();
-        g = rand.nextFloat();
-        b = rand.nextFloat();
+        this.r = rand.nextFloat();
+        this.g = rand.nextFloat();
+        this.b = rand.nextFloat();
     }
 
-    public RGB(float r, float g, float b){
+    public RGB(float r, float g, float b) {
         this.r = r;
         this.g = g;
         this.b = b;
     }
 
-    public RGB(int rgb){
+    public RGB(int rgb) {
         this.rgb = rgb;
-        r = (float)(rgb >> 16 & 255) / 255.0F;
-        g = (float)(rgb >> 8 & 255) / 255.0F;
-        b = (float)(rgb & 255) / 255.0F;
+        this.r = (float) (rgb >> 16 & 255) / 255.0F;
+        this.g = (float) (rgb >> 8 & 255) / 255.0F;
+        this.b = (float) (rgb & 255) / 255.0F;
     }
 
-    public void addRGB(RGB rgb){
-        r += Math.min(255, rgb.r);
-        g += Math.min(255, rgb.g);
-        b += Math.min(255, rgb.b);
+    public void addRGB(RGB rgb) {
+        this.r += Math.min(255, rgb.r);
+        this.g += Math.min(255, rgb.g);
+        this.b += Math.min(255, rgb.b);
     }
 
-    public void takeRGB(RGB rgb){
-        r += Math.min(0, rgb.r);
-        g += Math.min(0, rgb.g);
-        b += Math.min(0, rgb.b);
+    public void takeRGB(RGB rgb) {
+        this.r += Math.min(0, rgb.r);
+        this.g += Math.min(0, rgb.g);
+        this.b += Math.min(0, rgb.b);
     }
 
-    public void glColor3f(){
-        GL11.glColor3f(r, g, b);
+    public void glColor3f() {
+        GL11.glColor3f(this.r, this.g, this.b);
     }
 
-    public float getRGB(){
-        return rgb;
+    public float getRGB() {
+        return this.rgb;
     }
 
     public float getB() {
-        return b;
+        return this.b;
     }
 
     public float getG() {
-        return g;
+        return this.g;
     }
 
     public float getR() {
-        return r;
+        return this.r;
     }
 }

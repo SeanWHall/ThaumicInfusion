@@ -17,14 +17,14 @@ import java.util.Random;
 public class Gelum extends AspectEffect {
 
     public static long cooldownTimer = 10000L;
+    private final int radius = 10;
     private long cooldown;
-    private int radius = 10;
 
     @Override
     public void aspectInit(World world, WorldCoordinates pos) {
         super.aspectInit(world, pos);
         if (!world.isRemote)
-            updateTick(world, pos.x, pos.y, pos.z, world.rand);
+            this.updateTick(world, pos.x, pos.y, pos.z, world.rand);
     }
 
     @Override
@@ -56,27 +56,27 @@ public class Gelum extends AspectEffect {
     @OverrideBlock(overrideBlockFunc = false)
     public void updateTick(World world, int x, int y, int z, Random random) {
         world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
-        if(world.isRemote || System.currentTimeMillis() < cooldown + cooldownTimer)
+        if (world.isRemote || System.currentTimeMillis() < this.cooldown + Gelum.cooldownTimer)
             return;
 
-        for(int xPos = x - radius; xPos < x + radius; xPos++){
-            for(int yPos = y - radius; yPos < y + radius; yPos++){
-                for(int zPos = z - radius; zPos < z + radius; zPos++){
+        for (int xPos = x - this.radius; xPos < x + this.radius; xPos++) {
+            for (int yPos = y - this.radius; yPos < y + this.radius; yPos++) {
+                for (int zPos = z - this.radius; zPos < z + this.radius; zPos++) {
                     Block block = world.getBlock(xPos, yPos, zPos);
 
-                    if(block != null) {
-                        if(block.getMaterial() == Material.water) {
+                    if (block != null) {
+                        if (block.getMaterial() == Material.water) {
                             world.setBlock(xPos, yPos, zPos, Blocks.ice);
-                            cooldown = System.currentTimeMillis();
-                        }else if(block != Blocks.snow_layer && world.canBlockSeeTheSky(xPos, yPos, zPos) && world.isAirBlock(xPos, yPos + 1, zPos)){
+                            this.cooldown = System.currentTimeMillis();
+                        } else if (block != Blocks.snow_layer && world.canBlockSeeTheSky(xPos, yPos, zPos) && world.isAirBlock(xPos, yPos + 1, zPos)) {
                             world.setBlock(xPos, yPos + 1, zPos, Blocks.snow_layer);
-                            cooldown = System.currentTimeMillis();
+                            this.cooldown = System.currentTimeMillis();
                         }
                         return;
                     }
                 }
             }
         }
-        cooldown = System.currentTimeMillis();
+        this.cooldown = System.currentTimeMillis();
     }
 }

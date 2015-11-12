@@ -26,7 +26,7 @@ import java.util.Random;
 public class Mortuus extends AspectEffect {
 
     static final long maxCooldown = 2000L;
-    private static int[] mobs = {
+    private static final int[] mobs = {
             50,
             51,
             52,
@@ -40,7 +40,7 @@ public class Mortuus extends AspectEffect {
     public void aspectInit(World world, WorldCoordinates pos) {
         super.aspectInit(world, pos);
         if (!world.isRemote)
-            updateTick(world, pos.x, pos.y, pos.z, world.rand);
+            this.updateTick(world, pos.x, pos.y, pos.z, world.rand);
     }
 
     @Override
@@ -51,24 +51,24 @@ public class Mortuus extends AspectEffect {
     @OverrideBlock(overrideBlockFunc = false)
     public void updateTick(World world, int x, int y, int z, Random random) {
         world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
-        WorldCoordinates pos = getPos();
-        if(world.isRemote || world.getBlockLightValue(pos.x, pos.y, pos.z) > 8 || !world.isAirBlock(pos.x, pos.y + 1, pos.z) || !world.isAirBlock(pos.x, pos.y + 2, pos.z))
+        WorldCoordinates pos = this.getPos();
+        if (world.isRemote || world.getBlockLightValue(pos.x, pos.y, pos.z) > 8 || !world.isAirBlock(pos.x, pos.y + 1, pos.z) || !world.isAirBlock(pos.x, pos.y + 2, pos.z))
             return;
 
         Random rand = world.rand;
-        if (System.currentTimeMillis() > cooldown + maxCooldown && rand.nextInt(1000) == 1 && drainAspects(world, Aspect.DEATH)) {
-            Entity entity = EntityList.createEntityByID(mobs[rand.nextInt(mobs.length)], world);
+        if (System.currentTimeMillis() > this.cooldown + Mortuus.maxCooldown && rand.nextInt(1000) == 1 && this.drainAspects(world, Aspect.DEATH)) {
+            Entity entity = EntityList.createEntityByID(Mortuus.mobs[rand.nextInt(Mortuus.mobs.length)], world);
             entity.setPosition(pos.x, pos.y + 1, pos.z);
             world.spawnEntityInWorld(entity);
-            cooldown = System.currentTimeMillis();
+            this.cooldown = System.currentTimeMillis();
         }
     }
 
     public boolean drainAspects(World world, Aspect aspect) {
         int cost = AspectHandler.getCostOfEffect(aspect);
-        for (int x = pos.x - 10; x < pos.x + 10; x++) {
-            for (int y = pos.y - 10; y < pos.y + 10; y++) {
-                for (int z = pos.z - 10; z < pos.z + 10; z++) {
+        for (int x = this.pos.x - 10; x < this.pos.x + 10; x++) {
+            for (int y = this.pos.y - 10; y < this.pos.y + 10; y++) {
+                for (int z = this.pos.z - 10; z < this.pos.z + 10; z++) {
                     TileEntity tileEntity = world.getTileEntity(x, y, z);
                     if (tileEntity instanceof IAspectSource) {
                         IAspectSource source = (IAspectSource) tileEntity;

@@ -25,8 +25,8 @@ public class BlockInfo {
     public static final ResourceLocation infusionCore_Texture = new ResourceLocation(ModInfo.MODID, "textures/models/asm.png");
     public static final ResourceLocation infusionCoreBlock_Model = new ResourceLocation(ModInfo.MODID, "models/asm.obj");
     private static final String TEXTUREBASE = ModInfo.MODID + ":";
-    public static final String infusedBlock_BlankTexture = TEXTUREBASE + "blank";
-    public static final String essentiaBlock_BlockTexture = TEXTUREBASE + "essentiablock";
-    public static final String essentiaBlock_BrickTexture = TEXTUREBASE + "bricks_essentiablock";
-    public static final String essentiaBlock_SquareTexture = TEXTUREBASE + "squarebrick_essentiablock";
+    public static final String infusedBlock_BlankTexture = BlockInfo.TEXTUREBASE + "blank";
+    public static final String essentiaBlock_BlockTexture = BlockInfo.TEXTUREBASE + "essentiablock";
+    public static final String essentiaBlock_BrickTexture = BlockInfo.TEXTUREBASE + "bricks_essentiablock";
+    public static final String essentiaBlock_SquareTexture = BlockInfo.TEXTUREBASE + "squarebrick_essentiablock";
 }

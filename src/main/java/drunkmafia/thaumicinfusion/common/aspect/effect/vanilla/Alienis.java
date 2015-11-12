@@ -31,42 +31,42 @@ public class Alienis extends AspectEffect {
     @Override
     public void readConfig(Configuration config) {
         super.readConfig(config);
-        size = config.getInt("Size of random tp", "Alienis", size, 1, 50, "");
+        this.size = config.getInt("Size of random tp", "Alienis", this.size, 1, 50, "");
     }
 
     @OverrideBlock(overrideBlockFunc = false)
     public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) {
-        if(!world.isRemote && entity instanceof EntityLivingBase)
-            warpEntity(world, (EntityLivingBase)entity);
+        if (!world.isRemote && entity instanceof EntityLivingBase)
+            this.warpEntity(world, (EntityLivingBase) entity);
     }
 
     @OverrideBlock(overrideBlockFunc = false)
     public void onEntityWalking(World world, int x, int y, int z, Entity entity) {
-        if(!world.isRemote && entity instanceof EntityLivingBase)
-            warpEntity(world, (EntityLivingBase)entity);
+        if (!world.isRemote && entity instanceof EntityLivingBase)
+            this.warpEntity(world, (EntityLivingBase) entity);
     }
 
     @OverrideBlock(overrideBlockFunc = false)
     public void onFallenUpon(World world, int x, int y, int z, Entity entity, float dist) {
-        if(!world.isRemote && entity instanceof EntityLivingBase)
-            warpEntity(world, (EntityLivingBase)entity);
+        if (!world.isRemote && entity instanceof EntityLivingBase)
+            this.warpEntity(world, (EntityLivingBase) entity);
     }
 
-    public void warpEntity(World world, EntityLivingBase entity){
-        ChunkCoordinates[] possibleCoords = getPossibleWarps(world);
-        if(possibleCoords == null || possibleCoords.length == 0)
+    public void warpEntity(World world, EntityLivingBase entity) {
+        ChunkCoordinates[] possibleCoords = this.getPossibleWarps(world);
+        if (possibleCoords == null || possibleCoords.length == 0)
             return;
         ChunkCoordinates warp = possibleCoords[world.rand.nextInt(possibleCoords.length)];
         entity.setPositionAndUpdate(warp.posX + 0.5D, warp.posY, warp.posZ + 0.5D);
     }
 
-    public ChunkCoordinates[] getPossibleWarps(World world){
-        WorldCoordinates pos = getPos();
+    public ChunkCoordinates[] getPossibleWarps(World world) {
+        WorldCoordinates pos = this.getPos();
         ArrayList<ChunkCoordinates> warps = new ArrayList<ChunkCoordinates>();
-        for (int x = -size + pos.x; x < size + pos.x; x++){
-            for (int y = -size + pos.y; y < size + pos.y; y++){
-                for (int z = -size + pos.z; z < size + pos.z; z++){
-                    if(!world.isAirBlock(x, y - 1, z) && world.isAirBlock(x, y, z) && world.isAirBlock(x, y + 1, z))
+        for (int x = -this.size + pos.x; x < this.size + pos.x; x++) {
+            for (int y = -this.size + pos.y; y < this.size + pos.y; y++) {
+                for (int z = -this.size + pos.z; z < this.size + pos.z; z++) {
+                    if (!world.isAirBlock(x, y - 1, z) && world.isAirBlock(x, y, z) && world.isAirBlock(x, y + 1, z))
                         warps.add(new ChunkCoordinates(x, y, z));
                 }
             }

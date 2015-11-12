@@ -25,19 +25,19 @@ import java.util.Map;
 
 public final class AspectHandler {
 
+    private static final Map<Aspect, Class<? extends AspectEffect>> registeredEffects = new HashMap<Aspect, Class<? extends AspectEffect>>();
+    private static final List<AspectHandler.EffectBundle> guiEffects = new ArrayList<AspectHandler.EffectBundle>();
+    private static final Map<Aspect, Aspect[]> opposites = new HashMap<Aspect, Aspect[]>();
     private static ArrayList<Class<? extends AspectEffect>> effectsToRegister = new ArrayList<Class<? extends AspectEffect>>();
-    private static Map<Aspect, Class<? extends AspectEffect>> registeredEffects = new HashMap<Aspect, Class<? extends AspectEffect>>();
-    private static List<EffectBundle> guiEffects = new ArrayList<EffectBundle>();
-    private static Map<Aspect, Aspect[]> opposites = new HashMap<Aspect, Aspect[]>();
 
     /**
      * Registers an Effect, this has to be done during the pre-initialization
      *
      * @param effect The effect you want to register
      */
-    public static void registerEffect(Class<? extends AspectEffect> effect){
+    public static void registerEffect(Class<? extends AspectEffect> effect) {
         Logger logger = ThaumicInfusion.getLogger();
-        if(isInCorretState(LoaderState.PREINITIALIZATION)) {
+        if (AspectHandler.isInCorretState(LoaderState.PREINITIALIZATION)) {
             logger.warn("Aspect registering cannot be called outside the pre init event");
             return;
         }
@@ -47,7 +47,7 @@ public final class AspectHandler {
                 Effect annotation = effect.getAnnotation(Effect.class);
                 AspectEffect effectInstace = effect.newInstance();
 
-                if(effectsToRegister.contains(effect)){
+                if (AspectHandler.effectsToRegister.contains(effect)) {
                     logger.error("Failed to register Effect: " + annotation.aspect());
                     return;
                 }
@@ -57,10 +57,10 @@ public final class AspectHandler {
                 Configuration config = ThaumicInfusion.instance.config;
                 config.load();
                 effectInstace.readConfig(config);
-                if(effectInstace.shouldRegister() && !isDef) effectsToRegister.add(effect);
+                if (effectInstace.shouldRegister() && !isDef) AspectHandler.effectsToRegister.add(effect);
                 config.save();
 
-            }catch (Throwable e){
+            } catch (Throwable e) {
                 ThaumicInfusion.getLogger().error("Aspect: " + effect.getSimpleName() + " has caused an exception!", e);
             }
         }
@@ -69,28 +69,28 @@ public final class AspectHandler {
     /**
      * Calculates the opposites of every effect and other misc stuff required to make the mod work
      */
-    public static void postInit(){
+    public static void postInit() {
         Logger logger = ThaumicInfusion.getLogger();
-        if(isInCorretState(LoaderState.POSTINITIALIZATION)) {
+        if (AspectHandler.isInCorretState(LoaderState.POSTINITIALIZATION)) {
             logger.warn("Post Init cannot be called outside it's state");
             return;
         }
 
-        for(Class<? extends AspectEffect> effect : effectsToRegister){
+        for (Class<? extends AspectEffect> effect : AspectHandler.effectsToRegister) {
             Effect annotation = effect.getAnnotation(Effect.class);
             Aspect aspect = Aspect.getAspect(annotation.aspect().toLowerCase());
-            if(aspect != null) {
-                if (!registeredEffects.containsKey(aspect))
-                    registeredEffects.put(aspect, effect);
-            }else logger.log(Level.ERROR, "Aspect: " + annotation.aspect() + " does not exist in the instance");
+            if (aspect != null) {
+                if (!AspectHandler.registeredEffects.containsKey(aspect))
+                    AspectHandler.registeredEffects.put(aspect, effect);
+            } else logger.log(Level.ERROR, "Aspect: " + annotation.aspect() + " does not exist in the instance");
         }
 
-        for(Aspect aspect : getRegisteredAspects())
-            opposites.put(aspect, calculateEffectOpposites(aspect));
+        for (Aspect aspect : AspectHandler.getRegisteredAspects())
+            AspectHandler.opposites.put(aspect, AspectHandler.calculateEffectOpposites(aspect));
 
 
-        logger.info(registeredEffects.size() + " effects have been binded to their aspect, Failed to find: " + (effectsToRegister.size() - registeredEffects.size()) + " effects aspects.");
-        effectsToRegister = null;
+        logger.info(AspectHandler.registeredEffects.size() + " effects have been binded to their aspect, Failed to find: " + (AspectHandler.effectsToRegister.size() - AspectHandler.registeredEffects.size()) + " effects aspects.");
+        AspectHandler.effectsToRegister = null;
     }
 
     /**
@@ -100,12 +100,12 @@ public final class AspectHandler {
      * @param aspect The Aspect you want to check
      * @return The opposites of the aspect
      */
-    private static Aspect[] calculateEffectOpposites(Aspect aspect){
+    private static Aspect[] calculateEffectOpposites(Aspect aspect) {
         try {
             ArrayList<Aspect> aspects = new ArrayList<Aspect>();
-            AspectEffect effect = getEffectFromAspect(aspect).newInstance();
-            for(Aspect checking : getRegisteredAspects()){
-                for(Method method : getEffectFromAspect(checking).getDeclaredMethods()) {
+            AspectEffect effect = AspectHandler.getEffectFromAspect(aspect).newInstance();
+            for (Aspect checking : AspectHandler.getRegisteredAspects()) {
+                for (Method method : AspectHandler.getEffectFromAspect(checking).getDeclaredMethods()) {
                     if (effect.hasMethod(method.getName())) {
                         aspects.add(checking);
                         break;
@@ -121,35 +121,37 @@ public final class AspectHandler {
 
     /**
      * Internal function to ensure that the methods are called in order
+     *
      * @param state The state you want to check
      * @return Whether it is in this current state
      */
-    private static boolean isInCorretState(LoaderState state){
+    private static boolean isInCorretState(LoaderState state) {
         Loader loader = Loader.instance();
         return !loader.isInState(state) && loader.activeModContainer().getModId().matches(ModInfo.MODID);
     }
 
-    public static EffectBundle getGUI(int id){
-        for(EffectBundle bundle : guiEffects)
-            if(bundle.guiID == id) return bundle;
+    public static AspectHandler.EffectBundle getGUI(int id) {
+        for (AspectHandler.EffectBundle bundle : AspectHandler.guiEffects)
+            if (bundle.guiID == id) return bundle;
         return null;
     }
 
-    public static EffectBundle getGUI(Class<? extends AspectEffect> effect){
-        for(EffectBundle bundle : guiEffects)
-            if(bundle.effect == effect) return bundle;
+    public static AspectHandler.EffectBundle getGUI(Class<? extends AspectEffect> effect) {
+        for (AspectHandler.EffectBundle bundle : AspectHandler.guiEffects)
+            if (bundle.effect == effect) return bundle;
         return null;
     }
 
     /**
      * Used to get a list of Aspects that have GUI's
+     *
      * @return An Array of {@link Aspect} which have a gui attached to their effect
      */
-    public static Aspect[] getGUIAspects(){
+    public static Aspect[] getGUIAspects() {
         List<Aspect> aspects = new ArrayList<Aspect>();
 
-        for(Aspect aspect : getRegisteredAspects()){
-            Class<? extends AspectEffect> effect = getEffectFromAspect(aspect);
+        for (Aspect aspect : AspectHandler.getRegisteredAspects()) {
+            Class<? extends AspectEffect> effect = AspectHandler.getEffectFromAspect(aspect);
             //if(effect != null && effect.getAnnotation(Effect.class).getGUIClass() != EffectGui.class) aspects.add(aspect);
         }
         return aspects.toArray(new Aspect[aspects.size()]);
@@ -157,13 +159,14 @@ public final class AspectHandler {
 
     /**
      * Check if a number of aspect can be infused together
+     *
      * @param aspects Aspect you want to check
      * @return Are the aspect compatible with each other
      */
-    public static boolean canInfuse(Aspect[] aspects){
-        for(Aspect aspect : aspects){
-            Aspect[] opposite = opposites.get(aspect);
-            if(opposite.length > 0) {
+    public static boolean canInfuse(Aspect[] aspects) {
+        for (Aspect aspect : aspects) {
+            Aspect[] opposite = AspectHandler.opposites.get(aspect);
+            if (opposite.length > 0) {
                 for (Aspect checking : aspects) {
                     if (checking != aspect) {
                         for (Aspect checkingOpposite : opposite) {
@@ -179,11 +182,12 @@ public final class AspectHandler {
 
     /**
      * Gets the cost of an aspect, used when infusing
+     *
      * @param aspect The aspect you want the cost of
      * @return The cost of the aspect
      */
-    public static int getCostOfEffect(Aspect aspect){
-        Class<? extends AspectEffect> c = getEffectFromAspect(aspect);
+    public static int getCostOfEffect(Aspect aspect) {
+        Class<? extends AspectEffect> c = AspectHandler.getEffectFromAspect(aspect);
         try {
             return c == null || c.getAnnotation(Effect.class) == null ? -1 : c.newInstance().getCost();
         } catch (Exception e) {
@@ -198,10 +202,10 @@ public final class AspectHandler {
      * @return An Array of all the aspects that have been registered with an effect
      */
     public static Aspect[] getRegisteredAspects() {
-        Aspect[] aspects = getAllAspects();
+        Aspect[] aspects = AspectHandler.getAllAspects();
         List<Aspect> registeredAspect = new ArrayList<Aspect>();
         for (Aspect aspect : aspects) {
-            if (registeredEffects.containsKey(aspect))
+            if (AspectHandler.registeredEffects.containsKey(aspect))
                 registeredAspect.add(aspect);
         }
         return registeredAspect.toArray(new Aspect[registeredAspect.size()]);
@@ -215,13 +219,15 @@ public final class AspectHandler {
     public static Aspect[] getAllAspects() {
         return Aspect.aspects.values().toArray(new Aspect[1]);
     }
+
     /**
      * Converts an AspectEffect Class to its registered Aspect
+     *
      * @param effect The class you want the aspect of
      * @return The Aspect registered with the effect
      */
     public static Aspect getAspectsFromEffect(Class effect) {
-        if(effect.isAnnotationPresent(Effect.class)){
+        if (effect.isAnnotationPresent(Effect.class)) {
             Effect annotation = (Effect) effect.getAnnotation(Effect.class);
             return Aspect.getAspect(annotation.aspect());
         }
@@ -235,7 +241,7 @@ public final class AspectHandler {
      * @return The Aspect effect registered with the aspect
      */
     public static Class<? extends AspectEffect> getEffectFromAspect(Aspect aspects) {
-        return registeredEffects.get(aspects);
+        return AspectHandler.registeredEffects.get(aspects);
     }
 
     public static class EffectBundle {

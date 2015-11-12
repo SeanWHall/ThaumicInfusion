@@ -20,13 +20,13 @@ import thaumcraft.api.WorldCoordinates;
 import java.util.ArrayList;
 import java.util.Random;
 
-@Effect(aspect = ("vinculum"))
+@Effect(aspect = "vinculum")
 public class Vinculum extends AspectEffect {
 
     public void aspectInit(World world, WorldCoordinates pos) {
         super.aspectInit(world, pos);
-        if(!world.isRemote)
-            updateTick(world, pos.x, pos.y, pos.z, new Random());
+        if (!world.isRemote)
+            this.updateTick(world, pos.x, pos.y, pos.z, new Random());
     }
 
     @Override
@@ -39,7 +39,7 @@ public class Vinculum extends AspectEffect {
         AxisAlignedBB axisalignedbb = AxisAlignedBB.getBoundingBox(x, y, z, x + 1, y + 3, z + 1);
         ArrayList<EntityLivingBase> entities = (ArrayList<EntityLivingBase>) world.getEntitiesWithinAABB(EntityLivingBase.class, axisalignedbb);
 
-        for(EntityLivingBase ent : entities) {
+        for (EntityLivingBase ent : entities) {
             ent.motionX = 0;
             ent.motionY = 0;
             ent.motionZ = 0;

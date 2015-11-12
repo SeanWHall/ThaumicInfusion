@@ -9,7 +9,7 @@ package drunkmafia.thaumicinfusion.common.command;
 import net.minecraft.command.ServerCommandManager;
 
 public class TICommand {
-    public static void init(ServerCommandManager manager){
+    public static void init(ServerCommandManager manager) {
         manager.registerCommand(new CleanCommand());
         manager.registerCommand(new CheckInstability());
     }

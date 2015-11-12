@@ -9,7 +9,7 @@ package drunkmafia.thaumicinfusion.common.world;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class SavableHelper {
-    public static <T>T loadDataFromNBT(NBTTagCompound tag) {
+    public static <T> T loadDataFromNBT(NBTTagCompound tag) {
         if (tag == null || !tag.hasKey("class")) return null;
         try {
             Class<?> c = Class.forName(tag.getString("class"));
@@ -18,13 +18,14 @@ public class SavableHelper {
                 data.readNBT(tag);
                 return (T) data;
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         return null;
     }
 
-    public static NBTTagCompound saveDataToNBT(ISavable savable){
+    public static NBTTagCompound saveDataToNBT(ISavable savable) {
         NBTTagCompound tag = new NBTTagCompound();
-        if(savable == null) return tag;
+        if (savable == null) return tag;
         tag.setString("class", savable.getClass().getCanonicalName());
         savable.writeNBT(tag);
         return tag;

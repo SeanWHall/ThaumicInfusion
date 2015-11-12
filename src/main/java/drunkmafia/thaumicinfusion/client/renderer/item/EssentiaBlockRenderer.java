@@ -20,17 +20,17 @@ import thaumcraft.api.aspects.Aspect;
 
 public class EssentiaBlockRenderer implements IItemRenderer {
     @Override
-    public boolean handleRenderType(ItemStack item, ItemRenderType type) {
+    public boolean handleRenderType(ItemStack item, IItemRenderer.ItemRenderType type) {
         return true;
     }
 
     @Override
-    public boolean shouldUseRenderHelper(ItemRenderType type, ItemStack item, ItemRendererHelper helper) {
+    public boolean shouldUseRenderHelper(IItemRenderer.ItemRenderType type, ItemStack item, IItemRenderer.ItemRendererHelper helper) {
         return true;
     }
 
     @Override
-    public void renderItem(ItemRenderType type, ItemStack stack, Object... data) {
+    public void renderItem(IItemRenderer.ItemRenderType type, ItemStack stack, Object... data) {
         NBTTagCompound tag = stack.getTagCompound();
         if (tag == null) return;
 
@@ -46,9 +46,9 @@ public class EssentiaBlockRenderer implements IItemRenderer {
 
         GL11.glRotatef(90.0F, 0.0F, 1.0F, 0.0F);
 
-        if (type == ItemRenderType.EQUIPPED)
+        if (type == IItemRenderer.ItemRenderType.EQUIPPED)
             GL11.glTranslatef(-1.1225F, 0.05F, 0F);
-        else if (type == ItemRenderType.EQUIPPED_FIRST_PERSON)
+        else if (type == IItemRenderer.ItemRenderType.EQUIPPED_FIRST_PERSON)
             GL11.glTranslatef(-1.F, 0F, 0.05F);
         else
             GL11.glTranslatef(-0.5F, -0.5F, -0.5F);

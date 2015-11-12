@@ -34,23 +34,23 @@ public class Aer extends AspectEffect {
     public void aspectInit(World world, WorldCoordinates pos) {
         super.aspectInit(world, pos);
         if (!world.isRemote)
-            updateTick(world, pos.x, pos.y, pos.z, world.rand);
+            this.updateTick(world, pos.x, pos.y, pos.z, world.rand);
     }
 
     @OverrideBlock(overrideBlockFunc = false)
     public void updateTick(World world, int x, int y, int z, Random random) {
         world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
-        if(world.isRemote)
+        if (world.isRemote)
             return;
 
-        if(cooldown + maxCooldown < System.currentTimeMillis()) {
-            AxisAlignedBB axisalignedbb = AxisAlignedBB.getBoundingBox(pos.x, pos.y, pos.z, pos.x + 1, pos.y + 1, pos.z + 1).expand(1, 1, 1);
+        if (this.cooldown + Aer.maxCooldown < System.currentTimeMillis()) {
+            AxisAlignedBB axisalignedbb = AxisAlignedBB.getBoundingBox(this.pos.x, this.pos.y, this.pos.z, this.pos.x + 1, this.pos.y + 1, this.pos.z + 1).expand(1, 1, 1);
             List<EntityPlayer> players = world.getEntitiesWithinAABB(EntityPlayer.class, axisalignedbb);
 
             for (EntityPlayer player : players)
                 player.addPotionEffect(new PotionEffect(Potion.jump.getId(), 100));
 
-            cooldown = System.currentTimeMillis();
+            this.cooldown = System.currentTimeMillis();
         }
 
 

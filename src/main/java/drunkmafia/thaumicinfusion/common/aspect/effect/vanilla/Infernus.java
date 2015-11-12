@@ -13,7 +13,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.world.World;
 
-@Effect(aspect = ("infernus"))
+@Effect(aspect = "infernus")
 public class Infernus extends AspectEffect {
 
     @Override
@@ -23,21 +23,21 @@ public class Infernus extends AspectEffect {
 
     @OverrideBlock(overrideBlockFunc = false)
     public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity ent) {
-        setOnFire(ent);
+        this.setOnFire(ent);
     }
 
     @OverrideBlock(overrideBlockFunc = false)
     public void onFallenUpon(World world, int x, int y, int z, Entity ent, float fall) {
-        setOnFire(ent);
+        this.setOnFire(ent);
     }
 
     @OverrideBlock(overrideBlockFunc = false)
     public void onEntityWalking(World world, int x, int y, int z, Entity ent) {
-        setOnFire(ent);
+        this.setOnFire(ent);
     }
 
-    public void setOnFire(Entity ent){
-        if(!(ent instanceof EntityLivingBase))
+    public void setOnFire(Entity ent) {
+        if (!(ent instanceof EntityLivingBase))
             return;
         ent.setFire(8);
     }

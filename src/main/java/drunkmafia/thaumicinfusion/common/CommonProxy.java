@@ -14,7 +14,8 @@ public class CommonProxy implements IGuiHandler {
 
     public static boolean isClient;
 
-    public void initRenderers() {}
+    public void initRenderers() {
+    }
 
     @Override
     public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z) {

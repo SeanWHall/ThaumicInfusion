@@ -10,6 +10,6 @@ public class LuxGui extends EffectGui {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float tpf) {
-        this.drawDefaultBackground();
+        drawDefaultBackground();
     }
 }

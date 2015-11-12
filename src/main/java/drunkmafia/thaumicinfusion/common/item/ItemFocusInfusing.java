@@ -22,6 +22,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.World;
 import thaumcraft.api.WorldCoordinates;
 import thaumcraft.api.aspects.Aspect;
@@ -34,17 +35,17 @@ import java.util.List;
 
 public class ItemFocusInfusing extends ItemFocusBasic {
 
-    private static List<Block> blockblacklist = new ArrayList<Block>();
+    private static final List<Block> blockblacklist = new ArrayList<Block>();
 
-    static{
-        String[] blocks = ThaumicInfusion.instance.config.get("Block Blacklist", "Blocks that are banned from being infused", new String[] {"bedrock"}).getStringList();
-        for(String block : blocks) blockblacklist.add(Block.getBlockFromName(block));
+    static {
+        String[] blocks = ThaumicInfusion.instance.config.get("Block Blacklist", "Blocks that are banned from being infused", new String[]{"bedrock"}).getStringList();
+        for (String block : blocks) ItemFocusInfusing.blockblacklist.add(Block.getBlockFromName(block));
     }
 
-    public IIcon iconOrnament, depthIcon = null;
+    public IIcon iconOrnament, depthIcon;
 
-    public ItemFocusInfusing(){
-        this.setCreativeTab(ThaumicInfusion.instance.tab);
+    public ItemFocusInfusing() {
+        setCreativeTab(ThaumicInfusion.instance.tab);
     }
 
     public String getSortingHelper(ItemStack itemstack) {
@@ -53,18 +54,18 @@ public class ItemFocusInfusing extends ItemFocusBasic {
 
     @SideOnly(Side.CLIENT)
     public void registerIcons(IIconRegister ir) {
-        this.depthIcon = ir.registerIcon(ModInfo.MODID + ":focus_infusion_depth");
-        this.icon = ir.registerIcon(ModInfo.MODID + ":focus_infusion");
-        this.iconOrnament = ir.registerIcon(ModInfo.MODID + ":focus_infusion_orn");
+        depthIcon = ir.registerIcon(ModInfo.MODID + ":focus_infusion_depth");
+        icon = ir.registerIcon(ModInfo.MODID + ":focus_infusion");
+        iconOrnament = ir.registerIcon(ModInfo.MODID + ":focus_infusion_orn");
     }
 
     public IIcon getFocusDepthLayerIcon(ItemStack itemstack) {
-        return this.depthIcon;
+        return depthIcon;
     }
 
     @SideOnly(Side.CLIENT)
     public IIcon getIconFromDamageForRenderPass(int par1, int renderPass) {
-        return renderPass == 1?this.icon:this.iconOrnament;
+        return renderPass == 1 ? icon : iconOrnament;
     }
 
     @SideOnly(Side.CLIENT)
@@ -73,7 +74,7 @@ public class ItemFocusInfusing extends ItemFocusBasic {
     }
 
     public IIcon getOrnament(ItemStack itemstack) {
-        return this.iconOrnament;
+        return iconOrnament;
     }
 
     @Override
@@ -83,14 +84,15 @@ public class ItemFocusInfusing extends ItemFocusBasic {
 
     public ItemStack onFocusRightClick(ItemStack itemstack, World world, EntityPlayer player, MovingObjectPosition mop) {
         player.swingItem();
-        if (mop != null && mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
-            if(blockblacklist.contains(world.getBlock(mop.blockX, mop.blockY, mop.blockZ))) return itemstack;
+        if (mop != null && mop.typeOfHit == MovingObjectType.BLOCK) {
+            if (ItemFocusInfusing.blockblacklist.contains(world.getBlock(mop.blockX, mop.blockY, mop.blockZ)))
+                return itemstack;
 
             NBTTagCompound wandNBT = itemstack.getTagCompound() != null ? itemstack.getTagCompound() : new NBTTagCompound();
 
             if (!world.isRemote) {
                 Aspect aspect = wandNBT.hasKey("InfusionAspect") ? Aspect.getAspect(wandNBT.getString("InfusionAspect")) : null;
-                placeAspect(player, new WorldCoordinates(mop.blockX, mop.blockY, mop.blockZ, player.dimension), aspect);
+                this.placeAspect(player, new WorldCoordinates(mop.blockX, mop.blockY, mop.blockZ, player.dimension), aspect);
                 world.playSoundEffect((double) mop.blockX + 0.5D, (double) mop.blockY + 0.5D, (double) mop.blockZ + 0.5D, "thaumcraft:wand", 0.7F, world.rand.nextFloat() * 0.1F + 0.9F);
             }
         } else {
@@ -110,7 +112,7 @@ public class ItemFocusInfusing extends ItemFocusBasic {
                 AspectList list = new AspectList();
                 for (Aspect currentAspect : data.getAspects())
                     list.add(currentAspect, AspectHandler.getCostOfEffect(currentAspect));
-                refillJars(player, list);
+                this.refillJars(player, list);
 
                 worldData.removeData(BlockData.class, pos, true);
             }
@@ -118,22 +120,22 @@ public class ItemFocusInfusing extends ItemFocusBasic {
             BlockData data = worldData.getBlock(BlockData.class, coords);
             if (data == null) {
                 Class c = AspectHandler.getEffectFromAspect(aspect);
-                if(c == null)
+                if (c == null)
                     return;
-                if (drainAspects(player, aspect))
+                if (this.drainAspects(player, aspect))
                     data = new BlockData(coords, new Class[]{c});
-            }else{
-                for(Aspect dataAspect : data.getAspects()){
-                    if(dataAspect == aspect){
+            } else {
+                for (Aspect dataAspect : data.getAspects()) {
+                    if (dataAspect == aspect) {
                         ArrayList<Class> newAspects = new ArrayList<Class>();
-                        for(Aspect dataAspect2 : data.getAspects()){
-                            if(dataAspect2 != aspect)
+                        for (Aspect dataAspect2 : data.getAspects()) {
+                            if (dataAspect2 != aspect)
                                 newAspects.add(AspectHandler.getEffectFromAspect(dataAspect2));
                         }
 
-                        if(newAspects.size() == 0)
+                        if (newAspects.size() == 0)
                             worldData.removeData(BlockData.class, pos, true);
-                        else if(drainAspects(player, aspect)){
+                        else if (this.drainAspects(player, aspect)) {
                             worldData.removeData(BlockData.class, pos, true);
                             data = new BlockData(coords, newAspects.toArray(new Class[newAspects.size()]));
                             for (AspectEffect effect : data.getEffects())
@@ -143,7 +145,7 @@ public class ItemFocusInfusing extends ItemFocusBasic {
                         return;
                     }
                 }
-                if(drainAspects(player, aspect)) {
+                if (this.drainAspects(player, aspect)) {
                     ArrayList<Class> newAspects = new ArrayList<Class>();
                     newAspects.add(AspectHandler.getEffectFromAspect(aspect));
                     for (Aspect dataAspect : data.getAspects())
@@ -162,16 +164,16 @@ public class ItemFocusInfusing extends ItemFocusBasic {
 
     }
 
-    public boolean drainAspects(EntityPlayer player, Aspect aspect){
-        if(player.capabilities.isCreativeMode)
+    public boolean drainAspects(EntityPlayer player, Aspect aspect) {
+        if (player.capabilities.isCreativeMode)
             return true;
 
         int cost = AspectHandler.getCostOfEffect(aspect);
-        for(int x = (int) (player.posX - 10); x < player.posX + 10; x++){
-            for(int y = (int) (player.posY - 10); y < player.posY + 10; y++){
-                for(int z = (int) (player.posZ - 10); z < player.posZ + 10; z++){
+        for (int x = (int) (player.posX - 10); x < player.posX + 10; x++) {
+            for (int y = (int) (player.posY - 10); y < player.posY + 10; y++) {
+                for (int z = (int) (player.posZ - 10); z < player.posZ + 10; z++) {
                     TileEntity tileEntity = player.worldObj.getTileEntity(x, y, z);
-                    if(tileEntity instanceof IAspectSource){
+                    if (tileEntity instanceof IAspectSource) {
                         IAspectSource source = (IAspectSource) tileEntity;
                         if (source.doesContainerContainAmount(aspect, cost)) {
                             source.takeFromContainer(aspect, cost);

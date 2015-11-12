@@ -36,17 +36,19 @@ public class BlockSyncPacketC implements IMessage {
         try {
             NBTTagCompound tag = new PacketBuffer(buf).readNBTTagCompoundFromBuffer();
             if (tag != null) {
-                data = SavableHelper.loadDataFromNBT(tag);
+                this.data = SavableHelper.loadDataFromNBT(tag);
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
         try {
-            if (data != null)
-                new PacketBuffer(buf).writeNBTTagCompoundToBuffer(SavableHelper.saveDataToNBT(data));
-        } catch (Exception e) {}
+            if (this.data != null)
+                new PacketBuffer(buf).writeNBTTagCompoundToBuffer(SavableHelper.saveDataToNBT(this.data));
+        } catch (Exception e) {
+        }
     }
 
     public static class Handler implements IMessageHandler<BlockSyncPacketC, IMessage> {

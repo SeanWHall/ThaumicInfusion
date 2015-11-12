@@ -14,7 +14,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import thaumcraft.api.WorldCoordinates;
 
-@Effect(aspect = ("lux"))
+@Effect(aspect = "lux")
 public class Lux extends AspectEffect {
 
     @Override
@@ -37,11 +37,11 @@ public class Lux extends AspectEffect {
     @OverrideBlock(overrideBlockFunc = false)
     public void onBlockAdded(World world, int x, int y, int z) {
         if (world.isRemote)
-            Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.x, pos.y, pos.z);
+            Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(this.pos.x, this.pos.y, this.pos.z);
     }
 
     @OverrideBlock
-    public int getLightValue(IBlockAccess world, int x, int y, int z){
+    public int getLightValue(IBlockAccess world, int x, int y, int z) {
         return 14;
     }
 }

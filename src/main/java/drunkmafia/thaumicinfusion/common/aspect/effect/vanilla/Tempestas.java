@@ -18,14 +18,14 @@ import thaumcraft.api.WorldCoordinates;
 
 import java.util.Random;
 
-@Effect(aspect = ("tempestas"))
+@Effect(aspect = "tempestas")
 public class Tempestas extends AspectEffect {
 
     @OverrideBlock(overrideBlockFunc = false)
     public void aspectInit(World world, WorldCoordinates pos) {
         super.aspectInit(world, pos);
-        if(!world.isRemote)
-            updateTick(world, pos.x, pos.y, pos.z, new Random());
+        if (!world.isRemote)
+            this.updateTick(world, pos.x, pos.y, pos.z, new Random());
     }
 
     @Override
@@ -35,7 +35,7 @@ public class Tempestas extends AspectEffect {
 
     @OverrideBlock(overrideBlockFunc = false)
     public void updateTick(World world, int x, int y, int z, Random rand) {
-        if(world.isRaining() && world.canBlockSeeTheSky(x, y, z))
+        if (world.isRaining() && world.canBlockSeeTheSky(x, y, z))
             if (rand.nextInt(50) == rand.nextInt(50))
                 world.spawnEntityInWorld(new EntityLightningBolt(world, x, y + 1, z));
         world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 50);

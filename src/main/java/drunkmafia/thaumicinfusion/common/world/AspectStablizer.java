@@ -5,7 +5,6 @@ import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.aspect.effect.vanilla.Praecantatio;
 import drunkmafia.thaumicinfusion.common.world.data.BlockData;
 import drunkmafia.thaumicinfusion.common.world.data.BlockSavable;
-import jdk.nashorn.internal.ir.Block;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -20,50 +19,51 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AspectStablizer implements Runnable {
 
-    private Logger log = LogManager.getLogger("Aspect Stablizer Thread");
-    private AtomicBoolean running = new AtomicBoolean(true), die = new AtomicBoolean(false);
-
     //Tick rate is configurable, this will allow server owners/single-players to mess around with this depending on the performance.
     //A higher tick rate wont cause infusions to degrade faster, it will mean that they are checked more regularly and so will be removed faster.
-    private static int tickRate = 60, tick = tickRate, jarRadius = 10;
-
+    private static final int tickRate = 60;
+    private static final int jarRadius = 10;
     public static int dataExistedFor = 600;
+    private static int tick = AspectStablizer.tickRate;
+    private final Logger log = LogManager.getLogger("Aspect Stablizer Thread");
+    private final AtomicBoolean running = new AtomicBoolean(true);
+    private final AtomicBoolean die = new AtomicBoolean(false);
+    private final WorldServer[] worlds;
 
-    private WorldServer[] worlds;
-
-    public AspectStablizer(WorldServer[] worlds){
+    public AspectStablizer(WorldServer[] worlds) {
         this.worlds = worlds;
     }
 
     @Override
     public void run() {
-        log.info("--- Thaumic Infusions Thread is Running ---");
-        while(!die.get()) {
-            if (running.get()){
-                if(tick == 0) {
-                    for (WorldServer server : worlds) {
+        this.log.info("--- Thaumic Infusions Thread is Running ---");
+        while (!this.die.get()) {
+            if (this.running.get()) {
+                if (AspectStablizer.tick == 0) {
+                    for (WorldServer server : this.worlds) {
                         TIWorldData worldData = TIWorldData.getWorldData(server);
                         if (worldData == null) continue;
 
-                        for(ChunkData chunk : worldData.chunkDatas.getValues()){
-                            if(chunk == null) continue;
+                        for (ChunkData chunk : worldData.chunkDatas.getValues()) {
+                            if (chunk == null) continue;
 
-                            for(BlockSavable savable : chunk.getAllBlocks()) {
+                            for (BlockSavable savable : chunk.getAllBlocks()) {
                                 if (!(savable instanceof BlockData)) continue;
 
                                 BlockData data = (BlockData) savable;
-                                if (data.ticksExisted > dataExistedFor) {
+                                if (data.ticksExisted > AspectStablizer.dataExistedFor) {
                                     worldData.surveyPosition = data.getCoords();
                                     for (AspectEffect effect : data.getEffects()) {
-                                        if(!effect.shouldDrain()) continue;
+                                        if (!effect.shouldDrain()) continue;
 
-                                        if (!drainAspects(server, data.getCoords().x, data.getCoords().y, data.getCoords().z, AspectHandler.getAspectsFromEffect(effect.getClass()))) {
+                                        if (!this.drainAspects(server, data.getCoords().x, data.getCoords().y, data.getCoords().z, AspectHandler.getAspectsFromEffect(effect.getClass()))) {
                                             chunk.instability++;
-                                            if(chunk.instability > 100)
+                                            if (chunk.instability > 100)
                                                 worldData.world.setBlock(data.getCoords().x, data.getCoords().y, data.getCoords().z, ConfigBlocks.blockFluxGoo);
                                             data.removeEffect(effect.getClass());
-                                            if(data.getEffects().length == 0) worldData.removeData(BlockData.class, data.getCoords(), true);
-                                        }else if(chunk.instability > 0) chunk.instability--;
+                                            if (data.getEffects().length == 0)
+                                                worldData.removeData(BlockData.class, data.getCoords(), true);
+                                        } else if (chunk.instability > 0) chunk.instability--;
                                     }
 
                                     worldData.surveyPosition = null;
@@ -72,27 +72,26 @@ public class AspectStablizer implements Runnable {
                             }
                         }
                     }
-                    tick = tickRate;
-                }else{
-                    for (WorldServer server : worlds) {
+                    AspectStablizer.tick = AspectStablizer.tickRate;
+                } else {
+                    for (WorldServer server : this.worlds) {
                         TIWorldData worldData = TIWorldData.getWorldData(server);
                         if (worldData == null) continue;
 
-                        for(ChunkData chunk : worldData.chunkDatas.getValues()) {
+                        for (ChunkData chunk : worldData.chunkDatas.getValues()) {
                             if (chunk == null) continue;
 
-                            for(BlockSavable savable : chunk.getAllBlocks()){
-                                if (savable instanceof BlockData) ((BlockData)savable).ticksExisted++;
+                            for (BlockSavable savable : chunk.getAllBlocks()) {
+                                if (savable instanceof BlockData) ((BlockData) savable).ticksExisted++;
                             }
                         }
                     }
-
-                    tick--;
+                    AspectStablizer.tick--;
                 }
-                running.set(false);
+                this.running.set(false);
             }
         }
-        log.info("--- Thaumic Infusions Thread has Stopped ---");
+        this.log.info("--- Thaumic Infusions Thread has Stopped ---");
     }
 
     public boolean drainAspects(World world, int xCoord, int yCoord, int zCoord, Aspect aspect) {
@@ -119,7 +118,7 @@ public class AspectStablizer implements Runnable {
         return false;
     }
 
-    public void setFlags(boolean running, boolean die){
+    public void setFlags(boolean running, boolean die) {
         this.running.set(running);
         this.die.set(die);
     }

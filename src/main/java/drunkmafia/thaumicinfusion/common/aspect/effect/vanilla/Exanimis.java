@@ -23,13 +23,13 @@ import java.util.Random;
 @Effect(aspect = "exanimis")
 public class Exanimis extends AspectEffect {
 
-    private List<String> deadPlayers = new ArrayList<String>();
+    private final List<String> deadPlayers = new ArrayList<String>();
 
     @Override
     public void aspectInit(World world, WorldCoordinates pos) {
         super.aspectInit(world, pos);
         if (!world.isRemote)
-            updateTick(world, pos.x, pos.y, pos.z, world.rand);
+            this.updateTick(world, pos.x, pos.y, pos.z, world.rand);
     }
 
     @Override
@@ -40,22 +40,22 @@ public class Exanimis extends AspectEffect {
     @OverrideBlock(overrideBlockFunc = false)
     public void updateTick(World world, int x, int y, int z, Random random) {
         world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
-        if(world.isRemote)
+        if (world.isRemote)
             return;
 
-        for(int i = 0; i < deadPlayers.size(); i++){
-            EntityPlayer player = world.getPlayerEntityByName(deadPlayers.get(i));
-            if(player != null && !player.isDead){
-                deadPlayers.remove(i);
-                player.setPositionAndUpdate(pos.x + 0.5F, pos.y + 1F, pos.z + 0.5F);
+        for (int i = 0; i < this.deadPlayers.size(); i++) {
+            EntityPlayer player = world.getPlayerEntityByName(this.deadPlayers.get(i));
+            if (player != null && !player.isDead) {
+                this.deadPlayers.remove(i);
+                player.setPositionAndUpdate(this.pos.x + 0.5F, this.pos.y + 1F, this.pos.z + 0.5F);
             }
         }
 
-        AxisAlignedBB bb = AxisAlignedBB.getBoundingBox(pos.x, pos.y, pos.z, pos.x + 1, pos.y + 2, pos.z + 1);
+        AxisAlignedBB bb = AxisAlignedBB.getBoundingBox(this.pos.x, this.pos.y, this.pos.z, this.pos.x + 1, this.pos.y + 2, this.pos.z + 1);
         ArrayList<EntityPlayer> ents = (ArrayList<EntityPlayer>) world.getEntitiesWithinAABB(EntityPlayer.class, bb);
-        for(EntityPlayer ent : ents)
-            if(ent.isDead && !deadPlayers.contains(ent.getCommandSenderName()))
-                deadPlayers.add(ent.getCommandSenderName());
+        for (EntityPlayer ent : ents)
+            if (ent.isDead && !this.deadPlayers.contains(ent.getCommandSenderName()))
+                this.deadPlayers.add(ent.getCommandSenderName());
     }
 
     @OverrideBlock(overrideBlockFunc = false)

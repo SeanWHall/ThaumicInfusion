@@ -30,7 +30,7 @@ import thaumcraft.api.aspects.Aspect;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 
 import static drunkmafia.thaumicinfusion.common.lib.BlockInfo.*;
 
@@ -43,11 +43,11 @@ public class EssentiaBlock extends Block {
 
     public EssentiaBlock() {
         super(Material.rock);
-        setCreativeTab(ThaumicInfusion.instance.tab);
-        setBlockName(essentiaBlock_UnlocalizedName);
-        setHardness(1.5F);
-        setLightLevel(1F);
-        setResistance(10.0F);
+        this.setCreativeTab(ThaumicInfusion.instance.tab);
+        this.setBlockName(essentiaBlock_UnlocalizedName);
+        this.setHardness(1.5F);
+        this.setLightLevel(1F);
+        this.setResistance(10.0F);
     }
 
     public static ItemStack getEssentiaBlock(Aspect aspect, int meta) {
@@ -56,22 +56,22 @@ public class EssentiaBlock extends Block {
         ItemStack stack = new ItemStack(TIBlocks.essentiaBlock);
         stack.setItemDamage(meta);
         stack.setTagCompound(tag);
-        stack.setStackDisplayName(aspect.getName() + (meta != 0 ? (meta == 1 ? ThaumicInfusion.translate("key.essentiaBlock.brick") : ThaumicInfusion.translate("key.essentiaBlock.chiseled")) : ""));
+        stack.setStackDisplayName(aspect.getName() + (meta != 0 ? meta == 1 ? ThaumicInfusion.translate("key.essentiaBlock.brick") : ThaumicInfusion.translate("key.essentiaBlock.chiseled") : ""));
         return stack;
     }
 
     @Override
     public void getSubBlocks(Item item, CreativeTabs tab, List list) {
         Object[] objs = Aspect.aspects.entrySet().toArray();
-        for(Object obj : objs){
-            for(int i = 0; i <= 2; i++) {
+        for (Object obj : objs) {
+            for (int i = 0; i <= 2; i++) {
                 NBTTagCompound tag = new NBTTagCompound();
-                Aspect aspect = (Aspect) ((Map.Entry) obj).getValue();
+                Aspect aspect = (Aspect) ((Entry) obj).getValue();
                 tag.setString("aspectTag", aspect.getTag());
                 ItemStack stack = new ItemStack(this);
                 stack.setItemDamage(i);
                 stack.setTagCompound(tag);
-                stack.setStackDisplayName(aspect.getName() + (i != 0 ? (i == 1 ? " Brick" : " chiseled") : ""));
+                stack.setStackDisplayName(aspect.getName() + (i != 0 ? i == 1 ? " Brick" : " chiseled" : ""));
                 list.add(stack);
             }
         }
@@ -80,25 +80,28 @@ public class EssentiaBlock extends Block {
     @Override
     @SideOnly(Side.CLIENT)
     public void registerBlockIcons(IIconRegister icon) {
-        blockIcon = icon.registerIcon(essentiaBlock_BlockTexture);
-        brick = icon.registerIcon(essentiaBlock_BrickTexture);
-        squarebrick = icon.registerIcon(essentiaBlock_SquareTexture);
+        this.blockIcon = icon.registerIcon(essentiaBlock_BlockTexture);
+        this.brick = icon.registerIcon(essentiaBlock_BrickTexture);
+        this.squarebrick = icon.registerIcon(essentiaBlock_SquareTexture);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon(int side, int meta) {
-        switch (meta){
-            case 1: return brick;
-            case 2: return squarebrick;
-            default: return blockIcon;
+        switch (meta) {
+            case 1:
+                return this.brick;
+            case 2:
+                return this.squarebrick;
+            default:
+                return this.blockIcon;
         }
     }
 
     @Override
     public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z, EntityPlayer player) {
         TIWorldData worldData = TIWorldData.getWorldData(world);
-        if(worldData != null) {
+        if (worldData != null) {
             EssentiaData data = worldData.getBlock(EssentiaData.class, new WorldCoordinates(x, y, z, player.dimension));
             if (data != null) {
                 int meta = world.getBlockMetadata(x, y, z);
@@ -108,7 +111,7 @@ public class EssentiaBlock extends Block {
                 Aspect aspect = data.getAspect();
                 tagCompound.setString("aspectTag", aspect.getTag());
                 stack.setTagCompound(tagCompound);
-                stack.setStackDisplayName(aspect.getName() + (meta != 0 ? (meta == 1 ? " Brick" : " chiseled") : ""));
+                stack.setStackDisplayName(aspect.getName() + (meta != 0 ? meta == 1 ? " Brick" : " chiseled" : ""));
 
                 return stack;
             }
@@ -123,14 +126,14 @@ public class EssentiaBlock extends Block {
 
         world.setBlockMetadataWithNotify(coord.x, coord.y, coord.z, stack.getItemDamage(), 3);
         NBTTagCompound tagCompound = stack.getTagCompound();
-        if(tagCompound != null && worldData != null)
+        if (tagCompound != null && worldData != null)
             worldData.addBlock(new EssentiaData(coord, Aspect.getAspect(tagCompound.getString("aspectTag"))));
     }
 
     @Override
     public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune) {
         TIWorldData worldData = TIWorldData.getWorldData(world);
-        if(worldData != null) {
+        if (worldData != null) {
             EssentiaData data = worldData.getBlock(EssentiaData.class, new WorldCoordinates(x, y, z, world.provider.dimensionId));
 
             int meta = world.getBlockMetadata(x, y, z);
@@ -140,7 +143,7 @@ public class EssentiaBlock extends Block {
             Aspect aspect = data.getAspect();
             tagCompound.setString("aspectTag", aspect.getTag());
             stack.setTagCompound(tagCompound);
-            stack.setStackDisplayName(aspect.getName() + (meta != 0 ? (meta == 1 ? " Brick" : " chiseled") : ""));
+            stack.setStackDisplayName(aspect.getName() + (meta != 0 ? meta == 1 ? " Brick" : " chiseled" : ""));
 
             ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
             stacks.add(stack);
@@ -150,24 +153,26 @@ public class EssentiaBlock extends Block {
     }
 
     @Override
-    public void harvestBlock(World world, EntityPlayer player, int x, int y, int z, int id) {}
+    public void harvestBlock(World world, EntityPlayer player, int x, int y, int z, int id) {
+    }
 
     @Override
     public void onBlockPreDestroy(World world, int x, int y, int z, int meta) {
         if (!world.isRemote) {
             TIWorldData worldData = TIWorldData.getWorldData(world);
-            if(worldData != null) worldData.removeData(EssentiaData.class, new WorldCoordinates(x, y, z, world.provider.dimensionId), true);
+            if (worldData != null)
+                worldData.removeData(EssentiaData.class, new WorldCoordinates(x, y, z, world.provider.dimensionId), true);
         }
     }
 
     @SideOnly(Side.CLIENT)
-    public int colorMultiplier(IBlockAccess access, int x, int y, int z){
+    public int colorMultiplier(IBlockAccess access, int x, int y, int z) {
         TIWorldData worldData = TIWorldData.getWorldData(TIWorldData.getWorld(access));
-        if(worldData == null) return getBlockColor();
+        if (worldData == null) return this.getBlockColor();
 
         EssentiaData data = worldData.getBlock(EssentiaData.class, new WorldCoordinates(x, y, z, Minecraft.getMinecraft().thePlayer.dimension));
-        if(data == null || data.getAspect() == null)
-            return getBlockColor();
+        if (data == null || data.getAspect() == null)
+            return this.getBlockColor();
         return data.getAspect().getColor();
     }
 }

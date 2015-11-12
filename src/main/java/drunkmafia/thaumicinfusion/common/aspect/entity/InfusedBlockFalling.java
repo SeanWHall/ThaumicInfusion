@@ -22,124 +22,121 @@ public class InfusedBlockFalling extends Entity {
     public TileEntity tileEntity;
     public int meta, blockCount, id;
 
-    public InfusedBlockFalling(World world){
+    public InfusedBlockFalling(World world) {
         super(world);
     }
 
-    public InfusedBlockFalling(World world, double x, double y, double z, int id, int meta, TileEntity tileEntity)
-    {
+    public InfusedBlockFalling(World world, double x, double y, double z, int id, int meta, TileEntity tileEntity) {
         super(world);
         this.id = id;
         this.meta = meta;
         this.tileEntity = tileEntity;
-        this.preventEntitySpawning = true;
-        this.setSize(0.98F, 0.98F);
-        this.yOffset = this.height / 2.0F;
-        this.setPosition(x, y, z);
-        this.motionX = 0.0D;
-        this.motionY = 0.0D;
-        this.motionZ = 0.0D;
-        this.prevPosX = x;
-        this.prevPosY = z;
-        this.prevPosZ = y;
+        preventEntitySpawning = true;
+        setSize(0.98F, 0.98F);
+        yOffset = height / 2.0F;
+        setPosition(x, y, z);
+        motionX = 0.0D;
+        motionY = 0.0D;
+        motionZ = 0.0D;
+        prevPosX = x;
+        prevPosY = z;
+        prevPosZ = y;
     }
 
-    protected boolean canTriggerWalking()
-    {
+    protected boolean canTriggerWalking() {
         return false;
     }
 
-    protected void entityInit() {}
+    protected void entityInit() {
+    }
 
     public boolean canBeCollidedWith() {
-        return !this.isDead;
+        return !isDead;
     }
 
     public void onUpdate() {
-        this.prevPosX = this.posX;
-        this.prevPosY = this.posY;
-        this.prevPosZ = this.posZ;
-        ++this.blockCount;
-        this.motionY -= 0.03999999910593033D;
-        this.moveEntity(this.motionX, this.motionY, this.motionZ);
-        this.motionX *= 0.9800000190734863D;
-        this.motionY *= 0.9800000190734863D;
-        this.motionZ *= 0.9800000190734863D;
+        prevPosX = posX;
+        prevPosY = posY;
+        prevPosZ = posZ;
+        ++blockCount;
+        motionY -= 0.03999999910593033D;
+        moveEntity(motionX, motionY, motionZ);
+        motionX *= 0.9800000190734863D;
+        motionY *= 0.9800000190734863D;
+        motionZ *= 0.9800000190734863D;
 
-        if (!this.worldObj.isRemote)
-        {
-            int x = MathHelper.floor_double(this.posX);
-            int y = MathHelper.floor_double(this.posY);
-            int z = MathHelper.floor_double(this.posZ);
+        if (!worldObj.isRemote) {
+            int x = MathHelper.floor_double(posX);
+            int y = MathHelper.floor_double(posY);
+            int z = MathHelper.floor_double(posZ);
 
-            if (this.onGround) {
-                this.motionX *= 0.699999988079071D;
-                this.motionZ *= 0.699999988079071D;
-                this.motionY *= -0.5D;
+            if (onGround) {
+                motionX *= 0.699999988079071D;
+                motionZ *= 0.699999988079071D;
+                motionY *= -0.5D;
 
-                if (this.worldObj.getBlock(x, y, z) != Blocks.piston_extension)
-                {
-                    this.setDead();
+                if (worldObj.getBlock(x, y, z) != Blocks.piston_extension) {
+                    setDead();
 
-                    if (this.worldObj.canPlaceEntityOnSide(Block.getBlockById(id), x, y, z, true, 1, null, null) && !BlockFalling.func_149831_e(this.worldObj, x, y - 1, z)) {
-                        worldObj.setBlock(x, y, z, Block.getBlockById(id), meta, 3);
-                        if (tileEntity != null) {
-                            tileEntity.xCoord = x;
-                            tileEntity.yCoord = y;
-                            tileEntity.zCoord = z;
-                            tileEntity.setWorldObj(worldObj);
+                    if (worldObj.canPlaceEntityOnSide(Block.getBlockById(this.id), x, y, z, true, 1, null, null) && !BlockFalling.func_149831_e(worldObj, x, y - 1, z)) {
+                        this.worldObj.setBlock(x, y, z, Block.getBlockById(this.id), this.meta, 3);
+                        if (this.tileEntity != null) {
+                            this.tileEntity.xCoord = x;
+                            this.tileEntity.yCoord = y;
+                            this.tileEntity.zCoord = z;
+                            this.tileEntity.setWorldObj(this.worldObj);
 
-                            if (worldObj.getTileEntity(x, y, z) != null) {
+                            if (this.worldObj.getTileEntity(x, y, z) != null) {
                                 NBTTagCompound tileTag = new NBTTagCompound();
-                                tileEntity.writeToNBT(tileTag);
-                                worldObj.getTileEntity(x, y, z).readFromNBT(tileTag);
+                                this.tileEntity.writeToNBT(tileTag);
+                                this.worldObj.getTileEntity(x, y, z).readFromNBT(tileTag);
                             } else {
-                                worldObj.setTileEntity(x, y, z, tileEntity);
+                                this.worldObj.setTileEntity(x, y, z, this.tileEntity);
                             }
                         }
                     } else
-                        dropAsItem(x, y, z);
+                        this.dropAsItem(x, y, z);
                 }
-            } else if (this.blockCount > 100 && !this.worldObj.isRemote && (y < 1 || y > 256) || this.blockCount > 600) {
-                dropAsItem(x, y, z);
-                this.setDead();
+            } else if (blockCount > 100 && !worldObj.isRemote && (y < 1 || y > 256) || blockCount > 600) {
+                this.dropAsItem(x, y, z);
+                setDead();
             }
         }
     }
 
-    public void dropAsItem(int x, int y, int z){
+    public void dropAsItem(int x, int y, int z) {
         float f = 0.7F;
-        double tempX = worldObj.rand.nextFloat() * f + (double) (1.0F - f) * 0.5D + x;
-        double tempY = worldObj.rand.nextFloat() * f + (double) (1.0F - f) * 0.5D + y;
-        double tempZ = worldObj.rand.nextFloat() * f + (double) (1.0F - f) * 0.5D + z;
+        double tempX = this.worldObj.rand.nextFloat() * f + (double) (1.0F - f) * 0.5D + x;
+        double tempY = this.worldObj.rand.nextFloat() * f + (double) (1.0F - f) * 0.5D + y;
+        double tempZ = this.worldObj.rand.nextFloat() * f + (double) (1.0F - f) * 0.5D + z;
 
-        EntityItem entityitem = new EntityItem(worldObj, tempX, tempY, tempZ, new ItemStack(Block.getBlockById(id), 1, meta));
+        EntityItem entityitem = new EntityItem(this.worldObj, tempX, tempY, tempZ, new ItemStack(Block.getBlockById(this.id), 1, this.meta));
 
         entityitem.delayBeforeCanPickup = 10;
-        worldObj.spawnEntityInWorld(entityitem);
+        this.worldObj.spawnEntityInWorld(entityitem);
     }
 
 
-    protected void writeEntityToNBT(NBTTagCompound nbt){
-        nbt.setInteger("blockID", id);
-        nbt.setInteger("blockMETA", meta);
+    protected void writeEntityToNBT(NBTTagCompound nbt) {
+        nbt.setInteger("blockID", this.id);
+        nbt.setInteger("blockMETA", this.meta);
 
-        if (tileEntity != null) {
+        if (this.tileEntity != null) {
             NBTTagCompound tileTag = new NBTTagCompound();
-            tileEntity.writeToNBT(tileTag);
+            this.tileEntity.writeToNBT(tileTag);
             nbt.setTag("tileTAG", tileTag);
         }
     }
 
     protected void readEntityFromNBT(NBTTagCompound nbt) {
-        id = nbt.getInteger("blockID");
-        meta = nbt.getInteger("blockMETA");
+        this.id = nbt.getInteger("blockID");
+        this.meta = nbt.getInteger("blockMETA");
 
         if (nbt.hasKey("tileTAG"))
-            tileEntity = TileEntity.createAndLoadEntity(nbt.getCompoundTag("tileTAG"));
+            this.tileEntity = TileEntity.createAndLoadEntity(nbt.getCompoundTag("tileTAG"));
     }
 
-    public int getMetaData(){
-        return this.meta;
+    public int getMetaData() {
+        return meta;
     }
 }

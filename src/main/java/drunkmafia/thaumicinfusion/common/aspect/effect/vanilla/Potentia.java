@@ -26,7 +26,7 @@ public class Potentia extends AspectEffect {
 
     @Override
     public int isProvidingStrongPower(IBlockAccess access, int x, int y, int z, int side) {
-        return isProvidingWeakPower(access, x, y, z, side);
+        return this.isProvidingWeakPower(access, x, y, z, side);
     }
 
     @OverrideBlock

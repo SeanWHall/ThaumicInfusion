@@ -8,7 +8,7 @@ public class Node {
     private double h;
     private Node opt_parent;
     private Point point;
-    private NodeType nodetype = NodeType.EMPTY;
+    private Node.NodeType nodetype = Node.NodeType.EMPTY;
     private Node nw;
     private Node ne;
     private Node sw;
@@ -16,7 +16,7 @@ public class Node {
 
     /**
      * Constructs a new quad tree node.
-     *
+     * <p/>
      * {@param double} x X-coordiate of node.
      * {@param double} y Y-coordinate of node.
      * {@param double} w Width of node.
@@ -32,7 +32,7 @@ public class Node {
     }
 
     public double getX() {
-        return x;
+        return this.x;
     }
 
     public void setX(double x) {
@@ -40,7 +40,7 @@ public class Node {
     }
 
     public double getY() {
-        return y;
+        return this.y;
     }
 
     public void setY(double y) {
@@ -48,7 +48,7 @@ public class Node {
     }
 
     public double getW() {
-        return w;
+        return this.w;
     }
 
     public void setW(double w) {
@@ -56,7 +56,7 @@ public class Node {
     }
 
     public double getH() {
-        return h;
+        return this.h;
     }
 
     public void setH(double h) {
@@ -64,64 +64,64 @@ public class Node {
     }
 
     public Node getParent() {
-        return opt_parent;
+        return this.opt_parent;
     }
 
     public void setParent(Node opt_parent) {
         this.opt_parent = opt_parent;
     }
 
+    public Point getPoint() {
+        return point;
+    }
+
     public void setPoint(Point point) {
         this.point = point;
     }
 
-    public Point getPoint() {
-        return this.point;
+    public Node.NodeType getNodeType() {
+        return nodetype;
     }
 
-    public void setNodeType(NodeType nodetype) {
+    public void setNodeType(Node.NodeType nodetype) {
         this.nodetype = nodetype;
     }
 
-    public NodeType getNodeType() {
-        return this.nodetype;
-    }
-
-
-    public void setNw(Node nw) {
-        this.nw = nw;
+    public Node getNe() {
+        return this.ne;
     }
 
     public void setNe(Node ne) {
         this.ne = ne;
     }
 
+    public Node getNw() {
+        return this.nw;
+    }
+
+    public void setNw(Node nw) {
+        this.nw = nw;
+    }
+
+    public Node getSw() {
+        return this.sw;
+    }
+
     public void setSw(Node sw) {
         this.sw = sw;
+    }
+
+    public Node getSe() {
+        return this.se;
     }
 
     public void setSe(Node se) {
         this.se = se;
     }
 
-    public Node getNe() {
-        return ne;
-    }
-
-    public Node getNw() {
-        return nw;
-    }
-
-    public Node getSw() {
-        return sw;
-    }
-
-    public Node getSe() {
-        return se;
-    }
-
     /**
      * Enumeration of node types.
+     *
      * @enum {number}
      */
     public enum NodeType {

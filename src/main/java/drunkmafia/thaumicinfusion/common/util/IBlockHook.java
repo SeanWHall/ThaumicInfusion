@@ -10,6 +10,7 @@ import net.minecraft.block.Block;
 
 public interface IBlockHook {
     int[] hookMethods(Block block);
+
     Block getBlock(int method);
 
     boolean shouldOverride(int method);

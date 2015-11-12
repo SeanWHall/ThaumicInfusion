@@ -3,15 +3,10 @@ package drunkmafia.thaumicinfusion.common.command;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.world.ChunkData;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
-import drunkmafia.thaumicinfusion.common.world.data.BlockSavable;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.ChunkCoordIntPair;
-import net.minecraft.world.World;
-
-import java.util.ArrayList;
 
 public class CheckInstability extends CommandBase {
 

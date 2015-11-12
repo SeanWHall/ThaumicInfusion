@@ -26,7 +26,7 @@ public class ClientProxy extends CommonProxy {
 
     @Override
     public void initRenderers() {
-        isClient = true;
+        CommonProxy.isClient = true;
 
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(TIBlocks.essentiaBlock), new EssentiaBlockRenderer());
         RenderingRegistry.registerEntityRenderingHandler(InfusedBlockFalling.class, new InfusedBlockFallingRenderer());

@@ -14,26 +14,27 @@ public class EssentiaData extends BlockSavable {
 
     private Aspect aspect;
 
-    public EssentiaData(){}
+    public EssentiaData() {
+    }
 
     public EssentiaData(WorldCoordinates coordinates, Aspect aspect) {
         super(coordinates);
         this.aspect = aspect;
     }
 
-    public Aspect getAspect(){
-        return aspect;
+    public Aspect getAspect() {
+        return this.aspect;
     }
 
     @Override
     public void readNBT(NBTTagCompound tagCompound) {
         super.readNBT(tagCompound);
-        aspect = Aspect.getAspect(tagCompound.getString("aspectTag"));
+        this.aspect = Aspect.getAspect(tagCompound.getString("aspectTag"));
     }
 
     @Override
     public void writeNBT(NBTTagCompound tagCompound) {
         super.writeNBT(tagCompound);
-        tagCompound.setString("aspectTag", aspect.getTag());
+        tagCompound.setString("aspectTag", this.aspect.getTag());
     }
 }

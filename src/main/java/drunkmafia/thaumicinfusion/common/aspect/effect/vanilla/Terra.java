@@ -22,7 +22,7 @@ import thaumcraft.api.WorldCoordinates;
 import java.util.Random;
 
 @Effect(aspect = "terra")
-public class Terra extends AspectEffect{
+public class Terra extends AspectEffect {
 
     @Override
     public void aspectInit(World world, WorldCoordinates pos) {
@@ -40,7 +40,7 @@ public class Terra extends AspectEffect{
     public void updateTick(World world, int x, int y, int z, Random random) {
         world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
 
-        WorldCoordinates pos = getPos();
+        WorldCoordinates pos = this.getPos();
         if (!world.isAirBlock(pos.x, pos.y, pos.z) && world.isAirBlock(pos.x, pos.y - 1, pos.z)) {
             InfusedBlockFalling entity = new InfusedBlockFalling(world, (double) ((float) pos.x + 0.5F), (double) ((float) pos.y + 0.5F), (double) ((float) pos.z + 0.5F), Block.getIdFromBlock(world.getBlock(pos.x, pos.y, pos.z)), world.getBlockMetadata(pos.x, pos.y, pos.z), world.getTileEntity(pos.x, pos.y, pos.z));
 

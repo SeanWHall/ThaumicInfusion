@@ -13,7 +13,7 @@ import thaumcraft.api.WorldCoordinates;
 
 public class BlockSavable implements ISavable {
 
-    public boolean init = false;
+    public boolean init;
     protected WorldCoordinates coordinates;
 
     public BlockSavable() {
@@ -23,28 +23,28 @@ public class BlockSavable implements ISavable {
         this.coordinates = coordinates;
     }
 
-    public void dataLoad(World world){
-        init = true;
+    public void dataLoad(World world) {
+        this.init = true;
     }
 
-    public boolean isInit(){
-        return init;
+    public boolean isInit() {
+        return this.init;
     }
 
     public WorldCoordinates getCoords() {
-        return coordinates;
+        return this.coordinates;
     }
 
     public void setCoords(WorldCoordinates newPos) {
-        coordinates = newPos;
+        this.coordinates = newPos;
     }
 
     public void writeNBT(NBTTagCompound tagCompound) {
-        coordinates.writeNBT(tagCompound);
+        this.coordinates.writeNBT(tagCompound);
     }
 
     public void readNBT(NBTTagCompound tagCompound) {
-        coordinates = new WorldCoordinates();
-        coordinates.readNBT(tagCompound);
+        this.coordinates = new WorldCoordinates();
+        this.coordinates.readNBT(tagCompound);
     }
 }

@@ -9,11 +9,11 @@ public class EffectGui extends TIGui {
     protected AspectEffect effect;
     protected int x, y, z;
 
-    public EffectGui(AspectEffect effect){
+    public EffectGui(AspectEffect effect) {
         this.effect = effect;
         WorldCoordinates pos = effect.getPos();
-        this.x = pos.x;
-        this.y = pos.y;
-        this.z = pos.z;
+        x = pos.x;
+        y = pos.y;
+        z = pos.z;
     }
 }

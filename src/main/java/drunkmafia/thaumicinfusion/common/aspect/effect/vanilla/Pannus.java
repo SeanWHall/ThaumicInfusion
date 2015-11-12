@@ -12,7 +12,7 @@ import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.World;
 
-@Effect(aspect = ("pannus"))
+@Effect(aspect = "pannus")
 public class Pannus extends AspectEffect {
 
     @Override

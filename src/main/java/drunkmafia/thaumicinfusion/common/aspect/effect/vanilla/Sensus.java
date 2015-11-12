@@ -24,7 +24,8 @@ public class Sensus extends AspectEffect {
     @Override
     public void aspectInit(World world, WorldCoordinates pos) {
         super.aspectInit(world, pos);
-        if(!world.isRemote) ChannelHandler.instance().sendToDimension(new EffectSyncPacketC(this, true), world.provider.dimensionId);
+        if (!world.isRemote)
+            ChannelHandler.instance().sendToDimension(new EffectSyncPacketC(this, true), world.provider.dimensionId);
     }
 
     @Override
@@ -34,18 +35,18 @@ public class Sensus extends AspectEffect {
 
     @OverrideBlock(overrideBlockFunc = false)
     public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player) {
-        if(world.isRemote) return;
+        if (world.isRemote) return;
 
         ItemStack stackInHand = player.getCurrentEquippedItem();
 
-        if(player.isSneaking()) {
-            disguisedBlock = null;
+        if (player.isSneaking()) {
+            this.disguisedBlock = null;
             ChannelHandler.instance().sendToDimension(new EffectSyncPacketC(this, true), world.provider.dimensionId);
-        }else if(stackInHand != null && stackInHand.getItem() instanceof ItemBlock){
+        } else if (stackInHand != null && stackInHand.getItem() instanceof ItemBlock) {
             Block block = Block.getBlockFromItem(stackInHand.getItem());
-            if(block.isNormalCube() && block.renderAsNormalBlock()) {
-                disguisedBlock = block;
-                metadata = stackInHand.getItemDamage();
+            if (block.isNormalCube() && block.renderAsNormalBlock()) {
+                this.disguisedBlock = block;
+                this.metadata = stackInHand.getItemDamage();
                 ChannelHandler.instance().sendToDimension(new EffectSyncPacketC(this, true), world.provider.dimensionId);
             }
         }
@@ -53,25 +54,25 @@ public class Sensus extends AspectEffect {
 
     @OverrideBlock
     public IIcon getIcon(IBlockAccess access, int x, int y, int z, int side) {
-        IIcon icon = disguisedBlock != null ? disguisedBlock.getIcon(side, metadata) : null;
+        IIcon icon = this.disguisedBlock != null ? this.disguisedBlock.getIcon(side, this.metadata) : null;
         return icon != null ? icon : access.getBlock(x, y, z).getIcon(side, access.getBlockMetadata(x, y, z));
     }
 
     @Override
     public void readNBT(NBTTagCompound tagCompound) {
         super.readNBT(tagCompound);
-        if(tagCompound.hasKey("disguisedBlock")){
-            disguisedBlock = Block.getBlockById(tagCompound.getInteger("disguisedBlock"));
-            metadata = tagCompound.getInteger("metadata");
-        }else disguisedBlock = null;
+        if (tagCompound.hasKey("disguisedBlock")) {
+            this.disguisedBlock = Block.getBlockById(tagCompound.getInteger("disguisedBlock"));
+            this.metadata = tagCompound.getInteger("metadata");
+        } else this.disguisedBlock = null;
     }
 
     @Override
     public void writeNBT(NBTTagCompound tagCompound) {
         super.writeNBT(tagCompound);
-        if(disguisedBlock != null){
-            tagCompound.setInteger("disguisedBlock", Block.getIdFromBlock(disguisedBlock));
-            tagCompound.setInteger("metadata", metadata);
+        if (this.disguisedBlock != null) {
+            tagCompound.setInteger("disguisedBlock", Block.getIdFromBlock(this.disguisedBlock));
+            tagCompound.setInteger("metadata", this.metadata);
         }
     }
 }

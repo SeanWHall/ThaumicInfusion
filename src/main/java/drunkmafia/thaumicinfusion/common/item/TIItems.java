@@ -15,11 +15,11 @@ public class TIItems {
     public static Item focusInfusing;
     public static Item coordinatePaper;
 
-    public static void init(){
-        focusInfusing = (new ItemFocusInfusing()).setUnlocalizedName("FocusInfusion");
-        coordinatePaper = (new ItemCoordinatePaper()).setUnlocalizedName("CoordinatePaper");
+    public static void init() {
+        TIItems.focusInfusing = new ItemFocusInfusing().setUnlocalizedName("FocusInfusion");
+        TIItems.coordinatePaper = new ItemCoordinatePaper().setUnlocalizedName("CoordinatePaper");
 
-        GameRegistry.registerItem(focusInfusing, "FocusInfusion", ModInfo.MODID);
-        GameRegistry.registerItem(coordinatePaper, "CoordinatePaper", ModInfo.MODID);
+        GameRegistry.registerItem(TIItems.focusInfusing, "FocusInfusion", ModInfo.MODID);
+        GameRegistry.registerItem(TIItems.coordinatePaper, "CoordinatePaper", ModInfo.MODID);
     }
 }

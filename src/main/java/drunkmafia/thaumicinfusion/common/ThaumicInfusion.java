@@ -8,8 +8,6 @@ package drunkmafia.thaumicinfusion.common;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.*;
 import cpw.mods.fml.common.network.NetworkRegistry;
@@ -21,7 +19,6 @@ import drunkmafia.thaumicinfusion.common.command.TICommand;
 import drunkmafia.thaumicinfusion.common.event.CommonEventContainer;
 import drunkmafia.thaumicinfusion.common.intergration.ThaumcraftIntergration;
 import drunkmafia.thaumicinfusion.common.item.TIItems;
-import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import drunkmafia.thaumicinfusion.common.world.AspectStablizer;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import net.minecraft.block.Block;
@@ -36,10 +33,10 @@ import org.apache.logging.log4j.Logger;
 
 import static drunkmafia.thaumicinfusion.common.lib.ModInfo.*;
 
-@Mod(modid = MODID, name = NAME, version = VERSION, dependencies="required-after:Forge@[10.13.2,);required-after:Thaumcraft@[4.2.3.5,)")
+@Mod(modid = MODID, name = NAME, version = VERSION, dependencies = "required-after:Forge@[10.13.2,);required-after:Thaumcraft@[4.2.3.5,)")
 public class ThaumicInfusion {
 
-    @Instance(MODID)
+    @Mod.Instance(MODID)
     public static ThaumicInfusion instance;
     @SidedProxy(clientSide = CLIENT_PROXY_PATH, serverSide = COMMON_PROXY_PATH)
     public static CommonProxy proxy;
@@ -48,7 +45,7 @@ public class ThaumicInfusion {
 
     public AspectStablizer stablizerThread;
 
-    public CreativeTabs tab = new CreativeTabs(ModInfo.CREATIVETAB_UNLOCAL) {
+    public CreativeTabs tab = new CreativeTabs(CREATIVETAB_UNLOCAL) {
         @Override
         public Item getTabIconItem() {
             return TIItems.focusInfusing;
@@ -60,13 +57,13 @@ public class ThaumicInfusion {
     }
 
     public static Logger getLogger() {
-        return logger;
+        return ThaumicInfusion.logger;
     }
 
-    @EventHandler
+    @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        config = new Configuration(event.getSuggestedConfigurationFile());
-        logger = event.getModLog();
+        this.config = new Configuration(event.getSuggestedConfigurationFile());
+        ThaumicInfusion.logger = event.getModLog();
 
         TIItems.init();
         TIBlocks.initBlocks();
@@ -75,35 +72,35 @@ public class ThaumicInfusion {
         FMLInterModComms.sendRuntimeMessage(MODID, "VersionChecker", "addVersionCheck", "https://raw.githubusercontent.com/TheDrunkMafia/ThaumicInfusion/master/version.json");
     }
 
-    @EventHandler
+    @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         MinecraftForge.EVENT_BUS.register(new CommonEventContainer());
         FMLCommonHandler.instance().bus().register(new CommonEventContainer());
-        NetworkRegistry.INSTANCE.registerGuiHandler(instance, proxy);
+        NetworkRegistry.INSTANCE.registerGuiHandler(ThaumicInfusion.instance, ThaumicInfusion.proxy);
 
-        proxy.initRenderers();
+        ThaumicInfusion.proxy.initRenderers();
         ChannelHandler.registerPackets();
     }
 
-    @EventHandler
-    public void postInit(FMLPostInitializationEvent event){
+    @Mod.EventHandler
+    public void postInit(FMLPostInitializationEvent event) {
         AspectHandler.postInit();
         ThaumcraftIntergration.init();
 
         BlockTransformer.blockCheck(Block.blockRegistry.iterator());
     }
 
-    @EventHandler
-    public void serverStart(FMLServerStartingEvent event){
+    @Mod.EventHandler
+    public void serverStart(FMLServerStartingEvent event) {
         MinecraftServer server = event.getServer();
         TICommand.init((ServerCommandManager) server.getCommandManager());
-        stablizerThread = new AspectStablizer(server.worldServers);
-        new Thread(stablizerThread, "Aspect Stabilizer").start();
+        this.stablizerThread = new AspectStablizer(server.worldServers);
+        new Thread(this.stablizerThread, "Aspect Stabilizer").start();
     }
 
-    @EventHandler
-    public void serverStop(FMLServerStoppingEvent event){
-        stablizerThread.setFlags(false, false);
-        stablizerThread = null;
+    @Mod.EventHandler
+    public void serverStop(FMLServerStoppingEvent event) {
+        this.stablizerThread.setFlags(false, false);
+        this.stablizerThread = null;
     }
 }

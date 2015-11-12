@@ -39,7 +39,7 @@ public class TIWorldData implements ISavable {
         IWorldDataProvider dataProvider = (IWorldDataProvider) world;
         TIWorldData worldData = dataProvider.getWorldData();
 
-        if(!world.isRemote) world = DimensionManager.getWorld(world.provider.dimensionId);
+        if (!world.isRemote) world = DimensionManager.getWorld(world.provider.dimensionId);
         if (worldData == null) dataProvider.setWorldData(worldData = new TIWorldData());
 
         worldData.world = world;
@@ -47,8 +47,8 @@ public class TIWorldData implements ISavable {
     }
 
     public static World getWorld(IBlockAccess blockAccess) {
-        if (worldLookup == null) worldLookup = new ReflectionLookup<World>(World.class);
-        return blockAccess != null ? blockAccess instanceof World ? (World) blockAccess : worldLookup.getObjectFrom(blockAccess) : null;
+        if (TIWorldData.worldLookup == null) TIWorldData.worldLookup = new ReflectionLookup<World>(World.class);
+        return blockAccess != null ? blockAccess instanceof World ? (World) blockAccess : TIWorldData.worldLookup.getObjectFrom(blockAccess) : null;
     }
 
     /**
@@ -58,76 +58,76 @@ public class TIWorldData implements ISavable {
      * @param init   if true will initialize the data
      * @param packet will sync to the client if true
      */
-    public void addBlock(BlockSavable block, boolean init, boolean packet){
+    public void addBlock(BlockSavable block, boolean init, boolean packet) {
         if (block == null)
             return;
 
-        if (world == null)
-            world = DimensionManager.getWorld(block.getCoords().dim);
+        if (this.world == null)
+            this.world = DimensionManager.getWorld(block.getCoords().dim);
 
         WorldCoordinates coordinates = block.getCoords();
 
         ChunkCoordIntPair chunkPos = new ChunkCoordIntPair(coordinates.x >> 4, coordinates.z >> 4);
-        ChunkData chunkData = chunkDatas.get(chunkPos.getCenterXPos(), chunkPos.getCenterZPosition(), null);
+        ChunkData chunkData = this.chunkDatas.get(chunkPos.getCenterXPos(), chunkPos.getCenterZPosition(), null);
         if (chunkData == null) {
             chunkData = new ChunkData(chunkPos);
-            chunkDatas.set(chunkPos.getCenterXPos(), chunkPos.getCenterZPosition(), chunkData);
+            this.chunkDatas.set(chunkPos.getCenterXPos(), chunkPos.getCenterZPosition(), chunkData);
         }
         chunkData.addBlock(block, coordinates.x, coordinates.y, coordinates.z);
 
         if (init && !block.isInit())
-            block.dataLoad(world);
+            block.dataLoad(this.world);
 
-        if (!world.isRemote && packet)
-            ChannelHandler.instance().sendToDimension(new BlockSyncPacketC(block), world.provider.dimensionId);
+        if (!this.world.isRemote && packet)
+            ChannelHandler.instance().sendToDimension(new BlockSyncPacketC(block), this.world.provider.dimensionId);
     }
 
     public List<ChunkData> getChunksInRange(int xMin, int zMin, int xMax, int zMax) {
-        return chunkDatas.searchWithinObject(xMin, zMin, xMax, zMax);
+        return this.chunkDatas.searchWithinObject(xMin, zMin, xMax, zMax);
     }
 
-    public void addBlock(BlockSavable block){
-        addBlock(block, false, false);
+    public void addBlock(BlockSavable block) {
+        this.addBlock(block, false, false);
     }
 
-    public void postLoad(){
-        for(BlockSavable savable : getAllStoredData()) {
-            if(savable == null) continue;
+    public void postLoad() {
+        for (BlockSavable savable : this.getAllStoredData()) {
+            if (savable == null) continue;
 
-            if (world == null) world = DimensionManager.getWorld(savable.getCoords().dim);
-            else savable.getCoords().dim = world.provider.dimensionId;
+            if (this.world == null) this.world = DimensionManager.getWorld(savable.getCoords().dim);
+            else savable.getCoords().dim = this.world.provider.dimensionId;
 
-            if (!savable.isInit())  savable.dataLoad(world);
+            if (!savable.isInit()) savable.dataLoad(this.world);
         }
     }
 
     /**
      * Grabs a BlockSavable from the Quadtree at a specified location and casted to a certain type.
      *
-     * @param type The class of the data you want to get
+     * @param type   The class of the data you want to get
      * @param coords The position that you want to grab data from
-     * @param <T> The Type of Data that will be returned
+     * @param <T>    The Type of Data that will be returned
      */
     public <T> T getBlock(Class<T> type, WorldCoordinates coords) {
         ChunkCoordIntPair chunkPos = new ChunkCoordIntPair(coords.x >> 4, coords.z >> 4);
-        ChunkData chunkData = chunkDatas.get(chunkPos.getCenterXPos(), chunkPos.getCenterZPosition(), null);
+        ChunkData chunkData = this.chunkDatas.get(chunkPos.getCenterXPos(), chunkPos.getCenterZPosition(), null);
         return chunkData != null ? chunkData.getBlock(type, coords.x, coords.y, coords.z) : null;
     }
 
     /**
      * Will remove a specific Data from a position in the world.
      *
-     * @param type The type you want to remove
-     * @param coords The coordinates of the data
+     * @param type       The type you want to remove
+     * @param coords     The coordinates of the data
      * @param sendPacket Whether or not the change should be sent to clients
      */
     public void removeData(Class<? extends BlockSavable> type, WorldCoordinates coords, boolean sendPacket) {
         ChunkCoordIntPair chunkPos = new ChunkCoordIntPair(coords.x >> 4, coords.z >> 4);
-        ChunkData chunkData = chunkDatas.get(chunkPos.getCenterXPos(), chunkPos.getCenterZPosition(), null);
-        if(chunkData != null) {
+        ChunkData chunkData = this.chunkDatas.get(chunkPos.getCenterXPos(), chunkPos.getCenterZPosition(), null);
+        if (chunkData != null) {
             chunkData.removeData(type, coords.x, coords.y, coords.z);
             if (sendPacket) {
-                coords.dim = world.provider.dimensionId;
+                coords.dim = this.world.provider.dimensionId;
                 ChannelHandler.instance().sendToAll(new DataRemovePacketC(type, coords));
             }
         }
@@ -135,7 +135,7 @@ public class TIWorldData implements ISavable {
 
     public BlockSavable[] getAllStoredData() {
         ArrayList<BlockSavable> savables = new ArrayList<BlockSavable>();
-        for(ChunkData chunks : chunkDatas.getValues())
+        for (ChunkData chunks : this.chunkDatas.getValues())
             Collections.addAll(savables, chunks.getAllBlocks());
         return savables.size() != 0 ? savables.toArray(new BlockSavable[1]) : new BlockSavable[0];
     }
@@ -144,21 +144,21 @@ public class TIWorldData implements ISavable {
     public void readNBT(NBTTagCompound tag) {
         int size = tag.getInteger("Chunks");
 
-        for(int i = 0; i < size; i++){
-            if(!tag.hasKey("Chunk:" + i))
+        for (int i = 0; i < size; i++) {
+            if (!tag.hasKey("Chunk:" + i))
                 continue;
 
             ChunkData chunkData = SavableHelper.loadDataFromNBT(tag.getCompoundTag("Chunk:" + i));
-            if(chunkData != null){
+            if (chunkData != null) {
                 for (BlockSavable data : chunkData.getAllBlocks())
-                    addBlock(data);
+                    this.addBlock(data);
             }
         }
     }
 
     @Override
     public void writeNBT(NBTTagCompound tag) {
-        ChunkData[] chunks = chunkDatas.getValues();
+        ChunkData[] chunks = this.chunkDatas.getValues();
         tag.setInteger("Chunks", chunks.length);
 
         for (int i = 0; i < chunks.length; i++) {

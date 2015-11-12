@@ -13,8 +13,8 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
-@Effect(aspect = ("ignis"))
-public class Ignis  extends AspectEffect {
+@Effect(aspect = "ignis")
+public class Ignis extends AspectEffect {
 
     @Override
     public int getCost() {
@@ -27,22 +27,22 @@ public class Ignis  extends AspectEffect {
     }
 
     @OverrideBlock
-    public int getFlammability(IBlockAccess world, int x, int y, int z, ForgeDirection face){
+    public int getFlammability(IBlockAccess world, int x, int y, int z, ForgeDirection face) {
         return 0;
     }
 
     @OverrideBlock
-    public boolean isFlammable(IBlockAccess world, int x, int y, int z, ForgeDirection face){
+    public boolean isFlammable(IBlockAccess world, int x, int y, int z, ForgeDirection face) {
         return true;
     }
 
     @OverrideBlock
-    public int getFireSpreadSpeed(IBlockAccess world, int x, int y, int z, ForgeDirection face){
+    public int getFireSpreadSpeed(IBlockAccess world, int x, int y, int z, ForgeDirection face) {
         return 4096;
     }
 
     @OverrideBlock
-    public boolean isFireSource(World world, int x, int y, int z, ForgeDirection side){
+    public boolean isFireSource(World world, int x, int y, int z, ForgeDirection side) {
         return true;
     }
 }

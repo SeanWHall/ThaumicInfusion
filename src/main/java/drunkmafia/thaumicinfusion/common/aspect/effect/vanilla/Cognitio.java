@@ -26,7 +26,7 @@ public class Cognitio extends AspectEffect {
     @SideOnly(Side.CLIENT)
     @OverrideBlock(overrideBlockFunc = false)
     public void randomDisplayTick(World world, int x, int y, int z, Random random) {
-        for (int l = x - 2; l <= maxY + 2; ++l) {
+        for (int l = x - 2; l <= this.maxY + 2; ++l) {
             for (int i1 = z - 2; i1 <= z + 2; ++i1) {
                 if (l > x - 2 && l < x + 2 && i1 == z - 1)
                     i1 = z + 2;

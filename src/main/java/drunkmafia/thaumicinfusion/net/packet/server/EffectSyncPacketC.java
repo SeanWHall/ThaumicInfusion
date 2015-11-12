@@ -21,12 +21,14 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.world.World;
 import thaumcraft.api.WorldCoordinates;
 
-public class EffectSyncPacketC  implements IMessage {
+public class EffectSyncPacketC implements IMessage {
 
     private boolean updateRendering;
     private AspectEffect effect;
     private NBTTagCompound tagCompound;
-    public EffectSyncPacketC() {}
+
+    public EffectSyncPacketC() {
+    }
 
     public EffectSyncPacketC(AspectEffect effect, boolean updateRendering) {
         this.effect = effect;
@@ -38,21 +40,23 @@ public class EffectSyncPacketC  implements IMessage {
         try {
             NBTTagCompound tag = new PacketBuffer(buf).readNBTTagCompoundFromBuffer();
             if (tag != null) {
-                tagCompound = tag;
-                effect = SavableHelper.loadDataFromNBT(tag);
-                updateRendering = buf.readByte() == 1;
+                this.tagCompound = tag;
+                this.effect = SavableHelper.loadDataFromNBT(tag);
+                this.updateRendering = buf.readByte() == 1;
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
         try {
-            if (effect != null) {
-                new PacketBuffer(buf).writeNBTTagCompoundToBuffer(SavableHelper.saveDataToNBT(effect));
-                buf.writeByte(updateRendering ? 1 : 0);
+            if (this.effect != null) {
+                new PacketBuffer(buf).writeNBTTagCompoundToBuffer(SavableHelper.saveDataToNBT(this.effect));
+                buf.writeByte(this.updateRendering ? 1 : 0);
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
     }
 
     public static class Handler implements IMessageHandler<EffectSyncPacketC, IMessage> {
@@ -63,10 +67,10 @@ public class EffectSyncPacketC  implements IMessage {
             World world = ChannelHandler.getClientWorld();
             WorldCoordinates pos = effect.getPos();
             BlockData data = TIWorldData.getWorldData(world).getBlock(BlockData.class, effect.getPos());
-            if(data != null &&  data.getEffect(effect.getClass()) != null)
+            if (data != null && data.getEffect(effect.getClass()) != null)
                 data.getEffect(effect.getClass()).readNBT(message.tagCompound);
 
-            if(message.updateRendering) Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.x, pos.y, pos.z);
+            if (message.updateRendering) Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.x, pos.y, pos.z);
             return null;
         }
     }

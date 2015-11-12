@@ -27,7 +27,7 @@ public class Machina extends AspectLink {
     @OverrideBlock
     public int isProvidingWeakPower(IBlockAccess access, int x, int y, int z, int side) {
         World destinationWorld;
-        WorldCoordinates destin = getDestination();
+        WorldCoordinates destin = this.getDestination();
         if (destin == null || (destinationWorld = DimensionManager.getWorld(destin.dim)) == null || destinationWorld.isAirBlock(destin.x, destin.y, destin.z))
             return 0;
 
@@ -68,9 +68,9 @@ public class Machina extends AspectLink {
     @OverrideBlock
     public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {
         World destinationWorld;
-        WorldCoordinates destin = getDestination();
+        WorldCoordinates destin = this.getDestination();
 
-        if (destin == null || (destinationWorld = DimensionManager.getWorld(destin.dim)) == null || block.getClass() == getClass())
+        if (destin == null || (destinationWorld = DimensionManager.getWorld(destin.dim)) == null || block.getClass() == this.getClass())
             return;
 
         destinationWorld.notifyBlockChange(destin.x, destin.y, destin.z, this);

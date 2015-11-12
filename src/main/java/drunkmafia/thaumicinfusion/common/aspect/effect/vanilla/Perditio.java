@@ -19,7 +19,7 @@ import thaumcraft.api.WorldCoordinates;
 import java.util.ArrayList;
 import java.util.Random;
 
-@Effect(aspect = ("perditio"))
+@Effect(aspect = "perditio")
 public class Perditio extends AspectEffect {
 
     Random rand = new Random();
@@ -28,7 +28,7 @@ public class Perditio extends AspectEffect {
     public void aspectInit(World world, WorldCoordinates pos) {
         super.aspectInit(world, pos);
         if (!world.isRemote)
-            updateTick(world, pos.x, pos.y, pos.z, world.rand);
+            this.updateTick(world, pos.x, pos.y, pos.z, world.rand);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class Perditio extends AspectEffect {
         if (world.isRemote)
             return;
 
-        WorldCoordinates pos = getPos();
+        WorldCoordinates pos = this.getPos();
         if (pos == null || world.isAirBlock(pos.x, pos.y, pos.z))
             return;
 
@@ -50,20 +50,20 @@ public class Perditio extends AspectEffect {
         ArrayList<EntityPlayer> ents = (ArrayList<EntityPlayer>) world.getEntitiesWithinAABB(EntityPlayer.class, bb);
         for (EntityPlayer ent : ents) {
             if (!ent.isSneaking()) {
-                explode(world);
+                this.explode(world);
                 return;
             }
         }
     }
 
-    void explode(World world){
-        if (rand.nextInt(20) == rand.nextInt(20) && !world.isRemote) {
-            world.createExplosion(null, getPos().x, getPos().y, getPos().z, 4.0F, true);
+    void explode(World world) {
+        if (this.rand.nextInt(20) == this.rand.nextInt(20) && !world.isRemote) {
+            world.createExplosion(null, this.getPos().x, this.getPos().y, this.getPos().z, 4.0F, true);
             TIWorldData worldData = TIWorldData.getWorldData(world);
-            BlockData data = worldData.getBlock(BlockData.class, getPos());
+            BlockData data = worldData.getBlock(BlockData.class, this.getPos());
             if (data != null) {
-                data.removeEffect(getClass());
-                if (data.getEffects().length == 0) worldData.removeData(BlockData.class, getPos(), true);
+                data.removeEffect(this.getClass());
+                if (data.getEffects().length == 0) worldData.removeData(BlockData.class, this.getPos(), true);
             }
         }
     }

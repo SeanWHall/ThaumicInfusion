@@ -16,17 +16,17 @@ public class ItemCoordinatePaper extends Item {
     @Override
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean val) {
         NBTTagCompound nbt = stack.getTagCompound();
-        if(nbt == null) return;
-        if(Keyboard.isKeyDown(42) || Keyboard.isKeyDown(54)){
+        if (nbt == null) return;
+        if (Keyboard.isKeyDown(42) || Keyboard.isKeyDown(54)) {
             list.add("X: " + nbt.getInteger("CoordinateX"));
             list.add("Y: " + nbt.getInteger("CoordinateY"));
             list.add("Z: " + nbt.getInteger("CoordinateZ"));
             list.add("Dimension: " + nbt.getInteger("CoordinateDim"));
-        }else list.add("Hold shift for more info");
+        } else list.add("Hold shift for more info");
     }
 
     @SideOnly(Side.CLIENT)
     public void registerIcons(IIconRegister ir) {
-        this.itemIcon = ir.registerIcon("thaumcraft:researchnotes");
+        itemIcon = ir.registerIcon("thaumcraft:researchnotes");
     }
 }

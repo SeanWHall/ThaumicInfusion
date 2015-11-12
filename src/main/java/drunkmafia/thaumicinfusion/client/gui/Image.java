@@ -4,10 +4,9 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 public class Image {
+    private final TIGui gui;
     public ResourceLocation image;
     public int x, y, u, v, width, height;
-
-    private TIGui gui;
 
     public Image(TIGui gui, ResourceLocation image, int x, int y, int u, int v, int width, int height) {
         this.gui = gui;
@@ -23,22 +22,22 @@ public class Image {
 
     public void drawImage() {
         GL11.glPushMatrix();
-        gui.mc.renderEngine.bindTexture(image);
+        this.gui.mc.renderEngine.bindTexture(this.image);
         GL11.glEnable(3042);
-        gui.drawTexturedModalRect(gui.getGuiLeft() + x, gui.getGuiTop() + y, u, v, width, height);
+        this.gui.drawTexturedModalRect(this.gui.getGuiLeft() + this.x, this.gui.getGuiTop() + this.y, this.u, this.v, this.width, this.height);
         GL11.glDisable(3042);
         GL11.glPopMatrix();
     }
 
     public boolean isInRect(int mouseX, int mouseY) {
-        return mouseX >= gui.getGuiLeft()  + x && mouseX <= gui.getGuiLeft()  + x + width && mouseY >= gui.getGuiTop()  + y && mouseY <= gui.getGuiTop()  + y + height;
+        return mouseX >= this.gui.getGuiLeft() + this.x && mouseX <= this.gui.getGuiLeft() + this.x + this.width && mouseY >= this.gui.getGuiTop() + this.y && mouseY <= this.gui.getGuiTop() + this.y + this.height;
     }
 
-    public Image copy(){
-        return new Image(gui, image, x, y, u, v, width, height);
+    public Image copy() {
+        return new Image(this.gui, this.image, this.x, this.y, this.u, this.v, this.width, this.height);
     }
 
-    public TIGui getGui(){
-        return gui;
+    public TIGui getGui() {
+        return this.gui;
     }
 }

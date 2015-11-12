@@ -7,7 +7,8 @@
 package drunkmafia.thaumicinfusion.common.event;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
+import cpw.mods.fml.common.gameevent.TickEvent.Phase;
+import cpw.mods.fml.common.gameevent.TickEvent.WorldTickEvent;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.world.IWorldDataProvider;
 import drunkmafia.thaumicinfusion.common.world.SavableHelper;
@@ -24,7 +25,9 @@ import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.world.ChunkEvent;
-import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.event.world.ChunkEvent.Unload;
+import net.minecraftforge.event.world.WorldEvent.Load;
+import net.minecraftforge.event.world.WorldEvent.Save;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -35,8 +38,8 @@ public class CommonEventContainer {
     //Tick Syncing
 
     @SubscribeEvent
-    public void onWorldTick(TickEvent.WorldTickEvent event) {
-        if(ThaumicInfusion.instance.stablizerThread != null && event.phase == TickEvent.Phase.START)
+    public void onWorldTick(WorldTickEvent event) {
+        if (ThaumicInfusion.instance.stablizerThread != null && event.phase == Phase.START)
             ThaumicInfusion.instance.stablizerThread.setFlags(true, false);
     }
 
@@ -49,7 +52,7 @@ public class CommonEventContainer {
 
         TIWorldData worldData = TIWorldData.getWorldData(event.world);
         if (worldData == null) return;
-        for(BlockSavable savable : worldData.getAllStoredData()) {
+        for (BlockSavable savable : worldData.getAllStoredData()) {
             if (savable != null)
                 ChannelHandler.instance().sendTo(new BlockSyncPacketC(savable), (EntityPlayerMP) event.entity);
         }
@@ -66,7 +69,7 @@ public class CommonEventContainer {
     }
 
     @SubscribeEvent
-    public void unloadChunk(ChunkEvent.Unload event) {
+    public void unloadChunk(Unload event) {
         if (event.world == null) return;
 
         World world = event.world;
@@ -79,7 +82,7 @@ public class CommonEventContainer {
     //Server Side World Loading/Saving
 
     @SubscribeEvent
-    public void load(WorldEvent.Load event) {
+    public void load(Load event) {
         World world = event.world;
         if (world == null || world.isRemote) return;
 
@@ -96,7 +99,7 @@ public class CommonEventContainer {
 
             if (data != null) {
                 data.world = world;
-                ((IWorldDataProvider)world).setWorldData(data);
+                ((IWorldDataProvider) world).setWorldData(data);
                 data.postLoad();
             }
         } catch (Throwable e) {
@@ -105,7 +108,7 @@ public class CommonEventContainer {
     }
 
     @SubscribeEvent
-    public void save(WorldEvent.Save event) {
+    public void save(Save event) {
         World world = event.world;
         if (world == null || world.isRemote) return;
 

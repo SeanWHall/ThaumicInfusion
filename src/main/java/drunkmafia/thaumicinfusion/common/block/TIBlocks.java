@@ -17,6 +17,6 @@ public class TIBlocks {
     public static Block aspectInscriber;
 
     public static void initBlocks() {
-        GameRegistry.registerBlock(essentiaBlock = new EssentiaBlock(), essentiaBlock_RegistryName);
+        GameRegistry.registerBlock(TIBlocks.essentiaBlock = new EssentiaBlock(), essentiaBlock_RegistryName);
     }
 }

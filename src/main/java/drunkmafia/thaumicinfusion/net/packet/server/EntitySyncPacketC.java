@@ -31,8 +31,8 @@ public class EntitySyncPacketC implements IMessage {
     @Override
     public void fromBytes(ByteBuf buf) {
         try {
-            id = buf.readInt();
-            tagCompound = new PacketBuffer(buf).readNBTTagCompoundFromBuffer();
+            this.id = buf.readInt();
+            this.tagCompound = new PacketBuffer(buf).readNBTTagCompoundFromBuffer();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -41,10 +41,10 @@ public class EntitySyncPacketC implements IMessage {
     @Override
     public void toBytes(ByteBuf buf) {
         try {
-            if (entity != null) {
-                buf.writeInt(entity.getEntityId());
+            if (this.entity != null) {
+                buf.writeInt(this.entity.getEntityId());
                 NBTTagCompound tag = new NBTTagCompound();
-                entity.writeToNBT(tag);
+                this.entity.writeToNBT(tag);
                 new PacketBuffer(buf).writeNBTTagCompoundToBuffer(tag);
             }
         } catch (Exception e) {
@@ -59,7 +59,7 @@ public class EntitySyncPacketC implements IMessage {
             if (tag == null || ctx.side.isServer()) return null;
             Entity entity = ChannelHandler.getClientWorld().getEntityByID(message.id);
 
-            if(entity != null)
+            if (entity != null)
                 entity.readFromNBT(tag);
 
             return null;

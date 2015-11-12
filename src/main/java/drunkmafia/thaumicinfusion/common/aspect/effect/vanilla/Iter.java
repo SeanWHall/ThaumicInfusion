@@ -19,14 +19,14 @@ import thaumcraft.api.WorldCoordinates;
 import java.util.ArrayList;
 import java.util.Random;
 
-@Effect(aspect = ("iter"))
+@Effect(aspect = "iter")
 public class Iter extends AspectLink {
 
     @Override
     public void aspectInit(World world, WorldCoordinates pos) {
         super.aspectInit(world, pos);
         if (!world.isRemote)
-            updateTick(world, pos.x, pos.y, pos.z, world.rand);
+            this.updateTick(world, pos.x, pos.y, pos.z, world.rand);
     }
 
     @Override
@@ -38,24 +38,24 @@ public class Iter extends AspectLink {
     public void updateTick(World world, int x, int y, int z, Random random) {
         world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
 
-        if(world.isRemote)
+        if (world.isRemote)
             return;
 
-        WorldCoordinates pos = getPos();
+        WorldCoordinates pos = this.getPos();
         if (pos == null || world.isAirBlock(pos.x, pos.y, pos.z))
             return;
 
         AxisAlignedBB bb = AxisAlignedBB.getBoundingBox(pos.x, pos.y, pos.z, pos.x + 1, pos.y + 2, pos.z + 1);
         ArrayList<EntityPlayer> ents = (ArrayList<EntityPlayer>) world.getEntitiesWithinAABB(EntityPlayer.class, bb);
-        for(EntityPlayer ent : ents) {
+        for (EntityPlayer ent : ents) {
             if (ent.isSneaking()) {
-                WorldCoordinates destin = getDestination();
+                WorldCoordinates destin = this.getDestination();
 
                 World destWorld;
                 if (destin == null || (destWorld = DimensionManager.getWorld(destin.dim)) == null || destWorld.isAirBlock(destin.x, destin.y, destin.z))
                     return;
 
-                if(destin.dim != ent.worldObj.provider.dimensionId)
+                if (destin.dim != ent.worldObj.provider.dimensionId)
                     ent.travelToDimension(destin.dim);
                 ent.setPositionAndUpdate(destin.x + 0.5F, destin.y + 1F, destin.z + 0.5F);
                 ent.setSneaking(false);

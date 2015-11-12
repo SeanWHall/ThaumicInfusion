@@ -32,7 +32,7 @@ import java.util.List;
 @Effect(aspect = "default")
 public abstract class AspectEffect extends Block implements ISavable {
 
-    private static HashMap<Class, ArrayList<MethodInfo>> phasedMethods = new HashMap<Class, ArrayList<MethodInfo>>();
+    private static final HashMap<Class, ArrayList<AspectEffect.MethodInfo>> phasedMethods = new HashMap<Class, ArrayList<AspectEffect.MethodInfo>>();
     public BlockData data;
     protected WorldCoordinates pos;
     private boolean shouldRegister;
@@ -42,13 +42,7 @@ public abstract class AspectEffect extends Block implements ISavable {
 
     }
 
-    public abstract int getCost();
-
-    public boolean shouldDrain(){
-        return true;
-    }
-
-    public static void init(){
+    public static void init() {
         AspectHandler.registerEffect(Aer.class);
         AspectHandler.registerEffect(Alienis.class);
         AspectHandler.registerEffect(Bestia.class);
@@ -99,14 +93,14 @@ public abstract class AspectEffect extends Block implements ISavable {
         EntityRegistry.registerModEntity(InfusedBlockFalling.class, "InfusedBlockFalling", 0, ThaumicInfusion.instance, 80, 3, true);
     }
 
-    public static List<MethodInfo> getMethods(Class<? extends AspectEffect> clazz) {
-        List<MethodInfo> methods = phasedMethods.get(clazz);
-        return methods != null ? methods : parseForMethods(clazz);
+    public static List<AspectEffect.MethodInfo> getMethods(Class<? extends AspectEffect> clazz) {
+        List<AspectEffect.MethodInfo> methods = AspectEffect.phasedMethods.get(clazz);
+        return methods != null ? methods : AspectEffect.parseForMethods(clazz);
     }
 
-    private static List<MethodInfo> parseForMethods(Class<? extends AspectEffect> c) {
+    private static List<AspectEffect.MethodInfo> parseForMethods(Class<? extends AspectEffect> c) {
         Method[] effectMethods = c.getMethods();
-        ArrayList<MethodInfo> meths = new ArrayList<MethodInfo>();
+        ArrayList<AspectEffect.MethodInfo> meths = new ArrayList<AspectEffect.MethodInfo>();
 
         for (Method meth : effectMethods) {
             if (!BlockTransformer.blockMethods.contains(meth.getName()) || meth.getDeclaringClass() == Block.class)
@@ -114,20 +108,26 @@ public abstract class AspectEffect extends Block implements ISavable {
 
             OverrideBlock block = meth.getAnnotation(OverrideBlock.class);
             if (block != null)
-                meths.add(new MethodInfo(meth.getName().hashCode(), block));
+                meths.add(new AspectEffect.MethodInfo(meth.getName().hashCode(), block));
         }
 
-        phasedMethods.put(c, meths);
+        AspectEffect.phasedMethods.put(c, meths);
         return meths;
     }
 
-    public void renderEffect(EntityPlayer player, float partialTicks){
+    public abstract int getCost();
+
+    public boolean shouldDrain() {
+        return true;
+    }
+
+    public void renderEffect(EntityPlayer player, float partialTicks) {
 
     }
 
     public void readConfig(Configuration config) {
         config.load();
-        shouldRegister = config.getBoolean(getClass().getSimpleName(), "Effects", true, "");
+        this.shouldRegister = config.getBoolean(this.getClass().getSimpleName(), "Effects", true, "");
         AspectStablizer.dataExistedFor = config.getInt("DataExisted", "Aspects", AspectStablizer.dataExistedFor, 60, 1000, "The amount of ticks a infusion has to wait before it drains an aspect");
         config.save();
     }
@@ -141,29 +141,29 @@ public abstract class AspectEffect extends Block implements ISavable {
     }
 
     public WorldCoordinates getPos() {
-        return pos;
+        return this.pos;
     }
 
     public void setCoords(WorldCoordinates newPos) {
-        pos = newPos;
+        this.pos = newPos;
     }
 
-    public boolean shouldRegister(){
-        return shouldRegister;
+    public boolean shouldRegister() {
+        return this.shouldRegister;
     }
 
-    public boolean hasMethod(String methName){
-        return getMethods(getClass()).contains(methName);
+    public boolean hasMethod(String methName) {
+        return AspectEffect.getMethods(this.getClass()).contains(methName);
     }
 
     public void writeNBT(NBTTagCompound tagCompound) {
-        if(pos != null)
-            pos.writeNBT(tagCompound);
+        if (this.pos != null)
+            this.pos.writeNBT(tagCompound);
     }
 
     public void readNBT(NBTTagCompound tagCompound) {
-        pos = new WorldCoordinates();
-        pos.readNBT(tagCompound);
+        this.pos = new WorldCoordinates();
+        this.pos.readNBT(tagCompound);
     }
 
     public static class MethodInfo {

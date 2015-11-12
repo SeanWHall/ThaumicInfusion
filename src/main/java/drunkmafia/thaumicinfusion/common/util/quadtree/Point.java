@@ -11,7 +11,7 @@ public class Point<T> implements Comparable {
      *
      * @param {double} x The x-coordinate of the point.
      * @param {double} y The y-coordinate of the point.
-     * @param {Object} opt_value Optional value associated with the point.     
+     * @param {Object} opt_value Optional value associated with the point.
      */
     public Point(double x, double y, T opt_value) {
         this.x = x;
@@ -20,7 +20,7 @@ public class Point<T> implements Comparable {
     }
 
     public double getX() {
-        return x;
+        return this.x;
     }
 
     public void setX(double x) {
@@ -28,7 +28,7 @@ public class Point<T> implements Comparable {
     }
 
     public double getY() {
-        return y;
+        return this.y;
     }
 
     public void setY(double y) {
@@ -36,7 +36,7 @@ public class Point<T> implements Comparable {
     }
 
     public T getValue() {
-        return opt_value;
+        return this.opt_value;
     }
 
     public void setValue(T opt_value) {
@@ -45,20 +45,20 @@ public class Point<T> implements Comparable {
 
     @Override
     public String toString() {
-        return "(" + this.x + ", " + this.y + ")";
+        return "(" + x + ", " + y + ")";
     }
 
     @Override
     public int compareTo(Object o) {
         Point tmp = (Point) o;
-        if (this.x < tmp.x) {
+        if (x < tmp.x) {
             return -1;
-        } else if (this.x > tmp.x) {
+        } else if (x > tmp.x) {
             return 1;
         } else {
-            if (this.y < tmp.y) {
+            if (y < tmp.y) {
                 return -1;
-            } else if (this.y > tmp.y) {
+            } else if (y > tmp.y) {
                 return 1;
             }
             return 0;

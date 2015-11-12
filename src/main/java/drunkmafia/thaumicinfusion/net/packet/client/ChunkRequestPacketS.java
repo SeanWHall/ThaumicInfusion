@@ -31,16 +31,16 @@ public class ChunkRequestPacketS implements IMessage {
 
     @Override
     public void fromBytes(ByteBuf buf) {
-        pos = new ChunkCoordIntPair(buf.readInt(), buf.readInt());
-        dim = buf.readInt();
+        this.pos = new ChunkCoordIntPair(buf.readInt(), buf.readInt());
+        this.dim = buf.readInt();
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
-        buf.writeInt(pos.getCenterXPos() >> 4);
-        buf.writeInt(pos.getCenterZPosition() >> 4);
+        buf.writeInt(this.pos.getCenterXPos() >> 4);
+        buf.writeInt(this.pos.getCenterZPosition() >> 4);
 
-        buf.writeInt(dim);
+        buf.writeInt(this.dim);
     }
 
     public static class Handler implements IMessageHandler<ChunkRequestPacketS, IMessage> {

@@ -35,16 +35,16 @@ public class CleanCommand extends CommandBase {
         World world = sender.getEntityWorld();
         String playerName = sender.getCommandSenderName().toLowerCase();
 
-        if(players.contains(playerName) && strings.length > 0 && (strings[0].toLowerCase().contains("y") || strings[0].toLowerCase().contains("yes"))){
+        if (this.players.contains(playerName) && strings.length > 0 && (strings[0].toLowerCase().contains("y") || strings[0].toLowerCase().contains("yes"))) {
             TIWorldData data = TIWorldData.getWorldData(world);
             BlockSavable[] savables = data.getAllStoredData();
             for (BlockSavable savable : savables) data.removeData(savable.getClass(), savable.getCoords(), true);
 
             sender.addChatMessage(new ChatComponentText("World data has been wiped in dim: " + world.provider.dimensionId));
-            players.remove(playerName);
-        }else{
+            this.players.remove(playerName);
+        } else {
             sender.addChatMessage(new ChatComponentText("Are you sure you want to do this? All TI blocks placed down will be removed. Type Y or Yes to continue"));
-            players.add(playerName);
+            this.players.add(playerName);
         }
     }
 }
