@@ -88,12 +88,10 @@ public class ItemFocusInfusing extends ItemFocusBasic {
 
             NBTTagCompound wandNBT = itemstack.getTagCompound() != null ? itemstack.getTagCompound() : new NBTTagCompound();
 
-            if (wandNBT.hasKey("InfusionAspect") && !world.isRemote) {
-                Aspect aspect = Aspect.getAspect(wandNBT.getString("InfusionAspect"));
-                if (aspect != null) {
-                    placeAspect(player, new WorldCoordinates(mop.blockX, mop.blockY, mop.blockZ, player.dimension), aspect);
-                    world.playSoundEffect((double) mop.blockX + 0.5D, (double) mop.blockY + 0.5D, (double) mop.blockZ + 0.5D, "thaumcraft:wand", 0.7F, world.rand.nextFloat() * 0.1F + 0.9F);
-                }
+            if (!world.isRemote) {
+                Aspect aspect = wandNBT.hasKey("InfusionAspect") ? Aspect.getAspect(wandNBT.getString("InfusionAspect")) : null;
+                placeAspect(player, new WorldCoordinates(mop.blockX, mop.blockY, mop.blockZ, player.dimension), aspect);
+                world.playSoundEffect((double) mop.blockX + 0.5D, (double) mop.blockY + 0.5D, (double) mop.blockZ + 0.5D, "thaumcraft:wand", 0.7F, world.rand.nextFloat() * 0.1F + 0.9F);
             }
         } else {
             player.openGui(ThaumicInfusion.instance, 0, world, (int) player.posX, (int) player.posY, (int) player.posZ);
@@ -103,66 +101,65 @@ public class ItemFocusInfusing extends ItemFocusBasic {
     }
 
     public void placeAspect(EntityPlayer player, WorldCoordinates pos, Aspect aspect) {
-        if(aspect != null) {
-            World world = player.worldObj;
-            TIWorldData worldData = TIWorldData.getWorldData(world);
-            WorldCoordinates coords = new WorldCoordinates(pos.x, pos.y, pos.z, player.dimension);
-            if (player.isSneaking()) {
-                BlockData data = worldData.getBlock(BlockData.class, pos);
-                if (data != null) {
-                    AspectList list = new AspectList();
-                    for (Aspect currentAspect : data.getAspects())
-                        list.add(currentAspect, AspectHandler.getCostOfEffect(aspect));
-                    refillJars(player, list);
+        World world = player.worldObj;
+        TIWorldData worldData = TIWorldData.getWorldData(world);
+        WorldCoordinates coords = new WorldCoordinates(pos.x, pos.y, pos.z, player.dimension);
+        if (aspect == null) {
+            BlockData data = worldData.getBlock(BlockData.class, pos);
+            if (data != null) {
+                AspectList list = new AspectList();
+                for (Aspect currentAspect : data.getAspects())
+                    list.add(currentAspect, AspectHandler.getCostOfEffect(currentAspect));
+                refillJars(player, list);
+
+                worldData.removeData(BlockData.class, pos, true);
+            }
+        } else {
+            BlockData data = worldData.getBlock(BlockData.class, coords);
+            if (data == null) {
+                Class c = AspectHandler.getEffectFromAspect(aspect);
+                if(c == null)
+                    return;
+                if (drainAspects(player, aspect))
+                    data = new BlockData(coords, new Class[]{c});
+            }else{
+                for(Aspect dataAspect : data.getAspects()){
+                    if(dataAspect == aspect){
+                        ArrayList<Class> newAspects = new ArrayList<Class>();
+                        for(Aspect dataAspect2 : data.getAspects()){
+                            if(dataAspect2 != aspect)
+                                newAspects.add(AspectHandler.getEffectFromAspect(dataAspect2));
+                        }
+
+                        if(newAspects.size() == 0)
+                            worldData.removeData(BlockData.class, pos, true);
+                        else if(drainAspects(player, aspect)){
+                            worldData.removeData(BlockData.class, pos, true);
+                            data = new BlockData(coords, newAspects.toArray(new Class[newAspects.size()]));
+                            for (AspectEffect effect : data.getEffects())
+                                effect.onPlaceEffect(player);
+                            worldData.addBlock(data, true, true);
+                        }
+                        return;
+                    }
+                }
+                if(drainAspects(player, aspect)) {
+                    ArrayList<Class> newAspects = new ArrayList<Class>();
+                    newAspects.add(AspectHandler.getEffectFromAspect(aspect));
+                    for (Aspect dataAspect : data.getAspects())
+                        newAspects.add(AspectHandler.getEffectFromAspect(dataAspect));
 
                     worldData.removeData(BlockData.class, pos, true);
-                }
-            } else {
-                BlockData data = worldData.getBlock(BlockData.class, coords);
-                if (data == null) {
-                    Class c = AspectHandler.getEffectFromAspect(aspect);
-                    if(c == null)
-                        return;
-                    if (drainAspects(player, aspect))
-                        data = new BlockData(coords, new Class[]{c});
-                }else{
-                    for(Aspect dataAspect : data.getAspects()){
-                        if(dataAspect == aspect){
-                            ArrayList<Class> newAspects = new ArrayList<Class>();
-                            for(Aspect dataAspect2 : data.getAspects()){
-                                if(dataAspect2 != aspect)
-                                    newAspects.add(AspectHandler.getEffectFromAspect(dataAspect2));
-                            }
-
-                            if(newAspects.size() == 0)
-                                worldData.removeData(BlockData.class, pos, true);
-                            else if(drainAspects(player, aspect)){
-                                worldData.removeData(BlockData.class, pos, true);
-                                data = new BlockData(coords, newAspects.toArray(new Class[newAspects.size()]));
-                                for (AspectEffect effect : data.getEffects())
-                                    effect.onPlaceEffect(player);
-                                worldData.addBlock(data, true, true);
-                            }
-                            return;
-                        }
-                    }
-                    if(drainAspects(player, aspect)) {
-                        ArrayList<Class> newAspects = new ArrayList<Class>();
-                        newAspects.add(AspectHandler.getEffectFromAspect(aspect));
-                        for (Aspect dataAspect : data.getAspects())
-                            newAspects.add(AspectHandler.getEffectFromAspect(dataAspect));
-
-                        worldData.removeData(BlockData.class, pos, true);
-                        data = new BlockData(coords, newAspects.toArray(new Class[newAspects.size()]));
-                    }
-                }
-                if (data != null) {
-                    for (AspectEffect effect : data.getEffects())
-                        effect.onPlaceEffect(player);
-                    worldData.addBlock(data, true, true);
+                    data = new BlockData(coords, newAspects.toArray(new Class[newAspects.size()]));
                 }
             }
+            if (data != null) {
+                for (AspectEffect effect : data.getEffects())
+                    effect.onPlaceEffect(player);
+                worldData.addBlock(data, true, true);
+            }
         }
+
     }
 
     public boolean drainAspects(EntityPlayer player, Aspect aspect){

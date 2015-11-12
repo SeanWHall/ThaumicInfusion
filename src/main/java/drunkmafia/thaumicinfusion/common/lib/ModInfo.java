@@ -12,7 +12,7 @@ public class ModInfo {
 
     public static final String MODID = "thaumicinfusion";
     public static final String NAME = "Thaumic Infusion";
-    public static final String VERSION = "4.27";
+    public static final String VERSION = "4.3";
     public static final String CHANNEL = MODID.toUpperCase();
 
     /* Classpaths */

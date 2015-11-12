@@ -17,6 +17,8 @@ import drunkmafia.thaumicinfusion.common.util.RGB;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import drunkmafia.thaumicinfusion.common.world.SavableHelper;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
+import drunkmafia.thaumicinfusion.net.ChannelHandler;
+import drunkmafia.thaumicinfusion.net.packet.server.BlockSyncPacketC;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderBlocks;
@@ -71,6 +73,10 @@ public class BlockData extends BlockSavable implements IBlockHook {
             return;
 
         this.world = world;
+
+        methodsOverrides = new HashMap<Integer, OverrideBlock>();
+        methodsToBlock = new HashMap<Integer, Integer>();
+
         for(int a = 0; a < dataEffects.size(); a++) {
             AspectEffect effect = dataEffects.get(a);
             if (effect == null) {
@@ -236,7 +242,6 @@ public class BlockData extends BlockSavable implements IBlockHook {
     }
 
     private static int[] toPrimitive(Integer[] IntegerArray) {
-
         int[] result = new int[IntegerArray.length];
         for (int i = 0; i < IntegerArray.length; i++) {
             result[i] = IntegerArray[i].intValue();
@@ -266,8 +271,25 @@ public class BlockData extends BlockSavable implements IBlockHook {
                 methodsOverrides.remove(method.methodID);
             }
             dataEffects.remove(aspectEffect);
+
+            if(!world.isRemote)
+                ChannelHandler.instance().sendToDimension(new BlockSyncPacketC(this), world.provider.dimensionId);
+
             return;
         }
+    }
+
+    public void addEffect(Class<? extends AspectEffect>[] classes){
+        for(AspectEffect effect : classesToEffects(classes)){
+            if (effect == null) continue;
+            effect.data = this;
+            dataEffects.add(effect);
+        }
+
+        if(!world.isRemote)
+            ChannelHandler.instance().sendToDimension(new BlockSyncPacketC(this), world.provider.dimensionId);
+
+        dataLoad(world);
     }
 
     public boolean hasEffect(Class<? extends AspectEffect> effect){
@@ -311,8 +333,10 @@ public class BlockData extends BlockSavable implements IBlockHook {
 
     public void readNBT(NBTTagCompound tagCompound) {
         super.readNBT(tagCompound);
+        dataEffects = new ArrayList<AspectEffect>();
+
         for (int i = 0; i < tagCompound.getInteger("length"); i++)
-            dataEffects.add(SavableHelper.loadDataFromNBT(tagCompound.getCompoundTag("effect: " + i)));
+            dataEffects.add((AspectEffect)SavableHelper.loadDataFromNBT(tagCompound.getCompoundTag("effect: " + i)));
     }
 
     @Override

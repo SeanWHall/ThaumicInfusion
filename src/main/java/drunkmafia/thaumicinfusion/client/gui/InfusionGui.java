@@ -94,8 +94,11 @@ public class InfusionGui extends TIGui {
         super.mouseClicked(mouseX, mouseY, clickedTime);
 
         normalScrollRect.onMouseClicked(mouseX, mouseY);
+        AspectSlot slot = normalScrollRect.selected != null ? normalScrollRect.findAspect(normalScrollRect.selected.aspect) : null;
         if(normalScrollRect.selected != null)
-            normalScrollRect.selected = normalScrollRect.findAspect(normalScrollRect.selected.aspect);
+            normalScrollRect.selected = slot;
+        else if(normalScrollRect.selected == slot)
+            normalScrollRect.selected = null;
     }
 
     class AspectSlot {
@@ -156,9 +159,9 @@ public class InfusionGui extends TIGui {
         public void onMouseClicked(int mouseX, int mouseY) {
             AspectSlot mouseOver = getMouseOver(mouseX, mouseY);
             if (mouseOver != null) {
-                selected = mouseOver;
+                selected = mouseOver == selected ? null : mouseOver;
                 if (player.inventory.getCurrentItem() != null)
-                    ChannelHandler.instance().sendToServer(new WandAspectPacketS(player, player.inventory.currentItem, selected.aspect, false));
+                    ChannelHandler.instance().sendToServer(new WandAspectPacketS(player, player.inventory.currentItem, selected != null ? selected.aspect : null, false));
             }
 
             if (left.isInRect(mouseX, mouseY)) {

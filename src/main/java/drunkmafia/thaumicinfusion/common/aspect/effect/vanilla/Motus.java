@@ -16,13 +16,18 @@ import thaumcraft.api.WorldCoordinates;
 
 import java.util.Random;
 
-@Effect(aspect = "motus", cost = 1)
+@Effect(aspect = "motus")
 public class Motus extends AspectEffect {
 
     private ForgeDirection direction = ForgeDirection.NORTH;
     private long cooldown, maxCooldown = 10000L;
     private int maxSteps = 20;
     private int step = 0;
+
+    @Override
+    public int getCost() {
+        return 1;
+    }
 
     @Override
     public void readConfig(Configuration config) {

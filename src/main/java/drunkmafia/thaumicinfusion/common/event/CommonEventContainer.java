@@ -36,7 +36,7 @@ public class CommonEventContainer {
 
     @SubscribeEvent
     public void onWorldTick(TickEvent.WorldTickEvent event) {
-        if(ThaumicInfusion.instance.stablizerThread != null)
+        if(ThaumicInfusion.instance.stablizerThread != null && event.phase == TickEvent.Phase.START)
             ThaumicInfusion.instance.stablizerThread.setFlags(true, false);
     }
 

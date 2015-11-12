@@ -15,8 +15,17 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
+import org.objectweb.asm.util.Printer;
+import org.objectweb.asm.util.Textifier;
+import org.objectweb.asm.util.TraceMethodVisitor;
+
+import java.io.StringWriter;
+import java.io.PrintWriter;
+import java.util.List;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.*;
 
 import static drunkmafia.thaumicinfusion.common.asm.ThaumicInfusionPlugin.*;
@@ -74,6 +83,7 @@ public class BlockTransformer implements IClassTransformer {
 
         if(isBlockClass){
             log.info("Found the Block Class");
+            logger.println("The following log shows the progress of the transformer, any crashes will be logged in here. If you are reporting a crash/bug for TI, please include this log along with the crash!");
             logger.println("==== Transformers ====");
             for(IClassTransformer transformer : Launch.classLoader.getTransformers())
                 logger.println("Transformer: " + transformer.getClass().getName());
@@ -114,13 +124,29 @@ public class BlockTransformer implements IClassTransformer {
                 //Makes sure that the method has a world object and three integers after it which is then inferred as coordinates.
                 if (worldPars == null) continue;
 
-                if(isBlockClass)  blockMethods.add(deobfMethod.name);
+                boolean skip = false;
+
+                if(isBlockClass) blockMethods.add(deobfMethod.name);
+                else{
+                    //Check if current method has a super call
+                    for(AbstractInsnNode node : deobfMethod.instructions.toArray()){
+                        if(node instanceof MethodInsnNode){
+                            MethodInsnNode methodIsn = (MethodInsnNode) node;
+                            if(methodIsn.name.equals(deobfMethod.name) && methodIsn.owner.equals(deobfClassNode.superName)) {
+                                logger.println(methodNo++ + ") Method has super call: " + deobfMethod.name + " (" + deobfMethod.name.hashCode() + ") " + method.desc + " Access: " + method.access + " SKIPPED");
+                                skip = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if(skip) continue;
 
                 // Sets up the conditional statements
                 int returnType = Type.getReturnType(method.desc).getOpcode(IRETURN);
 
                 //Checks to make sure that the methods has not already been injected
-                boolean skip = false;
                 for(AbstractInsnNode node : method.instructions.toArray()){
                     if (node != null && node instanceof MethodInsnNode && ((MethodInsnNode) node).owner.equals("drunkmafia/thaumicinfusion/common/block/BlockWrapper")) {
                         logger.println(methodNo++ + ") Already Injected into: " + method.name + " " + method.desc + " Access: " + method.access + " skipping to avoid conflicts");
@@ -158,6 +184,7 @@ public class BlockTransformer implements IClassTransformer {
 
                 //Injects Block Invocation Code
                 injectInvokeBlock(toInsert, method, pars);
+
 
                 //If override returns true then it skips the blocks code by returning
                 toInsert.add(new InsnNode(returnType));

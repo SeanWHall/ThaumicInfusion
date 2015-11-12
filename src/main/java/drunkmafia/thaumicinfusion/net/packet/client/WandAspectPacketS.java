@@ -35,15 +35,17 @@ public class WandAspectPacketS implements IMessage {
     public void fromBytes(ByteBuf buf) {
         playerName = buf.readInt();
         slot = buf.readInt();
-        int hash = buf.readInt();
-        dim = buf.readInt();
-
-        for (Aspect aspect : AspectHandler.getRegisteredAspects()) {
-            if (aspect.getTag().hashCode() == hash) {
-                this.aspect = aspect;
-                break;
+        if(buf.readInt() == 1) {
+            int hash = buf.readInt();
+            for (Aspect aspect : AspectHandler.getRegisteredAspects()) {
+                if (aspect.getTag().hashCode() == hash) {
+                    this.aspect = aspect;
+                    break;
+                }
             }
         }
+
+        dim = buf.readInt();
         shouldOpenGUI = buf.readByte() == 1;
     }
 
@@ -51,7 +53,10 @@ public class WandAspectPacketS implements IMessage {
     public void toBytes(ByteBuf buf) {
         buf.writeInt(playerName);
         buf.writeInt(slot);
-        buf.writeInt(aspect.getTag().hashCode());
+
+        buf.writeInt(aspect != null ? 1 : -1);
+        if(aspect != null) buf.writeInt(aspect != null ? aspect.getTag().hashCode() : -1);
+
         buf.writeInt(dim);
         buf.writeByte(shouldOpenGUI ? 1 : 0);
     }
@@ -59,7 +64,7 @@ public class WandAspectPacketS implements IMessage {
     public static class Handler implements IMessageHandler<WandAspectPacketS, IMessage> {
         @Override
         public IMessage onMessage(WandAspectPacketS message, MessageContext ctx) {
-            if (message.aspect == null || ctx.side.isClient())
+            if (ctx.side.isClient())
                 return null;
 
             World world = DimensionManager.getWorld(message.dim);
@@ -67,7 +72,10 @@ public class WandAspectPacketS implements IMessage {
                 if (player.getCommandSenderName().hashCode() == message.playerName) {
                     ItemStack stack = player.inventory.mainInventory[message.slot];
                     NBTTagCompound compound = stack.getTagCompound() != null ? stack.getTagCompound() : new NBTTagCompound();
-                    compound.setString("InfusionAspect", message.aspect.getTag());
+
+                    if(message.aspect != null) compound.setString("InfusionAspect", message.aspect.getTag());
+                    else if(compound.hasKey("InfusionAspect")) compound.removeTag("InfusionAspect");
+
                     compound.setBoolean("isSelected", message.shouldOpenGUI);
                     stack.setTagCompound(compound);
                     player.inventory.mainInventory[message.slot] = stack;

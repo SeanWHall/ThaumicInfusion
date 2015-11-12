@@ -27,6 +27,8 @@ public class TIWorldData implements ISavable {
 
     private static ReflectionLookup<World> worldLookup = new ReflectionLookup<World>(World.class);
 
+    public WorldCoordinates surveyPosition;
+
     public World world;
     public QuadTree<ChunkData> chunkDatas = new QuadTree<ChunkData>(ChunkData.class, -2000000, -2000000, 2000000, 2000000);
 

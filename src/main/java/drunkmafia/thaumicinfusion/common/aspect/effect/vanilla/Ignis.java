@@ -21,6 +21,11 @@ public class Ignis  extends AspectEffect {
         return 1;
     }
 
+    @Override
+    public boolean shouldDrain() {
+        return false;
+    }
+
     @OverrideBlock
     public int getFlammability(IBlockAccess world, int x, int y, int z, ForgeDirection face){
         return 0;

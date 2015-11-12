@@ -41,7 +41,6 @@ public abstract class AspectLink extends AspectEffect {
     @OverrideBlock(overrideBlockFunc = false)
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
         ItemStack paper = player.getCurrentEquippedItem();
-
         if (world.isRemote || paper == null || (paper.getItem() != TIItems.coordinatePaper && paper.getItem() != Items.paper))
             return false;
 

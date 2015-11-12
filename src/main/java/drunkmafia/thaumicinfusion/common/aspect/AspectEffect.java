@@ -13,6 +13,7 @@ import drunkmafia.thaumicinfusion.common.aspect.effect.vanilla.*;
 import drunkmafia.thaumicinfusion.common.aspect.entity.InfusedBlockFalling;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
+import drunkmafia.thaumicinfusion.common.world.AspectStablizer;
 import drunkmafia.thaumicinfusion.common.world.ISavable;
 import drunkmafia.thaumicinfusion.common.world.data.BlockData;
 import net.minecraft.block.Block;
@@ -43,6 +44,10 @@ public abstract class AspectEffect extends Block implements ISavable {
 
     public abstract int getCost();
 
+    public boolean shouldDrain(){
+        return true;
+    }
+
     public static void init(){
         AspectHandler.registerEffect(Aer.class);
         AspectHandler.registerEffect(Alienis.class);
@@ -53,7 +58,6 @@ public abstract class AspectEffect extends Block implements ISavable {
         AspectHandler.registerEffect(Exanimis.class);
 
         AspectHandler.registerEffect(Fabrico.class);
-        AspectHandler.registerEffect(Fames.class);
 
         AspectHandler.registerEffect(Gelum.class);
 
@@ -68,13 +72,14 @@ public abstract class AspectEffect extends Block implements ISavable {
 
         AspectHandler.registerEffect(Machina.class);
         AspectHandler.registerEffect(Messis.class);
-        AspectHandler.registerEffect(Metallum.class);
+        //AspectHandler.registerEffect(Metallum.class);
         AspectHandler.registerEffect(Mortuus.class);
 
         AspectHandler.registerEffect(Pannus.class);
         AspectHandler.registerEffect(Perditio.class);
         AspectHandler.registerEffect(Potentia.class);
         AspectHandler.registerEffect(Permutatio.class);
+        AspectHandler.registerEffect(Praecantatio.class);
 
         AspectHandler.registerEffect(Sano.class);
         AspectHandler.registerEffect(Sensus.class);
@@ -108,7 +113,8 @@ public abstract class AspectEffect extends Block implements ISavable {
                 continue;
 
             OverrideBlock block = meth.getAnnotation(OverrideBlock.class);
-            if (block != null)  meths.add(new MethodInfo(meth.getName().hashCode(), block));
+            if (block != null)
+                meths.add(new MethodInfo(meth.getName().hashCode(), block));
         }
 
         phasedMethods.put(c, meths);
@@ -120,7 +126,10 @@ public abstract class AspectEffect extends Block implements ISavable {
     }
 
     public void readConfig(Configuration config) {
+        config.load();
         shouldRegister = config.getBoolean(getClass().getSimpleName(), "Effects", true, "");
+        AspectStablizer.dataExistedFor = config.getInt("DataExisted", "Aspects", AspectStablizer.dataExistedFor, 60, 1000, "The amount of ticks a infusion has to wait before it drains an aspect");
+        config.save();
     }
 
     public void onPlaceEffect(EntityPlayer player) {

@@ -28,7 +28,7 @@ public final class BlockWrapper {
     public static Block block;
 
     private static IBlockHook lastHook;
-    private static int lastX, lastY, lastZ;
+    private static int lastX, lastY, lastZ, lastMethod;
 
     /**
      * Used to decided if an effects exists in this blocks position
@@ -36,6 +36,9 @@ public final class BlockWrapper {
      */
     public static boolean hasWorldData(IBlockAccess access, int x, int y, int z, Block block, int methodHash) {
         World world = TIWorldData.getWorld(access);
+
+        //Checks to increase performance, Air blocks are not infuseable & it checks if the same method is being called at the same possitons
+        //Which deals with super calls by blocks, that way the effect is not invoked multiple times by the same block
         if (world == null || block == Blocks.air)
             return false;
 
@@ -54,7 +57,10 @@ public final class BlockWrapper {
                 lastX = x;
                 lastY = y;
                 lastZ = z;
-                return true;
+                lastMethod = methodHash;
+
+                //Ensures that the block method does not try to invoke its method off a null Block
+                return BlockWrapper.block != null;
             }
         }
         return false;

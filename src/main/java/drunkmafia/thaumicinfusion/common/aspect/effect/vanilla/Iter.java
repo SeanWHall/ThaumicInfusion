@@ -37,6 +37,7 @@ public class Iter extends AspectLink {
     @OverrideBlock(overrideBlockFunc = false)
     public void updateTick(World world, int x, int y, int z, Random random) {
         world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+
         if(world.isRemote)
             return;
 

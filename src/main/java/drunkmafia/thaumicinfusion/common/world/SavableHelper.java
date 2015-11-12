@@ -18,9 +18,7 @@ public class SavableHelper {
                 data.readNBT(tag);
                 return (T) data;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) {}
         return null;
     }
 

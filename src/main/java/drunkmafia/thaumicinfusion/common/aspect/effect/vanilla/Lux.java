@@ -29,6 +29,11 @@ public class Lux extends AspectEffect {
         return 1;
     }
 
+    @Override
+    public boolean shouldDrain() {
+        return false;
+    }
+
     @OverrideBlock(overrideBlockFunc = false)
     public void onBlockAdded(World world, int x, int y, int z) {
         if (world.isRemote)
