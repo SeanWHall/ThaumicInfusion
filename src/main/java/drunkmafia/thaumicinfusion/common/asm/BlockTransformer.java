@@ -128,7 +128,8 @@ public class BlockTransformer implements IClassTransformer {
 
                 if(isBlockClass) blockMethods.add(deobfMethod.name);
                 else{
-                    //Check if current method has a super call
+                    //Check if current method has a super call, this is done to avoid the same method being invoked multiple times.
+                    //The method call will be handled to the furthest down super call, which in turn will increase performance
                     for(AbstractInsnNode node : deobfMethod.instructions.toArray()){
                         if(node instanceof MethodInsnNode){
                             MethodInsnNode methodIsn = (MethodInsnNode) node;
