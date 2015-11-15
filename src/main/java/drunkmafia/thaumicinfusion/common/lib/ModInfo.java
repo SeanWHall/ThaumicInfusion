@@ -12,10 +12,10 @@ public class ModInfo {
 
     public static final String MODID = "thaumicinfusion";
     public static final String NAME = "Thaumic Infusion";
-    public static final String VERSION = "4.3";
+    public static final String VERSION = "4.32";
     public static final String CHANNEL = ModInfo.MODID.toUpperCase();
 
-    /* Classpaths */
+    /* Classpath's */
 
     public static final String BASE_PATH = "drunkmafia.thaumicinfusion";
 

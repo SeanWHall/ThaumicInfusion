@@ -43,6 +43,7 @@ public class ThaumicInfusion {
     private static Logger logger;
     public Configuration config;
 
+    public boolean shouldStablizer;
     public AspectStablizer stablizerThread;
 
     public CreativeTabs tab = new CreativeTabs(CREATIVETAB_UNLOCAL) {
@@ -62,8 +63,12 @@ public class ThaumicInfusion {
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        this.config = new Configuration(event.getSuggestedConfigurationFile());
         ThaumicInfusion.logger = event.getModLog();
+
+        config = new Configuration(event.getSuggestedConfigurationFile());
+        config.load();
+        shouldStablizer = config.get("aspects", "Should Have to Stabilizer?", true).getBoolean();
+        config.save();
 
         TIItems.init();
         TIBlocks.initBlocks();
@@ -94,13 +99,18 @@ public class ThaumicInfusion {
     public void serverStart(FMLServerStartingEvent event) {
         MinecraftServer server = event.getServer();
         TICommand.init((ServerCommandManager) server.getCommandManager());
-        this.stablizerThread = new AspectStablizer(server.worldServers);
-        new Thread(this.stablizerThread, "Aspect Stabilizer").start();
+
+        if (shouldStablizer) {
+            this.stablizerThread = new AspectStablizer(server.worldServers);
+            new Thread(this.stablizerThread, "Aspect Stabilizer").start();
+        }
     }
 
     @Mod.EventHandler
     public void serverStop(FMLServerStoppingEvent event) {
-        this.stablizerThread.setFlags(false, false);
-        this.stablizerThread = null;
+        if (stablizerThread != null) {
+            this.stablizerThread.setFlags(false, false);
+            this.stablizerThread = null;
+        }
     }
 }

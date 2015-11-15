@@ -172,7 +172,7 @@ public class BlockTransformer implements IClassTransformer {
                         if (node instanceof MethodInsnNode) {
                             MethodInsnNode methodIsn = (MethodInsnNode) node;
                             if (methodIsn.name.equals(deobfMethod.name) && methodIsn.owner.equals(deobfClassNode.superName)) {
-                                logger.println(methodNo++ + ") Method has super call: " + deobfMethod.name + " (" + deobfMethod.name.hashCode() + ") " + method.desc + " Access: " + method.access + " | SKIPPED (Super call Detected)");
+                                logger.println(methodNo++ + ") Block Method found: " + deobfMethod.name + " (" + deobfMethod.name.hashCode() + ") " + method.desc + " Access: " + method.access + " | SKIPPED (Super call Detected)");
                                 skip = true;
                                 break;
                             }
@@ -188,7 +188,7 @@ public class BlockTransformer implements IClassTransformer {
                 //Checks to make sure that the methods has not already been injected
                 for (AbstractInsnNode node : method.instructions.toArray()) {
                     if (node != null && node instanceof MethodInsnNode && ((MethodInsnNode) node).owner.equals("drunkmafia/thaumicinfusion/common/block/BlockWrapper")) {
-                        logger.println(methodNo++ + ") Block Method found: " + method.name + " " + method.desc + " Access: " + method.access + " | SKIPPED (Already Injected)");
+                        logger.println(methodNo++ + ") Block Method found: " + deobfMethod.name + " (" + deobfMethod.name.hashCode() + ") " + method.desc + " Access: " + method.access + " | SKIPPED (Already Injected)");
                         skip = true;
                         break;
                     }
