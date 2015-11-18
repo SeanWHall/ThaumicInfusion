@@ -1,82 +1,80 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
-import thaumcraft.api.WorldCoordinates;
+import thaumcraft.api.internal.WorldCoordinates;
 
 import java.util.Random;
 
-@Effect(aspect = "gelum")
+@Effect(aspect = "gelum", cost = 1)
 public class Gelum extends AspectEffect {
 
     public static long cooldownTimer = 10000L;
-    private final int radius = 10;
     private long cooldown;
+    private int radius = 10;
 
     @Override
     public void aspectInit(World world, WorldCoordinates pos) {
         super.aspectInit(world, pos);
         if (!world.isRemote)
-            this.updateTick(world, pos.x, pos.y, pos.z, world.rand);
+            updateTick(world, pos.pos, world.getBlockState(pos.pos), world.rand);
     }
 
-    @Override
-    public int getCost() {
-        return 1;
+    @BlockMethod(overrideBlockFunc = false)
+    public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
+        world.forceBlockUpdateTick(state.getBlock(), pos, world.rand);
     }
 
-    @OverrideBlock(overrideBlockFunc = false)
-    public void onBlockAdded(World world, int x, int y, int z) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+    @BlockMethod(overrideBlockFunc = false)
+    public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
+        world.forceBlockUpdateTick(state.getBlock(), pos, world.rand);
     }
 
-    @OverrideBlock(overrideBlockFunc = false)
-    public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+    @BlockMethod(overrideBlockFunc = false)
+    public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entityIn) {
+        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
     }
 
-    @OverrideBlock(overrideBlockFunc = false)
-    public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
-    }
-
-    @OverrideBlock(overrideBlockFunc = false)
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+    @BlockMethod(overrideBlockFunc = false)
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumFacing side, float hitX, float hitY, float hitZ) {
+        world.forceBlockUpdateTick(state.getBlock(), pos, world.rand);
         return false;
     }
 
-    @OverrideBlock(overrideBlockFunc = false)
-    public void updateTick(World world, int x, int y, int z, Random random) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
-        if (world.isRemote || System.currentTimeMillis() < this.cooldown + Gelum.cooldownTimer)
+    @BlockMethod(overrideBlockFunc = false)
+    public void updateTick(World world, BlockPos pos, IBlockState state, Random rand) {
+        world.forceBlockUpdateTick(state.getBlock(), pos, world.rand);
+        if (world.isRemote || System.currentTimeMillis() < cooldown + cooldownTimer)
             return;
 
-        for (int xPos = x - this.radius; xPos < x + this.radius; xPos++) {
-            for (int yPos = y - this.radius; yPos < y + this.radius; yPos++) {
-                for (int zPos = z - this.radius; zPos < z + this.radius; zPos++) {
-                    Block block = world.getBlock(xPos, yPos, zPos);
+        for (int xPos = pos.getX() - radius; xPos < pos.getX() + radius; xPos++) {
+            for (int yPos = pos.getY() - radius; yPos < pos.getY() + radius; yPos++) {
+                for (int zPos = pos.getZ() - radius; zPos < pos.getZ() + radius; zPos++) {
+                    Block block = world.getBlockState(pos).getBlock();
 
                     if (block != null) {
                         if (block.getMaterial() == Material.water) {
-                            world.setBlock(xPos, yPos, zPos, Blocks.ice);
-                            this.cooldown = System.currentTimeMillis();
-                        } else if (block != Blocks.snow_layer && world.canBlockSeeTheSky(xPos, yPos, zPos) && world.isAirBlock(xPos, yPos + 1, zPos)) {
-                            world.setBlock(xPos, yPos + 1, zPos, Blocks.snow_layer);
-                            this.cooldown = System.currentTimeMillis();
+                            world.setBlockState(new BlockPos(xPos, yPos, zPos), Blocks.ice.getDefaultState());
+                            cooldown = System.currentTimeMillis();
+                        } else if (block != Blocks.snow_layer && world.canBlockSeeSky(new BlockPos(xPos, yPos, zPos)) && world.isAirBlock(new BlockPos(xPos, yPos + 1, zPos))) {
+                            world.setBlockState(new BlockPos(xPos, yPos, zPos), Blocks.snow_layer.getDefaultState());
+                            cooldown = System.currentTimeMillis();
                         }
                         return;
                     }
                 }
             }
         }
-        this.cooldown = System.currentTimeMillis();
+        cooldown = System.currentTimeMillis();
     }
 }

@@ -8,6 +8,7 @@ package drunkmafia.thaumicinfusion.common.world;
 
 import drunkmafia.thaumicinfusion.common.world.data.BlockSavable;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.ChunkCoordIntPair;
 
 import java.util.ArrayList;
@@ -42,18 +43,14 @@ public class ChunkData implements ISavable {
         return allData.toArray(new BlockSavable[allData.size()]);
     }
 
-    public boolean addBlock(BlockSavable data, int x, int y, int z) {
-        return !(y < 0 || y > 256) && (this.blockdata[x & 15][y][z & 15] != null ? this.blockdata[x & 15][y][z & 15] : (this.blockdata[x & 15][y][z & 15] = new ArrayList<BlockSavable>())).add(data);
+    public boolean addBlock(BlockSavable data, BlockPos pos) {
+        return !(pos.getY() < 0 || pos.getY() > 256) && (this.blockdata[pos.getX() & 15][pos.getY()][pos.getZ() & 15] != null ? this.blockdata[pos.getX() & 15][pos.getY()][pos.getZ() & 15] : (this.blockdata[pos.getX() & 15][pos.getY()][pos.getZ() & 15] = new ArrayList<BlockSavable>())).add(data);
     }
 
-    public void removeBlock(int x, int y, int z) {
-        this.blockdata[x & 15][y][z & 15] = null;
-    }
+    public boolean removeData(Class<? extends BlockSavable> type, BlockPos pos) {
+        if (pos.getY() < 0 || pos.getY() > 256) return false;
 
-    public boolean removeData(Class<? extends BlockSavable> type, int x, int y, int z) {
-        if (y < 0 || y > 256) return false;
-
-        List<BlockSavable> datas = this.blockdata[x & 15][y][z & 15];
+        List<BlockSavable> datas = this.blockdata[pos.getX() & 15][pos.getY()][pos.getZ() & 15];
         if (datas == null)
             return false;
 
@@ -64,15 +61,15 @@ public class ChunkData implements ISavable {
         }
 
         if (datas.size() == 0)
-            this.blockdata[x & 15][y][z & 15] = null;
+            this.blockdata[pos.getX() & 15][pos.getY()][pos.getZ() & 15] = null;
         return true;
     }
 
-    public <T> T getBlock(Class<T> type, int x, int y, int z) {
-        if (y < 0 || y >= 256) return null;
+    public <T> T getBlock(Class<T> type, BlockPos pos) {
+        if (pos.getY() < 0 || pos.getY() > 256) return null;
 
-        if (this.blockdata[x & 15][y][z & 15] != null) {
-            for (BlockSavable block : this.blockdata[x & 15][y][z & 15]) {
+        if (this.blockdata[pos.getX() & 15][pos.getY()][pos.getZ() & 15] != null) {
+            for (BlockSavable block : this.blockdata[pos.getX() & 15][pos.getY()][pos.getZ() & 15]) {
                 if (type.isAssignableFrom(block.getClass())) {
                     return type.cast(block);
                 }

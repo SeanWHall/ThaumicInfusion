@@ -7,35 +7,31 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.IBlockAccess;
 
-@Effect(aspect = "potentia")
+@Effect(aspect = "potentia", cost = 1)
 public class Potentia extends AspectEffect {
 
     @Override
-    public int getCost() {
-        return 1;
-    }
-
-    @OverrideBlock
-    public int isProvidingWeakPower(IBlockAccess access, int x, int y, int z, int side) {
+    @BlockMethod
+    public int isProvidingStrongPower(IBlockAccess worldIn, BlockPos pos, IBlockState state, EnumFacing side) {
         return 15;
     }
 
     @Override
-    public int isProvidingStrongPower(IBlockAccess access, int x, int y, int z, int side) {
-        return this.isProvidingWeakPower(access, x, y, z, side);
+    @BlockMethod
+    public int isProvidingWeakPower(IBlockAccess worldIn, BlockPos pos, IBlockState state, EnumFacing side) {
+        return 15;
     }
 
-    @OverrideBlock
-    public boolean shouldCheckWeakPower(IBlockAccess world, int x, int y, int z, int side) {
-        return false;
-    }
-
-    @OverrideBlock
-    public boolean canConnectRedstone(IBlockAccess world, int x, int y, int z, int side) {
+    @Override
+    @BlockMethod
+    public boolean shouldCheckWeakPower(IBlockAccess world, BlockPos pos, EnumFacing side) {
         return true;
     }
 }

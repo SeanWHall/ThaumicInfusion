@@ -2,7 +2,7 @@ package drunkmafia.thaumicinfusion.client.gui.aspect;
 
 import drunkmafia.thaumicinfusion.client.gui.TIGui;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
-import thaumcraft.api.WorldCoordinates;
+import thaumcraft.api.internal.WorldCoordinates;
 
 public class EffectGui extends TIGui {
 
@@ -12,8 +12,8 @@ public class EffectGui extends TIGui {
     public EffectGui(AspectEffect effect) {
         this.effect = effect;
         WorldCoordinates pos = effect.getPos();
-        x = pos.x;
-        y = pos.y;
-        z = pos.z;
+        x = pos.pos.getX();
+        y = pos.pos.getY();
+        z = pos.pos.getZ();
     }
 }

@@ -1,7 +1,8 @@
 # =============== #
 # Minecraft generated #
 # =============== #
-eclipse/
+run/
+libs/
 out/
 .idea/
 

@@ -6,9 +6,6 @@
 
 package drunkmafia.thaumicinfusion.net.packet.server;
 
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import drunkmafia.thaumicinfusion.common.world.ChunkData;
 import drunkmafia.thaumicinfusion.common.world.SavableHelper;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
@@ -19,7 +16,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
-import thaumcraft.api.WorldCoordinates;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import thaumcraft.api.internal.WorldCoordinates;
 
 public class ChunkSyncPacketC implements IMessage {
 
@@ -68,7 +68,7 @@ public class ChunkSyncPacketC implements IMessage {
 
             for (BlockSavable savable : data.getAllBlocks()) {
                 WorldCoordinates blockPos = savable.getCoords();
-                world.markBlockForUpdate(blockPos.x, blockPos.y, blockPos.z);
+                world.markBlockForUpdate(blockPos.pos);
             }
             return null;
         }

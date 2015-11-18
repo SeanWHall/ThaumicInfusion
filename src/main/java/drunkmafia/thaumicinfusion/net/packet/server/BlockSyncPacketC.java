@@ -6,9 +6,6 @@
 
 package drunkmafia.thaumicinfusion.net.packet.server;
 
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import drunkmafia.thaumicinfusion.common.world.SavableHelper;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.data.BlockSavable;
@@ -18,7 +15,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.world.World;
-import thaumcraft.api.WorldCoordinates;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import thaumcraft.api.internal.WorldCoordinates;
 
 public class BlockSyncPacketC implements IMessage {
 
@@ -62,9 +62,11 @@ public class BlockSyncPacketC implements IMessage {
             WorldCoordinates pos = data.getCoords();
             TIWorldData worldData = TIWorldData.getWorldData(world);
 
-            worldData.removeData(message.data.getClass(), pos, false);
-            worldData.addBlock(message.data, true, false);
-            Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.x, pos.y, pos.z);
+            if (worldData == null) return null;
+
+            worldData.removeData(data.getClass(), pos, false);
+            worldData.addBlock(data, true, false);
+            Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.pos);
 
             return null;
         }

@@ -6,8 +6,6 @@
 
 package drunkmafia.thaumicinfusion.common.item;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
@@ -15,19 +13,20 @@ import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.data.BlockData;
 import net.minecraft.block.Block;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import thaumcraft.api.WorldCoordinates;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.aspects.IAspectSource;
+import thaumcraft.api.internal.WorldCoordinates;
 import thaumcraft.api.wands.ItemFocusBasic;
 
 import java.util.ArrayList;
@@ -42,70 +41,43 @@ public class ItemFocusInfusing extends ItemFocusBasic {
         for (String block : blocks) ItemFocusInfusing.blockblacklist.add(Block.getBlockFromName(block));
     }
 
-    public IIcon iconOrnament, depthIcon;
-
     public ItemFocusInfusing() {
+        super("infusion", new ResourceLocation(ModInfo.MODID, "items/focus_infusion.png"), 8747923);
+        setUnlocalizedName("focus_infusion");
         setCreativeTab(ThaumicInfusion.instance.tab);
-    }
-
-    public String getSortingHelper(ItemStack itemstack) {
-        return "BWI" + super.getSortingHelper(itemstack);
-    }
-
-    @SideOnly(Side.CLIENT)
-    public void registerIcons(IIconRegister ir) {
-        depthIcon = ir.registerIcon(ModInfo.MODID + ":focus_infusion_depth");
-        icon = ir.registerIcon(ModInfo.MODID + ":focus_infusion");
-        iconOrnament = ir.registerIcon(ModInfo.MODID + ":focus_infusion_orn");
-    }
-
-    public IIcon getFocusDepthLayerIcon(ItemStack itemstack) {
-        return depthIcon;
-    }
-
-    @SideOnly(Side.CLIENT)
-    public IIcon getIconFromDamageForRenderPass(int par1, int renderPass) {
-        return renderPass == 1 ? icon : iconOrnament;
-    }
-
-    @SideOnly(Side.CLIENT)
-    public boolean requiresMultipleRenderPasses() {
-        return true;
-    }
-
-    public IIcon getOrnament(ItemStack itemstack) {
-        return iconOrnament;
     }
 
     @Override
     public AspectList getVisCost(ItemStack focusstack) {
-        return new AspectList();
+        return new AspectList().add(Aspect.AIR, 0);
     }
 
-    public ItemStack onFocusRightClick(ItemStack itemstack, World world, EntityPlayer player, MovingObjectPosition mop) {
+    @Override
+    public boolean onFocusActivation(ItemStack itemstack, World world, EntityLivingBase player, MovingObjectPosition mop, int count) {
         player.swingItem();
+
         if (mop != null && mop.typeOfHit == MovingObjectType.BLOCK) {
-            if (ItemFocusInfusing.blockblacklist.contains(world.getBlock(mop.blockX, mop.blockY, mop.blockZ)))
-                return itemstack;
+            if (ItemFocusInfusing.blockblacklist.contains(world.getBlockState(mop.getBlockPos()).getBlock()))
+                return false;
 
             NBTTagCompound wandNBT = itemstack.getTagCompound() != null ? itemstack.getTagCompound() : new NBTTagCompound();
 
             if (!world.isRemote) {
                 Aspect aspect = wandNBT.hasKey("InfusionAspect") ? Aspect.getAspect(wandNBT.getString("InfusionAspect")) : null;
-                this.placeAspect(player, new WorldCoordinates(mop.blockX, mop.blockY, mop.blockZ, player.dimension), aspect);
-                world.playSoundEffect((double) mop.blockX + 0.5D, (double) mop.blockY + 0.5D, (double) mop.blockZ + 0.5D, "thaumcraft:wand", 0.7F, world.rand.nextFloat() * 0.1F + 0.9F);
+                this.placeAspect((EntityPlayer) player, new WorldCoordinates(mop.getBlockPos(), player.dimension), aspect);
+                world.playSoundEffect((double) mop.getBlockPos().getX() + 0.5D, (double) mop.getBlockPos().getY() + 0.5D, (double) mop.getBlockPos().getZ() + 0.5D, "thaumcraft:wand", 0.7F, world.rand.nextFloat() * 0.1F + 0.9F);
             }
         } else {
-            player.openGui(ThaumicInfusion.instance, 0, world, (int) player.posX, (int) player.posY, (int) player.posZ);
+            ((EntityPlayer) player).openGui(ThaumicInfusion.instance, 0, world, (int) player.posX, (int) player.posY, (int) player.posZ);
         }
 
-        return itemstack;
+        return false;
     }
 
     public void placeAspect(EntityPlayer player, WorldCoordinates pos, Aspect aspect) {
         World world = player.worldObj;
         TIWorldData worldData = TIWorldData.getWorldData(world);
-        WorldCoordinates coords = new WorldCoordinates(pos.x, pos.y, pos.z, player.dimension);
+        WorldCoordinates coords = new WorldCoordinates(pos.pos, player.dimension);
         if (aspect == null) {
             BlockData data = worldData.getBlock(BlockData.class, pos);
             if (data != null) {
@@ -172,12 +144,12 @@ public class ItemFocusInfusing extends ItemFocusBasic {
         for (int x = (int) (player.posX - 10); x < player.posX + 10; x++) {
             for (int y = (int) (player.posY - 10); y < player.posY + 10; y++) {
                 for (int z = (int) (player.posZ - 10); z < player.posZ + 10; z++) {
-                    TileEntity tileEntity = player.worldObj.getTileEntity(x, y, z);
+                    TileEntity tileEntity = player.worldObj.getTileEntity(new BlockPos(x, y, z));
                     if (tileEntity instanceof IAspectSource) {
                         IAspectSource source = (IAspectSource) tileEntity;
                         if (source.doesContainerContainAmount(aspect, cost)) {
                             source.takeFromContainer(aspect, cost);
-                            player.worldObj.playSound((double) ((float) tileEntity.xCoord + 0.5F), (double) ((float) tileEntity.yCoord + 0.5F), (double) ((float) tileEntity.zCoord + 0.5F), "game.neutral.swim", 0.5F, 1.0F + (player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.3F, false);
+                            player.worldObj.playSound((double) ((float) x + 0.5F), (double) ((float) y + 0.5F), (double) ((float) z + 0.5F), "game.neutral.swim", 0.5F, 1.0F + (player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.3F, false);
                             return true;
                         }
                     }
@@ -199,14 +171,14 @@ public class ItemFocusInfusing extends ItemFocusBasic {
             for (int x = (int) (player.posX - 10); x < player.posX + 10; x++) {
                 for (int y = (int) (player.posY - 10); y < player.posY + 10; y++) {
                     for (int z = (int) (player.posZ - 10); z < player.posZ + 10; z++) {
-                        TileEntity tileEntity = player.worldObj.getTileEntity(x, y, z);
+                        TileEntity tileEntity = player.worldObj.getTileEntity(new BlockPos(x, y, z));
                         if (tileEntity instanceof IAspectSource) {
                             IAspectSource source = (IAspectSource) tileEntity;
                             if (source.doesContainerAccept(currentAspect)) {
                                 source.addToContainer(currentAspect, AspectHandler.getCostOfEffect(currentAspect));
                                 filled++;
                                 foundJar = true;
-                                player.worldObj.playSound((double) ((float) tileEntity.xCoord + 0.5F), (double) ((float) tileEntity.yCoord + 0.5F), (double) ((float) tileEntity.zCoord + 0.5F), "game.neutral.swim", 0.5F, 1.0F + (player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.3F, false);
+                                player.worldObj.playSound((double) ((float) x + 0.5F), (double) ((float) y + 0.5F), (double) ((float) z + 0.5F), "game.neutral.swim", 0.5F, 1.0F + (player.worldObj.rand.nextFloat() - player.worldObj.rand.nextFloat()) * 0.3F, false);
                                 break;
                             }
                         }

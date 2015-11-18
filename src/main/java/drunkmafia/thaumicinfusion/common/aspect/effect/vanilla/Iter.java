@@ -6,75 +6,75 @@
 
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
+import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
-import thaumcraft.api.WorldCoordinates;
+import thaumcraft.api.internal.WorldCoordinates;
 
 import java.util.ArrayList;
 import java.util.Random;
 
-@Effect(aspect = "iter")
+@Effect(aspect = ("iter"), cost = 4)
 public class Iter extends AspectLink {
 
     @Override
     public void aspectInit(World world, WorldCoordinates pos) {
         super.aspectInit(world, pos);
         if (!world.isRemote)
-            this.updateTick(world, pos.x, pos.y, pos.z, world.rand);
+            updateTick(world, pos.pos, world.getBlockState(pos.pos), world.rand);
     }
 
     @Override
-    public int getCost() {
-        return 8;
-    }
-
-    @OverrideBlock(overrideBlockFunc = false)
-    public void updateTick(World world, int x, int y, int z, Random random) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
-
+    @BlockMethod(overrideBlockFunc = false)
+    public void updateTick(World world, BlockPos blockPos, IBlockState state, Random random) {
+        world.scheduleUpdate(blockPos, state.getBlock(), 1);
         if (world.isRemote)
             return;
 
-        WorldCoordinates pos = this.getPos();
-        if (pos == null || world.isAirBlock(pos.x, pos.y, pos.z))
+        WorldCoordinates pos = getPos();
+        if (pos == null || world.isAirBlock(pos.pos))
             return;
 
-        AxisAlignedBB bb = AxisAlignedBB.getBoundingBox(pos.x, pos.y, pos.z, pos.x + 1, pos.y + 2, pos.z + 1);
+        AxisAlignedBB bb = AxisAlignedBB.fromBounds(pos.pos.getX(), pos.pos.getY(), pos.pos.getZ(), pos.pos.getX() + 1, pos.pos.getY() + 2, pos.pos.getZ() + 1);
         ArrayList<EntityPlayer> ents = (ArrayList<EntityPlayer>) world.getEntitiesWithinAABB(EntityPlayer.class, bb);
         for (EntityPlayer ent : ents) {
             if (ent.isSneaking()) {
-                WorldCoordinates destin = this.getDestination();
+                WorldCoordinates destin = getDestination();
 
                 World destWorld;
-                if (destin == null || (destWorld = DimensionManager.getWorld(destin.dim)) == null || destWorld.isAirBlock(destin.x, destin.y, destin.z))
+                if (destin == null || (destWorld = DimensionManager.getWorld(destin.dim)) == null || destWorld.isAirBlock(destin.pos))
                     return;
 
-                if (destin.dim != ent.worldObj.provider.dimensionId)
+                if (destin.dim != ent.worldObj.provider.getDimensionId())
                     ent.travelToDimension(destin.dim);
-                ent.setPositionAndUpdate(destin.x + 0.5F, destin.y + 1F, destin.z + 0.5F);
+                ent.setPositionAndUpdate(destin.pos.getX() + 0.5F, destin.pos.getY() + 1F, destin.pos.getZ() + 0.5F);
                 ent.setSneaking(false);
             }
         }
     }
 
-    @OverrideBlock(overrideBlockFunc = false)
-    public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+    @Override
+    @BlockMethod(overrideBlockFunc = false)
+    public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
+        world.forceBlockUpdateTick(state.getBlock(), pos, world.rand);
     }
 
-    @OverrideBlock(overrideBlockFunc = false)
-    public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+    @Override
+    @BlockMethod(overrideBlockFunc = false)
+    public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entityIn) {
+        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
     }
 
-    @OverrideBlock(overrideBlockFunc = false)
-    public void onBlockAdded(World world, int x, int y, int z) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+    @Override
+    @BlockMethod(overrideBlockFunc = false)
+    public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
+        world.forceBlockUpdateTick(state.getBlock(), pos, world.rand);
     }
 }

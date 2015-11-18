@@ -7,124 +7,122 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.data.BlockData;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.config.Configuration;
-import thaumcraft.api.WorldCoordinates;
+import thaumcraft.api.internal.WorldCoordinates;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-@Effect(aspect = "volatus")
+@Effect(aspect = "volatus", cost = 4)
 public class Volatus extends AspectEffect {
 
-    private final List<Integer> isFlying = new ArrayList<Integer>();
     private int defSize = 10, tickTime = 1;
-
-    @Override
-    public int getCost() {
-        return 8;
-    }
+    private List<Integer> isFlying = new ArrayList<Integer>();
 
     @Override
     public void readConfig(Configuration config) {
         super.readConfig(config);
-        this.defSize = config.getInt("Default Flying Range", "Volatus", this.defSize, 1, 100, "");
-        this.tickTime = config.getInt("Tick Time", "Volatus", this.tickTime, 1, 20, "Delay before the effect ticks again");
+        defSize = config.getInt("Default Flying Range", "Volatus", defSize, 1, 100, "");
+        tickTime = config.getInt("Tick Time", "Volatus", tickTime, 1, 20, "Delay before the effect ticks again");
     }
 
     @Override
     public void aspectInit(World world, WorldCoordinates pos) {
         super.aspectInit(world, pos);
         if (!world.isRemote)
-            this.updateTick(world, pos.x, pos.y, pos.z, world.rand);
+            updateTick(world, pos.pos, world.getBlockState(pos.pos), world.rand);
     }
 
-    @OverrideBlock(overrideBlockFunc = false)
-    public void onBlockAdded(World world, int x, int y, int z) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), this.tickTime);
-    }
-
-    @OverrideBlock(overrideBlockFunc = false)
-    public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
-    }
-
-    @OverrideBlock(overrideBlockFunc = false)
-    public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
-    }
-
-    @OverrideBlock(overrideBlockFunc = false)
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
-        return false;
-    }
-
-    @OverrideBlock(overrideBlockFunc = false)
-    public void updateTick(World world, int x, int y, int z, Random random) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), this.tickTime);
-        WorldCoordinates pos = this.getPos();
-        if (!world.isAirBlock(pos.x, pos.y + 1, pos.z))
+    @BlockMethod(overrideBlockFunc = false)
+    public void updateTick(World world, BlockPos pos, IBlockState state, Random rand) {
+        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
+        if (!world.isAirBlock(new BlockPos(pos.getX(), pos.getY() + 1, pos.getZ())))
             return;
 
-        float size = this.getSize(world);
+        float size = getSize(world);
 
-        AxisAlignedBB axisalignedbb = AxisAlignedBB.getBoundingBox(pos.x, pos.y, pos.z, pos.x + 1, pos.y + size, pos.z + 1);
-        List list = world.getEntitiesWithinAABB(EntityPlayer.class, axisalignedbb);
+        AxisAlignedBB axisalignedbb = AxisAlignedBB.fromBounds(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + size, pos.getZ() + 1);
+        List playersInAABB = world.getEntitiesWithinAABB(EntityPlayer.class, axisalignedbb);
 
-        for (EntityPlayer player : (List<EntityPlayer>) world.playerEntities) {
-            if (player == null) continue;
-            int playerHash = player.getCommandSenderName().hashCode();
+        for (EntityPlayer worldPlayer : (List<EntityPlayer>) world.playerEntities) {
+            if (worldPlayer == null) continue;
+            int playerHash = worldPlayer.getName().hashCode();
 
-            if (list.contains(player)) {
-                this.isFlying.add(playerHash);
+            if (playersInAABB.contains(worldPlayer)) {
+                if (!isFlying.contains(playerHash))
+                    isFlying.add(playerHash);
 
-                player.capabilities.isFlying = true;
-                player.sendPlayerAbilities();
-            } else if (this.isFlying.contains(playerHash)) {
-                if (this.isPlayerAboveVolatusBlock(size, player))
-                    return;
-                this.isFlying.remove((Integer) playerHash);
+                worldPlayer.capabilities.isFlying = true;
+                worldPlayer.sendPlayerAbilities();
+                return;
+            } else if (isFlying.contains(playerHash)) {
+                isFlying.remove((Integer) playerHash);
 
-                player.capabilities.isFlying = false;
-                player.sendPlayerAbilities();
+                if (!isPlayerAboveVolatusBlock(size, worldPlayer)) {
+                    worldPlayer.capabilities.isFlying = false;
+                    worldPlayer.sendPlayerAbilities();
+                }
+                return;
             }
         }
     }
 
-    boolean isPlayerAboveVolatusBlock(float size, EntityPlayer player) {
+    private boolean isPlayerAboveVolatusBlock(float size, EntityPlayer player) {
+        int posX = (int) Math.floor(player.posX), posZ = (int) Math.floor(player.posZ);
+        TIWorldData worldData = TIWorldData.getWorldData(player.worldObj);
         for (int y = 0; y < size; y++) {
-            int posX = (int) player.posX, posY = (int) (player.posY - y), posZ = (int) player.posZ;
-            if (!player.worldObj.isAirBlock(posX, posY, posZ)) {
-                BlockData data = TIWorldData.getWorldData(player.worldObj).getBlock(BlockData.class, new WorldCoordinates(posX, posY, posZ, player.dimension));
+            int posY = (int) (player.posY - y);
+            BlockPos pos = new BlockPos(posX, posY, posZ);
+            if (!player.worldObj.isAirBlock(pos)) {
+                BlockData data = worldData.getBlock(BlockData.class, new WorldCoordinates(pos, player.dimension));
                 if (data != null)
-                    return true;
-            } else
-                break;
+                    return data.hasEffect(Volatus.class);
+            }
         }
         return false;
     }
 
-    float getSize(World world) {
-        WorldCoordinates pos = this.getPos();
-        float ret = this.defSize;
-        int curretY = pos.y - 1;
-        while (!world.isAirBlock(pos.x, curretY, pos.z)) {
-            BlockData data = TIWorldData.getWorldData(world).getBlock(BlockData.class, new WorldCoordinates(pos.x, curretY, pos.z, world.provider.dimensionId));
+    private float getSize(World world) {
+        BlockPos pos = getPos().pos;
+        float ret = defSize;
+        int curretY = pos.getY() - 1;
+        while (!world.isAirBlock(new BlockPos(pos.getX(), curretY, pos.getZ()))) {
+            BlockData data = TIWorldData.getWorldData(world).getBlock(BlockData.class, new WorldCoordinates(new BlockPos(pos.getX(), curretY, pos.getZ()), world.provider.getDimensionId()));
             if (data != null && data.hasEffect(Volatus.class)) {
-                ret += this.defSize;
+                ret += defSize;
                 curretY--;
             } else break;
         }
         return ret;
+    }
+
+    @Override
+    @BlockMethod(overrideBlockFunc = false)
+    public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
+        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
+    }
+
+    @Override
+    @BlockMethod(overrideBlockFunc = false)
+    public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entityIn) {
+        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
+    }
+
+    @Override
+    @BlockMethod(overrideBlockFunc = false)
+    public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
+        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
     }
 }

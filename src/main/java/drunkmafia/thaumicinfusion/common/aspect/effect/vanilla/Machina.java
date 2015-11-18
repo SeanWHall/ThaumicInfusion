@@ -6,73 +6,69 @@
 
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
+import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.data.BlockData;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
-import thaumcraft.api.WorldCoordinates;
+import thaumcraft.api.internal.WorldCoordinates;
 
-@Effect(aspect = "machina")
+@Effect(aspect = "machina", cost = 2)
 public class Machina extends AspectLink {
 
     @Override
-    public int getCost() {
-        return 2;
-    }
-
-    @OverrideBlock
-    public int isProvidingWeakPower(IBlockAccess access, int x, int y, int z, int side) {
+    @BlockMethod
+    public boolean shouldCheckWeakPower(IBlockAccess world, BlockPos pos, EnumFacing side) {
         World destinationWorld;
-        WorldCoordinates destin = this.getDestination();
-        if (destin == null || (destinationWorld = DimensionManager.getWorld(destin.dim)) == null || destinationWorld.isAirBlock(destin.x, destin.y, destin.z))
-            return 0;
+        WorldCoordinates destin = getDestination();
+        if (destin == null || (destinationWorld = DimensionManager.getWorld(destin.dim)) == null || destinationWorld.isAirBlock(destin.pos))
+            return false;
 
         TIWorldData worldData = TIWorldData.getWorldData(destinationWorld);
         BlockData data;
         boolean power = false;
-        if ((data = worldData.getBlock(BlockData.class, new WorldCoordinates(destin.x - 1, destin.y, destin.z, destin.dim))) == null || !data.hasEffect(Machina.class))
-            power = destinationWorld.getIndirectPowerLevelTo(destin.x, destin.y - 1, destin.z, 0) > 0;
+        if ((data = worldData.getBlock(BlockData.class, new WorldCoordinates(new BlockPos(destin.pos.getX() - 1, destin.pos.getY(), destin.pos.getZ()), destin.dim))) == null || !data.hasEffect(Machina.class))
+            power = destinationWorld.getStrongPower(new BlockPos(destin.pos.getX() - 1, destin.pos.getY(), destin.pos.getZ())) > 0;
 
-        if (!power && ((data = worldData.getBlock(BlockData.class, new WorldCoordinates(destin.x + 1, destin.y, destin.z, destin.dim))) == null || !data.hasEffect(Machina.class)))
-            power = destinationWorld.getIndirectPowerLevelTo(destin.x + 1, destin.y, destin.z, 0) > 0;
+        if (!power && ((data = worldData.getBlock(BlockData.class, new WorldCoordinates(new BlockPos(destin.pos.getX() + 1, destin.pos.getY(), destin.pos.getZ()), destin.dim))) == null || !data.hasEffect(Machina.class)))
+            power = destinationWorld.getStrongPower(new BlockPos(destin.pos.getX() + 1, destin.pos.getY(), destin.pos.getZ())) > 0;
 
-        if (!power && ((data = worldData.getBlock(BlockData.class, new WorldCoordinates(destin.x, destin.y - 1, destin.z, destin.dim))) == null || !data.hasEffect(Machina.class)))
-            power = destinationWorld.getIndirectPowerLevelTo(destin.x, destin.y - 1, destin.z, 0) > 0;
+        if (!power && ((data = worldData.getBlock(BlockData.class, new WorldCoordinates(new BlockPos(destin.pos.getX(), destin.pos.getY() - 1, destin.pos.getZ()), destin.dim))) == null || !data.hasEffect(Machina.class)))
+            power = destinationWorld.getStrongPower(new BlockPos(destin.pos.getX(), destin.pos.getY() - 1, destin.pos.getZ())) > 0;
 
-        if (!power && ((data = worldData.getBlock(BlockData.class, new WorldCoordinates(destin.x, destin.y + 1, destin.z, destin.dim))) == null || !data.hasEffect(Machina.class)))
-            power = destinationWorld.getIndirectPowerLevelTo(destin.x, destin.y + 1, destin.z, 0) > 0;
+        if (!power && ((data = worldData.getBlock(BlockData.class, new WorldCoordinates(new BlockPos(destin.pos.getX(), destin.pos.getY() + 1, destin.pos.getZ()), destin.dim))) == null || !data.hasEffect(Machina.class)))
+            power = destinationWorld.getStrongPower(new BlockPos(destin.pos.getX(), destin.pos.getY() + 1, destin.pos.getZ())) > 0;
 
-        if (!power && ((data = worldData.getBlock(BlockData.class, new WorldCoordinates(destin.x, destin.y, destin.z - 1, destin.dim))) == null || !data.hasEffect(Machina.class)))
-            power = destinationWorld.getIndirectPowerLevelTo(destin.x, destin.y, destin.z - 1, 0) > 0;
+        if (!power && ((data = worldData.getBlock(BlockData.class, new WorldCoordinates(new BlockPos(destin.pos.getX(), destin.pos.getY(), destin.pos.getZ() - 1), destin.dim))) == null || !data.hasEffect(Machina.class)))
+            power = destinationWorld.getStrongPower(new BlockPos(destin.pos.getX(), destin.pos.getY(), destin.pos.getZ() - 1)) > 0;
 
-        if (!power && ((data = worldData.getBlock(BlockData.class, new WorldCoordinates(destin.x, destin.y, destin.z + 1, destin.dim))) == null || !data.hasEffect(Machina.class)))
-            power = destinationWorld.getIndirectPowerLevelTo(destin.x, destin.y, destin.z + 1, 0) > 0;
+        if (!power && ((data = worldData.getBlock(BlockData.class, new WorldCoordinates(new BlockPos(destin.pos.getX(), destin.pos.getY(), destin.pos.getZ() + 1), destin.dim))) == null || !data.hasEffect(Machina.class)))
+            power = destinationWorld.getStrongPower(new BlockPos(destin.pos.getX(), destin.pos.getY(), destin.pos.getZ() + 1)) > 0;
 
-        return power ? 15 : 0;
+        return power;
     }
 
-    @OverrideBlock
-    public boolean shouldCheckWeakPower(IBlockAccess world, int x, int y, int z, int side) {
-        return false;
-    }
-
-    @OverrideBlock
-    public boolean canConnectRedstone(IBlockAccess world, int x, int y, int z, int side) {
+    @Override
+    @BlockMethod
+    public boolean canConnectRedstone(IBlockAccess world, BlockPos pos, EnumFacing side) {
         return true;
     }
 
-    @OverrideBlock
-    public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {
+    @Override
+    @BlockMethod
+    public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock) {
         World destinationWorld;
-        WorldCoordinates destin = this.getDestination();
+        WorldCoordinates destin = getDestination();
 
-        if (destin == null || (destinationWorld = DimensionManager.getWorld(destin.dim)) == null || block.getClass() == this.getClass())
+        if (destin == null || (destinationWorld = DimensionManager.getWorld(destin.dim)) == null || state.getBlock().getClass() == getClass())
             return;
 
-        destinationWorld.notifyBlockChange(destin.x, destin.y, destin.z, this);
+        destinationWorld.notifyNeighborsOfStateChange(destin.pos, this);
     }
 }

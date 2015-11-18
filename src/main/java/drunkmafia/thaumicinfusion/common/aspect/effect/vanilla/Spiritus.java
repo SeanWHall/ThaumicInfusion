@@ -7,32 +7,19 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
-@Effect(aspect = "spiritus")
+@Effect(aspect = ("spiritus"), cost = 4)
 public class Spiritus extends AspectEffect {
 
+    @BlockMethod
     @Override
-    public int getCost() {
-        return 4;
-    }
-
-    @OverrideBlock
-    public AxisAlignedBB getCollisionBoundingBoxFromPool(World world, int x, int y, int z) {
-        return AxisAlignedBB.getBoundingBox(0, 0, 0, 0, 0, 0);
-    }
-
-    @OverrideBlock
-    public boolean isNormalCube(IBlockAccess world, int x, int y, int z) {
-        return true;
-    }
-
-    @OverrideBlock
-    public boolean isBlockSolid(IBlockAccess access, int x, int y, int z, int meta) {
-        return false;
+    public AxisAlignedBB getCollisionBoundingBox(World worldIn, BlockPos pos, IBlockState state) {
+        return null;
     }
 }

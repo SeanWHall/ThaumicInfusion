@@ -6,15 +6,15 @@
 
 package drunkmafia.thaumicinfusion.net.packet.client;
 
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import drunkmafia.thaumicinfusion.common.world.ChunkData;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.server.ChunkSyncPacketC;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.world.ChunkCoordIntPair;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 public class ChunkRequestPacketS implements IMessage {
 

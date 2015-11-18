@@ -6,18 +6,17 @@
 
 package drunkmafia.thaumicinfusion.net;
 
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import drunkmafia.thaumicinfusion.net.packet.client.ChunkRequestPacketS;
 import drunkmafia.thaumicinfusion.net.packet.client.WandAspectPacketS;
 import drunkmafia.thaumicinfusion.net.packet.server.*;
-import drunkmafia.thaumicinfusion.net.packet.server.DataRemovePacketC.Handler;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ChannelHandler extends SimpleNetworkWrapper {
 
@@ -42,7 +41,7 @@ public class ChannelHandler extends SimpleNetworkWrapper {
         handler.registerMessage(BlockSyncPacketC.Handler.class, BlockSyncPacketC.class, handler.getOrdinal(), C);
         handler.registerMessage(EffectSyncPacketC.Handler.class, EffectSyncPacketC.class, handler.getOrdinal(), C);
         handler.registerMessage(EntitySyncPacketC.Handler.class, EntitySyncPacketC.class, handler.getOrdinal(), C);
-        handler.registerMessage(Handler.class, DataRemovePacketC.class, handler.getOrdinal(), C);
+        handler.registerMessage(DataRemovePacketC.Handler.class, DataRemovePacketC.class, handler.getOrdinal(), C);
     }
 
     public static ChannelHandler instance() {

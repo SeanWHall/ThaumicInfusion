@@ -6,11 +6,6 @@
 
 package drunkmafia.thaumicinfusion.common;
 
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.*;
-import cpw.mods.fml.common.network.NetworkRegistry;
 import drunkmafia.thaumicinfusion.common.asm.BlockTransformer;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
@@ -29,6 +24,11 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.*;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import org.apache.logging.log4j.Logger;
 
 import static drunkmafia.thaumicinfusion.common.lib.ModInfo.*;

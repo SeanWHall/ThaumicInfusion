@@ -6,19 +6,21 @@
 
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
+import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
-import thaumcraft.api.WorldCoordinates;
+import thaumcraft.api.internal.WorldCoordinates;
 
 import java.util.Random;
 
-@Effect(aspect = "permutatio")
+@Effect(aspect = ("permutatio"), cost = 4)
 public class Permutatio extends AspectLink {
 
     private boolean lastRedstoneSignal;
@@ -27,71 +29,68 @@ public class Permutatio extends AspectLink {
     public void aspectInit(World world, WorldCoordinates pos) {
         super.aspectInit(world, pos);
         if (!world.isRemote)
-            this.updateTick(world, pos.x, pos.y, pos.z, world.rand);
+            updateTick(world, pos.pos, world.getBlockState(pos.pos), world.rand);
     }
 
     @Override
-    public int getCost() {
-        return 8;
-    }
-
-    @OverrideBlock(overrideBlockFunc = false)
-    public void updateTick(World world, int x, int y, int z, Random random) {
+    @BlockMethod(overrideBlockFunc = false)
+    public void updateTick(World world, BlockPos pos, IBlockState state, Random rand) {
         if (world.isRemote) return;
-        WorldCoordinates destin = this.getDestination();
+        WorldCoordinates destin = getDestination();
         if (destin == null) {
-            world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+            world.scheduleUpdate(pos, state.getBlock(), 1);
             return;
         }
 
         World destinationWorld = DimensionManager.getWorld(destin.dim);
-        boolean power = world.isBlockIndirectlyGettingPowered(x, y, z);
-        if (power != this.lastRedstoneSignal) {
-            this.lastRedstoneSignal = power;
+        boolean power = world.isBlockIndirectlyGettingPowered(pos) > 1;
+        if (power != lastRedstoneSignal) {
+            lastRedstoneSignal = power;
 
-            Block oldBlock = world.getBlock(x, y, z), newBlock = destinationWorld.getBlock(destin.x, destin.y, destin.z);
-            TileEntity oldTile = world.getTileEntity(x, y, z), newTile = destinationWorld.getTileEntity(destin.x, destin.y, destin.z);
+            IBlockState newBlock = destinationWorld.getBlockState(destin.pos);
+            TileEntity oldTile = world.getTileEntity(pos), newTile = destinationWorld.getTileEntity(destin.pos);
 
-            int oldMeta = world.getBlockMetadata(x, y, z), newMeta = destinationWorld.getBlockMetadata(destin.x, destin.y, destin.z);
+            destinationWorld.removeTileEntity(destin.pos);
+            world.removeTileEntity(pos);
 
-            destinationWorld.removeTileEntity(destin.x, destin.y, destin.z);
-            world.removeTileEntity(x, y, z);
+            destinationWorld.setBlockState(destin.pos, Blocks.air.getDefaultState());
+            destinationWorld.setBlockState(destin.pos, state);
 
-            destinationWorld.setBlock(destin.x, destin.y, destin.z, Blocks.air);
-            destinationWorld.setBlock(destin.x, destin.y, destin.z, oldBlock, oldMeta, 3);
+            world.setBlockState(pos, Blocks.air.getDefaultState());
+            world.setBlockState(pos, newBlock);
 
-            world.setBlock(x, y, z, Blocks.air);
-            world.setBlock(x, y, z, newBlock, newMeta, 3);
-
-            destinationWorld.scheduleBlockUpdate(destin.x, destin.y, destin.z, oldBlock, 1);
+            destinationWorld.forceBlockUpdateTick(newBlock.getBlock(), destin.pos, world.rand);
 
             if (oldTile != null) {
-                destinationWorld.removeTileEntity(destin.x, destin.y, destin.z);
+                destinationWorld.removeTileEntity(destin.pos);
                 oldTile.validate();
-                destinationWorld.setTileEntity(destin.x, destin.y, destin.z, oldTile);
+                destinationWorld.setTileEntity(destin.pos, oldTile);
             }
 
             if (newTile != null) {
-                world.removeTileEntity(x, y, z);
+                world.removeTileEntity(pos);
                 newTile.validate();
-                world.setTileEntity(x, y, z, newTile);
+                world.setTileEntity(pos, newTile);
             }
         }
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+        world.forceBlockUpdateTick(state.getBlock(), pos, world.rand);
     }
 
-    @OverrideBlock(overrideBlockFunc = false)
-    public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+    @Override
+    @BlockMethod(overrideBlockFunc = false)
+    public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
+        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
     }
 
-    @OverrideBlock(overrideBlockFunc = false)
-    public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+    @Override
+    @BlockMethod(overrideBlockFunc = false)
+    public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entityIn) {
+        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
     }
 
-    @OverrideBlock(overrideBlockFunc = false)
-    public void onBlockAdded(World world, int x, int y, int z) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+    @Override
+    @BlockMethod(overrideBlockFunc = false)
+    public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
+        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
     }
 }

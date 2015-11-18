@@ -6,13 +6,13 @@
 
 package drunkmafia.thaumicinfusion.common.aspect;
 
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.LoaderState;
 import drunkmafia.thaumicinfusion.client.gui.aspect.EffectGui;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.LoaderState;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import thaumcraft.api.aspects.Aspect;
@@ -28,7 +28,9 @@ public final class AspectHandler {
     private static final Map<Aspect, Class<? extends AspectEffect>> registeredEffects = new HashMap<Aspect, Class<? extends AspectEffect>>();
     private static final List<AspectHandler.EffectBundle> guiEffects = new ArrayList<AspectHandler.EffectBundle>();
     private static final Map<Aspect, Aspect[]> opposites = new HashMap<Aspect, Aspect[]>();
+
     private static ArrayList<Class<? extends AspectEffect>> effectsToRegister = new ArrayList<Class<? extends AspectEffect>>();
+    private static Map<Class<? extends AspectEffect>, Integer> effectToCost = new HashMap<Class<? extends AspectEffect>, Integer>();
 
     /**
      * Registers an Effect, this has to be done during the pre-initialization
@@ -64,6 +66,14 @@ public final class AspectHandler {
                 ThaumicInfusion.getLogger().error("Aspect: " + effect.getSimpleName() + " has caused an exception!", e);
             }
         }
+    }
+
+    protected static void setCost(Class<? extends AspectEffect> effect, int cost) {
+        effectToCost.put(effect, cost);
+    }
+
+    public static int getCost(Class<? extends AspectEffect> effect) {
+        return effectToCost.get(effect);
     }
 
     /**

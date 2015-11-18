@@ -13,11 +13,12 @@ import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.server.BlockSyncPacketC;
 import drunkmafia.thaumicinfusion.net.packet.server.DataRemovePacketC;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
-import thaumcraft.api.WorldCoordinates;
+import thaumcraft.api.internal.WorldCoordinates;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,8 +27,6 @@ import java.util.List;
 public class TIWorldData implements ISavable {
 
     private static ReflectionLookup<World> worldLookup = new ReflectionLookup<World>(World.class);
-
-    public WorldCoordinates surveyPosition;
 
     public World world;
     public QuadTree<ChunkData> chunkDatas = new QuadTree<ChunkData>(ChunkData.class, -2000000, -2000000, 2000000, 2000000);
@@ -39,7 +38,7 @@ public class TIWorldData implements ISavable {
         IWorldDataProvider dataProvider = (IWorldDataProvider) world;
         TIWorldData worldData = dataProvider.getWorldData();
 
-        if (!world.isRemote) world = DimensionManager.getWorld(world.provider.dimensionId);
+        if (!world.isRemote) world = DimensionManager.getWorld(world.provider.getDimensionId());
         if (worldData == null) dataProvider.setWorldData(worldData = new TIWorldData());
 
         worldData.world = world;
@@ -65,21 +64,21 @@ public class TIWorldData implements ISavable {
         if (this.world == null)
             this.world = DimensionManager.getWorld(block.getCoords().dim);
 
-        WorldCoordinates coordinates = block.getCoords();
+        BlockPos coordinates = block.getCoords().pos;
 
-        ChunkCoordIntPair chunkPos = new ChunkCoordIntPair(coordinates.x >> 4, coordinates.z >> 4);
+        ChunkCoordIntPair chunkPos = new ChunkCoordIntPair(coordinates.getX() >> 4, coordinates.getZ() >> 4);
         ChunkData chunkData = this.chunkDatas.get(chunkPos.getCenterXPos(), chunkPos.getCenterZPosition(), null);
         if (chunkData == null) {
             chunkData = new ChunkData(chunkPos);
             this.chunkDatas.set(chunkPos.getCenterXPos(), chunkPos.getCenterZPosition(), chunkData);
         }
-        chunkData.addBlock(block, coordinates.x, coordinates.y, coordinates.z);
+        chunkData.addBlock(block, coordinates);
 
         if (init && !block.isInit())
             block.dataLoad(this.world);
 
         if (!this.world.isRemote && packet)
-            ChannelHandler.instance().sendToDimension(new BlockSyncPacketC(block), this.world.provider.dimensionId);
+            ChannelHandler.instance().sendToDimension(new BlockSyncPacketC(block), this.world.provider.getDimensionId());
     }
 
     public List<ChunkData> getChunksInRange(int xMin, int zMin, int xMax, int zMax) {
@@ -95,7 +94,7 @@ public class TIWorldData implements ISavable {
             if (savable == null) continue;
 
             if (this.world == null) this.world = DimensionManager.getWorld(savable.getCoords().dim);
-            else savable.getCoords().dim = this.world.provider.dimensionId;
+            else savable.getCoords().dim = this.world.provider.getDimensionId();
 
             if (!savable.isInit()) savable.dataLoad(this.world);
         }
@@ -109,9 +108,9 @@ public class TIWorldData implements ISavable {
      * @param <T>    The Type of Data that will be returned
      */
     public <T> T getBlock(Class<T> type, WorldCoordinates coords) {
-        ChunkCoordIntPair chunkPos = new ChunkCoordIntPair(coords.x >> 4, coords.z >> 4);
+        ChunkCoordIntPair chunkPos = new ChunkCoordIntPair(coords.pos.getX() >> 4, coords.pos.getZ() >> 4);
         ChunkData chunkData = this.chunkDatas.get(chunkPos.getCenterXPos(), chunkPos.getCenterZPosition(), null);
-        return chunkData != null ? chunkData.getBlock(type, coords.x, coords.y, coords.z) : null;
+        return chunkData != null ? chunkData.getBlock(type, coords.pos) : null;
     }
 
     /**
@@ -122,12 +121,12 @@ public class TIWorldData implements ISavable {
      * @param sendPacket Whether or not the change should be sent to clients
      */
     public void removeData(Class<? extends BlockSavable> type, WorldCoordinates coords, boolean sendPacket) {
-        ChunkCoordIntPair chunkPos = new ChunkCoordIntPair(coords.x >> 4, coords.z >> 4);
+        ChunkCoordIntPair chunkPos = new ChunkCoordIntPair(coords.pos.getX() >> 4, coords.pos.getZ() >> 4);
         ChunkData chunkData = this.chunkDatas.get(chunkPos.getCenterXPos(), chunkPos.getCenterZPosition(), null);
         if (chunkData != null) {
-            chunkData.removeData(type, coords.x, coords.y, coords.z);
+            chunkData.removeData(type, coords.pos);
             if (sendPacket) {
-                coords.dim = this.world.provider.dimensionId;
+                coords.dim = this.world.provider.getDimensionId();
                 ChannelHandler.instance().sendToAll(new DataRemovePacketC(type, coords));
             }
         }

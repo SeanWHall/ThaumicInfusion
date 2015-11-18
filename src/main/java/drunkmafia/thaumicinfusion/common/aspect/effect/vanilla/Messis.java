@@ -7,28 +7,25 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.IPlantable;
-import net.minecraftforge.common.util.ForgeDirection;
 
-@Effect(aspect = "messis")
+@Effect(aspect = ("messis"), cost = 1)
 public class Messis extends AspectEffect {
 
     @Override
-    public int getCost() {
-        return 1;
-    }
-
-    @OverrideBlock
-    public boolean canSustainPlant(IBlockAccess access, int x, int y, int z, ForgeDirection direction, IPlantable plantable) {
+    @BlockMethod
+    public boolean canSustainPlant(IBlockAccess world, BlockPos pos, EnumFacing direction, net.minecraftforge.common.IPlantable plantable) {
         return true;
     }
 
-    @OverrideBlock
-    public boolean isFertile(World world, int x, int y, int z) {
+    @Override
+    @BlockMethod
+    public boolean isFertile(World world, BlockPos pos) {
         return true;
     }
 }

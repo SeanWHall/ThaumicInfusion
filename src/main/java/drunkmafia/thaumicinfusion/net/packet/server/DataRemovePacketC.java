@@ -6,15 +6,16 @@
 
 package drunkmafia.thaumicinfusion.net.packet.server;
 
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
-import thaumcraft.api.WorldCoordinates;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import thaumcraft.api.internal.WorldCoordinates;
 
 public class DataRemovePacketC implements IMessage {
 
@@ -42,7 +43,7 @@ public class DataRemovePacketC implements IMessage {
                 e.printStackTrace();
             }
 
-            this.coordinates = new WorldCoordinates(buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt());
+            this.coordinates = new WorldCoordinates(new BlockPos(buf.readInt(), buf.readInt(), buf.readInt()), buf.readInt());
         }
     }
 
@@ -55,9 +56,9 @@ public class DataRemovePacketC implements IMessage {
             buf.writeInt(bytes.length);
             for (byte aByte : bytes) buf.writeByte(aByte);
 
-            buf.writeInt(this.coordinates.x);
-            buf.writeInt(this.coordinates.y);
-            buf.writeInt(this.coordinates.z);
+            buf.writeInt(this.coordinates.pos.getX());
+            buf.writeInt(this.coordinates.pos.getY());
+            buf.writeInt(this.coordinates.pos.getZ());
             buf.writeInt(this.coordinates.dim);
         } else buf.writeByte(0);
     }
@@ -70,9 +71,9 @@ public class DataRemovePacketC implements IMessage {
             if (pos == null || ctx.side.isServer()) return null;
             World world = ChannelHandler.getClientWorld();
 
-            if (world != null && world.provider.dimensionId == pos.dim)
+            if (world != null && world.provider.getDimensionId() == pos.dim)
                 TIWorldData.getWorldData(world).removeData(message.clazz, pos, false);
-            Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.x, pos.y, pos.z);
+            Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.pos);
             return null;
         }
     }

@@ -6,9 +6,9 @@
 
 package drunkmafia.thaumicinfusion.common.item;
 
-import cpw.mods.fml.common.registry.GameRegistry;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import net.minecraft.item.Item;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class TIItems {
 

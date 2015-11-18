@@ -14,6 +14,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
@@ -33,7 +34,7 @@ public class InfusedBlockFalling extends Entity {
         this.tileEntity = tileEntity;
         preventEntitySpawning = true;
         setSize(0.98F, 0.98F);
-        yOffset = height / 2.0F;
+
         setPosition(x, y, z);
         motionX = 0.0D;
         motionY = 0.0D;
@@ -75,23 +76,22 @@ public class InfusedBlockFalling extends Entity {
                 motionZ *= 0.699999988079071D;
                 motionY *= -0.5D;
 
-                if (worldObj.getBlock(x, y, z) != Blocks.piston_extension) {
+                if (worldObj.getBlockState(new BlockPos(x, y, z)).getBlock() != Blocks.piston_extension) {
                     setDead();
 
-                    if (worldObj.canPlaceEntityOnSide(Block.getBlockById(this.id), x, y, z, true, 1, null, null) && !BlockFalling.func_149831_e(worldObj, x, y - 1, z)) {
-                        this.worldObj.setBlock(x, y, z, Block.getBlockById(this.id), this.meta, 3);
+                    if (!BlockFalling.canFallInto(worldObj, new BlockPos(x, y - 1, z))) {
+                        this.worldObj.setBlockState(new BlockPos(x, y, z), Block.getBlockById(this.id).getDefaultState(), 3);
                         if (this.tileEntity != null) {
-                            this.tileEntity.xCoord = x;
-                            this.tileEntity.yCoord = y;
-                            this.tileEntity.zCoord = z;
+                            this.tileEntity.setPos(new BlockPos(x, y, z));
+
                             this.tileEntity.setWorldObj(this.worldObj);
 
-                            if (this.worldObj.getTileEntity(x, y, z) != null) {
+                            if (this.worldObj.getTileEntity(new BlockPos(x, y, z)) != null) {
                                 NBTTagCompound tileTag = new NBTTagCompound();
                                 this.tileEntity.writeToNBT(tileTag);
-                                this.worldObj.getTileEntity(x, y, z).readFromNBT(tileTag);
+                                this.worldObj.getTileEntity(new BlockPos(x, y, z)).readFromNBT(tileTag);
                             } else {
-                                this.worldObj.setTileEntity(x, y, z, this.tileEntity);
+                                this.worldObj.setTileEntity(new BlockPos(x, y, z), this.tileEntity);
                             }
                         }
                     } else
@@ -112,7 +112,6 @@ public class InfusedBlockFalling extends Entity {
 
         EntityItem entityitem = new EntityItem(this.worldObj, tempX, tempY, tempZ, new ItemStack(Block.getBlockById(this.id), 1, this.meta));
 
-        entityitem.delayBeforeCanPickup = 10;
         this.worldObj.spawnEntityInWorld(entityitem);
     }
 

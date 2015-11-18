@@ -6,9 +6,6 @@
 
 package drunkmafia.thaumicinfusion.common.event;
 
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent.Phase;
-import cpw.mods.fml.common.gameevent.TickEvent.WorldTickEvent;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.world.IWorldDataProvider;
 import drunkmafia.thaumicinfusion.common.world.SavableHelper;
@@ -28,6 +25,8 @@ import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.ChunkEvent.Unload;
 import net.minecraftforge.event.world.WorldEvent.Load;
 import net.minecraftforge.event.world.WorldEvent.Save;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -38,8 +37,8 @@ public class CommonEventContainer {
     //Tick Syncing
 
     @SubscribeEvent
-    public void onWorldTick(WorldTickEvent event) {
-        if (ThaumicInfusion.instance.stablizerThread != null && event.phase == Phase.START)
+    public void onWorldTick(TickEvent.WorldTickEvent event) {
+        if (ThaumicInfusion.instance.stablizerThread != null && event.phase == TickEvent.Phase.START)
             ThaumicInfusion.instance.stablizerThread.setFlags(true, false);
     }
 
@@ -65,7 +64,7 @@ public class CommonEventContainer {
         World world = event.world;
 
         if (world != null && world.isRemote)
-            ChannelHandler.instance().sendToServer(new ChunkRequestPacketS(event.getChunk().getChunkCoordIntPair(), world.provider.dimensionId));
+            ChannelHandler.instance().sendToServer(new ChunkRequestPacketS(event.getChunk().getChunkCoordIntPair(), world.provider.getDimensionId()));
     }
 
     @SubscribeEvent
@@ -87,7 +86,7 @@ public class CommonEventContainer {
         if (world == null || world.isRemote) return;
 
         try {
-            File file = new File("TIWorldData/" + world.getWorldInfo().getWorldName() + "_" + world.provider.dimensionId + "_TIWorldData.dat");
+            File file = new File("TIWorldData/" + world.getWorldInfo().getWorldName() + "_" + world.provider.getDimensionId() + "_TIWorldData.dat");
             if (!file.exists())
                 return;
 
@@ -116,7 +115,7 @@ public class CommonEventContainer {
             TIWorldData worldData = TIWorldData.getWorldData(world);
             NBTTagCompound tagCompound = SavableHelper.saveDataToNBT(worldData);
             if (tagCompound != null) {
-                File file = new File("TIWorldData/" + world.getWorldInfo().getWorldName() + "_" + world.provider.dimensionId + "_TIWorldData.dat");
+                File file = new File("TIWorldData/" + world.getWorldInfo().getWorldName() + "_" + world.provider.getDimensionId() + "_TIWorldData.dat");
                 FileUtils.forceMkdir(new File("TIWorldData"));
 
                 CompressedStreamTools.write(tagCompound, file);

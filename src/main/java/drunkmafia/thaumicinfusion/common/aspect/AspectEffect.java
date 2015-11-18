@@ -6,13 +6,12 @@
 
 package drunkmafia.thaumicinfusion.common.aspect;
 
-import cpw.mods.fml.common.registry.EntityRegistry;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.asm.BlockTransformer;
 import drunkmafia.thaumicinfusion.common.aspect.effect.vanilla.*;
 import drunkmafia.thaumicinfusion.common.aspect.entity.InfusedBlockFalling;
+import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
 import drunkmafia.thaumicinfusion.common.world.AspectStablizer;
 import drunkmafia.thaumicinfusion.common.world.ISavable;
 import drunkmafia.thaumicinfusion.common.world.data.BlockData;
@@ -22,14 +21,15 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.common.config.Configuration;
-import thaumcraft.api.WorldCoordinates;
+import net.minecraftforge.fml.common.registry.EntityRegistry;
+import thaumcraft.api.internal.WorldCoordinates;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-@Effect(aspect = "default")
+@Effect(aspect = "default", cost = 0)
 public abstract class AspectEffect extends Block implements ISavable {
 
     private static final HashMap<Class, ArrayList<AspectEffect.MethodInfo>> phasedMethods = new HashMap<Class, ArrayList<AspectEffect.MethodInfo>>();
@@ -39,7 +39,6 @@ public abstract class AspectEffect extends Block implements ISavable {
 
     public AspectEffect() {
         super(Material.air);
-
     }
 
     public static void init() {
@@ -76,14 +75,12 @@ public abstract class AspectEffect extends Block implements ISavable {
         AspectHandler.registerEffect(Praecantatio.class);
 
         AspectHandler.registerEffect(Sano.class);
-        AspectHandler.registerEffect(Sensus.class);
         AspectHandler.registerEffect(Spiritus.class);
 
         AspectHandler.registerEffect(Tempestas.class);
         AspectHandler.registerEffect(Terra.class);
 
         AspectHandler.registerEffect(Venenum.class);
-        AspectHandler.registerEffect(Victus.class);
         AspectHandler.registerEffect(Vinculum.class);
         AspectHandler.registerEffect(Vitreus.class);
         AspectHandler.registerEffect(Volatus.class);
@@ -106,7 +103,7 @@ public abstract class AspectEffect extends Block implements ISavable {
             if (!BlockTransformer.blockMethods.contains(meth.getName()) || meth.getDeclaringClass() == Block.class)
                 continue;
 
-            OverrideBlock block = meth.getAnnotation(OverrideBlock.class);
+            BlockMethod block = meth.getAnnotation(BlockMethod.class);
             if (block != null)
                 meths.add(new AspectEffect.MethodInfo(meth.getName().hashCode(), block));
         }
@@ -115,7 +112,9 @@ public abstract class AspectEffect extends Block implements ISavable {
         return meths;
     }
 
-    public abstract int getCost();
+    public int getCost() {
+        return AspectHandler.getCost(getClass());
+    }
 
     public boolean shouldDrain() {
         return true;
@@ -129,6 +128,7 @@ public abstract class AspectEffect extends Block implements ISavable {
         config.load();
         this.shouldRegister = config.getBoolean(this.getClass().getSimpleName(), "Effects", true, "");
         AspectStablizer.dataExistedFor = config.getInt("DataExisted", "Aspects", AspectStablizer.dataExistedFor, 60, 1000, "The amount of ticks a infusion has to wait before it drains an aspect");
+        AspectHandler.setCost(getClass(), config.getInt(this.getClass().getSimpleName(), "Effects Cost", getClass().getAnnotation(Effect.class).cost(), 0, 100, ""));
         config.save();
     }
 
@@ -169,9 +169,9 @@ public abstract class AspectEffect extends Block implements ISavable {
     public static class MethodInfo {
 
         public int methodID;
-        public OverrideBlock override;
+        public BlockMethod override;
 
-        public MethodInfo(int methodID, OverrideBlock override) {
+        public MethodInfo(int methodID, BlockMethod override) {
             this.methodID = methodID;
             this.override = override;
         }

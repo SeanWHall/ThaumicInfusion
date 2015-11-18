@@ -1,7 +1,5 @@
 package drunkmafia.thaumicinfusion.client.gui;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
@@ -11,12 +9,15 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.client.lib.UtilsFX;
-import thaumcraft.common.Thaumcraft;
+import thaumcraft.common.lib.research.ResearchManager;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +54,20 @@ public class InfusionGui extends TIGui {
     }
 
     private InfusionGui.ScrollRect getScrollRect(Aspect[] aspects, Aspect selected) {
-        AspectList knownAspects = Thaumcraft.proxy.getPlayerKnowledge().getAspectsDiscovered(this.player.getCommandSenderName());
+        AspectList knownAspects = new AspectList();
+
+        for (Aspect aspect : new ArrayList<Aspect>() {{
+            addAll(Aspect.getPrimalAspects());
+            addAll(Aspect.getCompoundAspects());
+        }}) {
+            for (String research : ResearchManager.getResearchForPlayer(player.getName())) {
+                if (Aspect.getAspect(research.replace("!", "")) != null || aspect.isPrimal()) {
+                    knownAspects.add(aspect, 1);
+                    break;
+                }
+            }
+        }
+
         List<InfusionGui.AspectSlot> aspectSlots = new ArrayList<InfusionGui.AspectSlot>();
 
         InfusionGui.AspectSlot slot = null;
@@ -88,7 +102,7 @@ public class InfusionGui extends TIGui {
     }
 
     @Override
-    protected void mouseClicked(int mouseX, int mouseY, int clickedTime) {
+    protected void mouseClicked(int mouseX, int mouseY, int clickedTime) throws IOException {
         super.mouseClicked(mouseX, mouseY, clickedTime);
 
         this.normalScrollRect.onMouseClicked(mouseX, mouseY);
@@ -168,12 +182,12 @@ public class InfusionGui extends TIGui {
                 if (this.yIndex > 0) {
                     this.yIndex -= this.yAmount;
                     if (this.yIndex < 0) this.yIndex = 0;
-                    InfusionGui.this.mc.renderViewEntity.worldObj.playSound(InfusionGui.this.mc.renderViewEntity.posX, InfusionGui.this.mc.renderViewEntity.posY, InfusionGui.this.mc.renderViewEntity.posZ, "thaumcraft:key", 0.3F, 1.0F, false);
+                    InfusionGui.this.mc.getRenderViewEntity().worldObj.playSound(InfusionGui.this.mc.getRenderViewEntity().posX, InfusionGui.this.mc.getRenderViewEntity().posY, InfusionGui.this.mc.getRenderViewEntity().posZ, "thaumcraft:key", 0.3F, 1.0F, false);
                 }
             } else if (this.right.isInRect(mouseX, mouseY)) {
                 if (this.yIndex < this.maxYIndex) {
                     this.yIndex += this.yAmount;
-                    InfusionGui.this.mc.renderViewEntity.worldObj.playSound(InfusionGui.this.mc.renderViewEntity.posX, InfusionGui.this.mc.renderViewEntity.posY, InfusionGui.this.mc.renderViewEntity.posZ, "thaumcraft:key", 0.3F, 1.0F, false);
+                    InfusionGui.this.mc.getRenderViewEntity().worldObj.playSound(InfusionGui.this.mc.getRenderViewEntity().posX, InfusionGui.this.mc.getRenderViewEntity().posY, InfusionGui.this.mc.getRenderViewEntity().posZ, "thaumcraft:key", 0.3F, 1.0F, false);
                 }
             }
         }

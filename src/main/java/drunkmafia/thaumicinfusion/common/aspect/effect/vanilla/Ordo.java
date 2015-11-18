@@ -7,21 +7,18 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import thaumcraft.api.crafting.IInfusionStabiliser;
 
-@Effect(aspect = "ordo")
+@Effect(aspect = "ordo", cost = 1)
 public class Ordo extends AspectEffect implements IInfusionStabiliser {
 
     @Override
-    public int getCost() {
-        return 2;
-    }
-
-    @OverrideBlock()
-    public boolean canStabaliseInfusion(World world, int x, int y, int z) {
+    @BlockMethod()
+    public boolean canStabaliseInfusion(World world, BlockPos pos) {
         return true;
     }
 }

@@ -19,4 +19,6 @@ public @interface Effect {
      * Separate Aspects by using Comma (,)
      */
     String aspect();
+
+    int cost();
 }

@@ -6,7 +6,7 @@
 
 package drunkmafia.thaumicinfusion.common.util.helper;
 
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.EnumFacing;
 
 public final class MathHelper {
 
@@ -15,8 +15,8 @@ public final class MathHelper {
     }
 
 
-    public static ForgeDirection sideToDirection(int side) {
-        return side == 0 ? ForgeDirection.DOWN : side == 1 ? ForgeDirection.UP : side == 2 ? ForgeDirection.NORTH : side == 3 ? ForgeDirection.SOUTH : side == 4 ? ForgeDirection.WEST : ForgeDirection.UNKNOWN;
+    public static EnumFacing sideToDirection(int side) {
+        return side == 0 ? EnumFacing.DOWN : side == 1 ? EnumFacing.UP : side == 2 ? EnumFacing.NORTH : side == 3 ? EnumFacing.SOUTH : side == 4 ? EnumFacing.WEST : null;
     }
 
     public static boolean withinThreshold(float a, float b, float threshold) {

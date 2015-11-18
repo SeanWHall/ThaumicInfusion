@@ -7,42 +7,37 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
-@Effect(aspect = "ignis")
+@Effect(aspect = ("ignis"), cost = 1)
 public class Ignis extends AspectEffect {
 
     @Override
-    public int getCost() {
-        return 1;
-    }
-
-    @Override
-    public boolean shouldDrain() {
-        return false;
-    }
-
-    @OverrideBlock
-    public int getFlammability(IBlockAccess world, int x, int y, int z, ForgeDirection face) {
+    @BlockMethod
+    public int getFlammability(IBlockAccess world, BlockPos pos, EnumFacing face) {
         return 0;
     }
 
-    @OverrideBlock
-    public boolean isFlammable(IBlockAccess world, int x, int y, int z, ForgeDirection face) {
+    @Override
+    @BlockMethod
+    public boolean isFlammable(IBlockAccess world, BlockPos pos, EnumFacing face) {
         return true;
     }
 
-    @OverrideBlock
-    public int getFireSpreadSpeed(IBlockAccess world, int x, int y, int z, ForgeDirection face) {
+    @Override
+    @BlockMethod
+    public int getFireSpreadSpeed(IBlockAccess world, BlockPos pos, EnumFacing face) {
         return 4096;
     }
 
-    @OverrideBlock
-    public boolean isFireSource(World world, int x, int y, int z, ForgeDirection side) {
+    @Override
+    @BlockMethod
+    public boolean isFireSource(World world, BlockPos pos, EnumFacing side) {
         return true;
     }
 }

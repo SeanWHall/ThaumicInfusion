@@ -7,57 +7,56 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
-import thaumcraft.api.WorldCoordinates;
+import thaumcraft.api.internal.WorldCoordinates;
 
 import java.util.List;
 import java.util.Random;
 
-@Effect(aspect = "aer")
+@Effect(aspect = "aer", cost = 2)
 public class Aer extends AspectEffect {
 
     static long maxCooldown = 2000L;
     long cooldown;
 
     @Override
-    public int getCost() {
-        return 2;
-    }
-
-    @Override
     public void aspectInit(World world, WorldCoordinates pos) {
         super.aspectInit(world, pos);
         if (!world.isRemote)
-            this.updateTick(world, pos.x, pos.y, pos.z, world.rand);
+            updateTick(world, pos.pos, world.getBlockState(pos.pos), world.rand);
     }
 
-    @OverrideBlock(overrideBlockFunc = false)
-    public void updateTick(World world, int x, int y, int z, Random random) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+    @Override
+    @BlockMethod(overrideBlockFunc = false)
+    public void updateTick(World world, BlockPos pos, IBlockState state, Random rand) {
+        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, rand);
         if (world.isRemote)
             return;
 
-        if (this.cooldown + Aer.maxCooldown < System.currentTimeMillis()) {
-            AxisAlignedBB axisalignedbb = AxisAlignedBB.getBoundingBox(this.pos.x, this.pos.y, this.pos.z, this.pos.x + 1, this.pos.y + 1, this.pos.z + 1).expand(1, 1, 1);
+        if (cooldown + maxCooldown < System.currentTimeMillis()) {
+            AxisAlignedBB axisalignedbb = AxisAlignedBB.fromBounds(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1).expand(1, 1, 1);
             List<EntityPlayer> players = world.getEntitiesWithinAABB(EntityPlayer.class, axisalignedbb);
 
             for (EntityPlayer player : players)
                 player.addPotionEffect(new PotionEffect(Potion.jump.getId(), 100));
 
-            this.cooldown = System.currentTimeMillis();
+            cooldown = System.currentTimeMillis();
         }
 
 
     }
 
-    @OverrideBlock(overrideBlockFunc = false)
-    public void onBlockAdded(World world, int x, int y, int z) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+    @Override
+    @BlockMethod(overrideBlockFunc = false)
+    public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
+        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
     }
 }

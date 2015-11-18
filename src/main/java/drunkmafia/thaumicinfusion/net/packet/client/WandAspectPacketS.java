@@ -1,8 +1,5 @@
 package drunkmafia.thaumicinfusion.net.packet.client;
 
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
@@ -10,6 +7,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import thaumcraft.api.aspects.Aspect;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public class WandAspectPacketS implements IMessage {
     }
 
     public WandAspectPacketS(EntityPlayer player, int slotNumber, Aspect aspect, boolean shouldOpenGUI) {
-        this.playerName = player.getCommandSenderName().hashCode();
+        this.playerName = player.getName().hashCode();
         this.dim = player.dimension;
         this.slot = slotNumber;
         this.shouldOpenGUI = shouldOpenGUI;
@@ -69,7 +69,7 @@ public class WandAspectPacketS implements IMessage {
 
             World world = DimensionManager.getWorld(message.dim);
             for (EntityPlayer player : (List<EntityPlayer>) world.playerEntities) {
-                if (player.getCommandSenderName().hashCode() == message.playerName) {
+                if (player.getName().hashCode() == message.playerName) {
                     ItemStack stack = player.inventory.mainInventory[message.slot];
                     NBTTagCompound compound = stack.getTagCompound() != null ? stack.getTagCompound() : new NBTTagCompound();
 

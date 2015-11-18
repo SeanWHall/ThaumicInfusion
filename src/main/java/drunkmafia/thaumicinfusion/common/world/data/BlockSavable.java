@@ -9,7 +9,7 @@ package drunkmafia.thaumicinfusion.common.world.data;
 import drunkmafia.thaumicinfusion.common.world.ISavable;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
-import thaumcraft.api.WorldCoordinates;
+import thaumcraft.api.internal.WorldCoordinates;
 
 public class BlockSavable implements ISavable {
 

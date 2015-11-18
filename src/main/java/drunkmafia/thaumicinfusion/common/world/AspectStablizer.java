@@ -6,14 +6,15 @@ import drunkmafia.thaumicinfusion.common.aspect.effect.vanilla.Praecantatio;
 import drunkmafia.thaumicinfusion.common.world.data.BlockData;
 import drunkmafia.thaumicinfusion.common.world.data.BlockSavable;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import thaumcraft.api.WorldCoordinates;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.IAspectSource;
-import thaumcraft.common.config.ConfigBlocks;
+import thaumcraft.api.blocks.BlocksTC;
+import thaumcraft.api.internal.WorldCoordinates;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -52,21 +53,19 @@ public class AspectStablizer implements Runnable {
 
                                 BlockData data = (BlockData) savable;
                                 if (data.ticksExisted > AspectStablizer.dataExistedFor) {
-                                    worldData.surveyPosition = data.getCoords();
                                     for (AspectEffect effect : data.getEffects()) {
                                         if (!effect.shouldDrain()) continue;
 
-                                        if (!this.drainAspects(server, data.getCoords().x, data.getCoords().y, data.getCoords().z, AspectHandler.getAspectsFromEffect(effect.getClass()))) {
+                                        if (!this.drainAspects(server, data.getCoords().pos, AspectHandler.getAspectsFromEffect(effect.getClass()))) {
                                             chunk.instability++;
                                             if (chunk.instability > 100)
-                                                worldData.world.setBlock(data.getCoords().x, data.getCoords().y, data.getCoords().z, ConfigBlocks.blockFluxGoo);
+                                                worldData.world.setBlockState(new BlockPos(data.getCoords().pos), BlocksTC.fluxGoo.getDefaultState());
                                             data.removeEffect(effect.getClass());
                                             if (data.getEffects().length == 0)
                                                 worldData.removeData(BlockData.class, data.getCoords(), true);
                                         } else if (chunk.instability > 0) chunk.instability--;
                                     }
 
-                                    worldData.surveyPosition = null;
                                     data.ticksExisted = 0;
                                 }
                             }
@@ -94,20 +93,20 @@ public class AspectStablizer implements Runnable {
         this.log.info("--- Thaumic Infusions Thread has Stopped ---");
     }
 
-    public boolean drainAspects(World world, int xCoord, int yCoord, int zCoord, Aspect aspect) {
+    public boolean drainAspects(World world, BlockPos pos, Aspect aspect) {
         int cost = AspectHandler.getCostOfEffect(aspect);
         TIWorldData worldData = TIWorldData.getWorldData(world);
-        for (int x = xCoord - jarRadius; x < xCoord + jarRadius; x++) {
-            for (int y = yCoord - jarRadius; y < yCoord + jarRadius; y++) {
-                for (int z = zCoord - jarRadius; z < zCoord + jarRadius; z++) {
-                    TileEntity tileEntity = world.getTileEntity(x, y, z);
+        for (int x = pos.getX() - jarRadius; x < pos.getX() + jarRadius; x++) {
+            for (int y = pos.getY() - jarRadius; y < pos.getY() + jarRadius; y++) {
+                for (int z = pos.getZ() - jarRadius; z < pos.getZ() + jarRadius; z++) {
+                    TileEntity tileEntity = world.getTileEntity(new BlockPos(x, y, z));
                     if (tileEntity instanceof IAspectSource) {
                         IAspectSource source = (IAspectSource) tileEntity;
-                        BlockData data = worldData.getBlock(BlockData.class, new WorldCoordinates(x, y, z, world.provider.dimensionId));
+                        BlockData data = worldData.getBlock(BlockData.class, new WorldCoordinates(tileEntity.getPos(), world.provider.getDimensionId()));
 
                         if (data != null && data.hasEffect(Praecantatio.class) && source.doesContainerContainAmount(aspect, cost)) {
                             source.takeFromContainer(aspect, cost);
-                            world.playSound((double) ((float) tileEntity.xCoord + 0.5F), (double) ((float) tileEntity.yCoord + 0.5F), (double) ((float) tileEntity.zCoord + 0.5F), "game.neutral.swim", 0.5F, 1.0F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.3F, false);
+                            world.playSound((double) ((float) x + 0.5F), (double) ((float) y + 0.5F), (double) ((float) z + 0.5F), "game.neutral.swim", 0.5F, 1.0F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.3F, false);
                             return true;
                         }
                     }

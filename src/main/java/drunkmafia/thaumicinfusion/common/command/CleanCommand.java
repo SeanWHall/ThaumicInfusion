@@ -10,6 +10,7 @@ import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.data.BlockSavable;
 import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
@@ -21,7 +22,7 @@ public class CleanCommand extends CommandBase {
     ArrayList<String> players = new ArrayList<String>();
 
     @Override
-    public String getCommandName() {
+    public String getName() {
         return ThaumicInfusion.translate("clean.data");
     }
 
@@ -31,16 +32,16 @@ public class CleanCommand extends CommandBase {
     }
 
     @Override
-    public void processCommand(ICommandSender sender, String[] strings) {
+    public void execute(ICommandSender sender, String[] args) throws CommandException {
         World world = sender.getEntityWorld();
-        String playerName = sender.getCommandSenderName().toLowerCase();
+        String playerName = sender.getName().toLowerCase();
 
-        if (this.players.contains(playerName) && strings.length > 0 && (strings[0].toLowerCase().contains("y") || strings[0].toLowerCase().contains("yes"))) {
+        if (this.players.contains(playerName) && args.length > 0 && (args[0].toLowerCase().contains("y") || args[0].toLowerCase().contains("yes"))) {
             TIWorldData data = TIWorldData.getWorldData(world);
             BlockSavable[] savables = data.getAllStoredData();
             for (BlockSavable savable : savables) data.removeData(savable.getClass(), savable.getCoords(), true);
 
-            sender.addChatMessage(new ChatComponentText("World data has been wiped in dim: " + world.provider.dimensionId));
+            sender.addChatMessage(new ChatComponentText("World data has been wiped in dim: " + world.provider.getDimensionId()));
             this.players.remove(playerName);
         } else {
             sender.addChatMessage(new ChatComponentText("Are you sure you want to do this? All TI blocks placed down will be removed. Type Y or Yes to continue"));

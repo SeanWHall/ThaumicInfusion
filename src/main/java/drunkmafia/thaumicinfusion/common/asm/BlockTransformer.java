@@ -6,11 +6,11 @@
 
 package drunkmafia.thaumicinfusion.common.asm;
 
-import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
-import cpw.mods.fml.common.asm.transformers.deobf.FMLRemappingAdapter;
 import net.minecraft.block.Block;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.Launch;
+import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
+import net.minecraftforge.fml.common.asm.transformers.deobf.FMLRemappingAdapter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Type;
@@ -211,7 +211,7 @@ public class BlockTransformer implements IClassTransformer {
                 //The ID is the methods position in the base Block class, working with ints over strings saves performance and memory
                 toInsert.add(new LdcInsnNode(deobfMethod.name.hashCode()));
 
-                toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockWrapper", "hasWorldData", "(Lnet/minecraft/world/IBlockAccess;IIILnet/minecraft/block/Block;I)Z", false));
+                toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockWrapper", "hasWorldData", "(Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/BlockPos;Lnet/minecraft/block/Block;I)Z", false));
 
                 LabelNode hasWorldData = new LabelNode();
                 toInsert.add(new JumpInsnNode(IFEQ, hasWorldData));
@@ -219,7 +219,7 @@ public class BlockTransformer implements IClassTransformer {
 
                 worldPars.loadPars(toInsert);
                 toInsert.add(new LdcInsnNode(deobfMethod.name.hashCode()));
-                toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockWrapper", "overrideBlockFunctionality", "(Lnet/minecraft/world/IBlockAccess;IIII)Z", false));
+                toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockWrapper", "overrideBlockFunctionality", "(Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/BlockPos;I)Z", false));
 
                 LabelNode overrideBlockFunctionality = new LabelNode();
                 toInsert.add(new JumpInsnNode(IFEQ, overrideBlockFunctionality));
@@ -327,7 +327,7 @@ public class BlockTransformer implements IClassTransformer {
 
     /**
      * Use in obfuscated environments to make it easier to parse though code, this is required because this transformer is loaded
-     * before the {@link cpw.mods.fml.common.asm.transformers.DeobfuscationTransformer} which does exactly what this method does
+     * before the {@link net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper} which does exactly what this method does
      * but for every class. This transformer is unable to be placed after the deobf transformer, as the FMLPlugin Sorting index will
      * cause the transformer to miss it's chance to inject into the {@link Block}.
      *
@@ -354,21 +354,17 @@ public class BlockTransformer implements IClassTransformer {
         for (int i = 0; i < pars.length; i++) {
             Type par = pars[i];
             if (worldPars.world != -1) {
-                if (par.getClassName().equals("int")) {
-                    if (worldPars.x == -1) worldPars.x = i + 1;
-                    else if (worldPars.y == -1) worldPars.y = i + 1;
-                    else if (worldPars.z == -1) worldPars.z = i + 1;
+                if (par.getClassName().equals("net.minecraft.util.BlockPos")) {
+                    if (worldPars.blockPos == -1) worldPars.blockPos = i + 1;
                     else break;
-
-                } else if (worldPars.x != -1 || worldPars.y != -1 || worldPars.z != -1)
-                    break;
+                }
             } else {
                 if (par.getClassName().equals(world.replace("/", ".")) || par.getClassName().equals("net.minecraft.world.World") || (worldPars.isBlockAccess = par.getClassName().equals(iBlockAccess.replace("/", "."))) || (worldPars.isBlockAccess = par.getClassName().equals("net.minecraft.world.IBlockAccess")))
                     worldPars.world = i + 1;
             }
         }
 
-        if (worldPars.world == -1 || worldPars.x == -1 || worldPars.y == -1 || worldPars.z == -1)
+        if (worldPars.world == -1 || worldPars.blockPos == -1)
             return null;
 
         return worldPars;
@@ -418,13 +414,11 @@ public class BlockTransformer implements IClassTransformer {
      */
     class WorldParamaters {
         boolean isBlockAccess;
-        int world = -1, x = -1, y = -1, z = -1;
+        int world = -1, blockPos = -1;
 
         public void loadPars(InsnList toInsert) {
             toInsert.add(new VarInsnNode(ALOAD, this.world));
-            toInsert.add(new VarInsnNode(ILOAD, this.x));
-            toInsert.add(new VarInsnNode(ILOAD, this.y));
-            toInsert.add(new VarInsnNode(ILOAD, this.z));
+            toInsert.add(new VarInsnNode(ALOAD, this.blockPos));
         }
     }
 }

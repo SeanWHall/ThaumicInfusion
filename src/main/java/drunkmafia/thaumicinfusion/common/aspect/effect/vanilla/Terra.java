@@ -7,69 +7,69 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
-import drunkmafia.thaumicinfusion.common.aspect.entity.InfusedBlockFalling;
+import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
-import drunkmafia.thaumicinfusion.net.ChannelHandler;
-import drunkmafia.thaumicinfusion.net.packet.server.EntitySyncPacketC;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockFalling;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
+import net.minecraft.entity.item.EntityFallingBlock;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
-import thaumcraft.api.WorldCoordinates;
+import thaumcraft.api.internal.WorldCoordinates;
 
 import java.util.Random;
 
-@Effect(aspect = "terra")
+@Effect(aspect = "terra", cost = 2)
 public class Terra extends AspectEffect {
 
     @Override
     public void aspectInit(World world, WorldCoordinates pos) {
         super.aspectInit(world, pos);
         if (!world.isRemote)
-            world.scheduleBlockUpdate(pos.x, pos.y, pos.z, world.getBlock(pos.x, pos.y, pos.z), 1);
+            updateTick(world, pos.pos, world.getBlockState(pos.pos), world.rand);
     }
 
+    @BlockMethod(overrideBlockFunc = false)
     @Override
-    public int getCost() {
-        return 2;
-    }
+    public void updateTick(World world, BlockPos pos, IBlockState state, Random rand) {
+        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
 
-    @OverrideBlock(overrideBlockFunc = false)
-    public void updateTick(World world, int x, int y, int z, Random random) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+        if (BlockFalling.canFallInto(world, pos.down()) && pos.getY() >= 0) {
+            if (world.isAreaLoaded(pos.add(-32, -32, -32), pos.add(32, 32, 32))) {
+                if (!world.isRemote && state.getBlock().getMaterial().getMaterialMobility() > 0) {
+                    EntityFallingBlock entityfallingblock = new EntityFallingBlock(world, (double) pos.getX() + 0.5D, (double) pos.getY(), (double) pos.getZ() + 0.5D, world.getBlockState(pos));
+                    TileEntity tileEntity = world.getTileEntity(pos);
 
-        WorldCoordinates pos = this.getPos();
-        if (!world.isAirBlock(pos.x, pos.y, pos.z) && world.isAirBlock(pos.x, pos.y - 1, pos.z)) {
-            InfusedBlockFalling entity = new InfusedBlockFalling(world, (double) ((float) pos.x + 0.5F), (double) ((float) pos.y + 0.5F), (double) ((float) pos.z + 0.5F), Block.getIdFromBlock(world.getBlock(pos.x, pos.y, pos.z)), world.getBlockMetadata(pos.x, pos.y, pos.z), world.getTileEntity(pos.x, pos.y, pos.z));
+                    if (tileEntity != null) {
+                        NBTTagCompound tileTag = new NBTTagCompound();
+                        tileEntity.writeToNBT(tileTag);
+                        entityfallingblock.tileEntityData = tileTag;
+                    }
 
-            world.removeTileEntity(pos.x, pos.y, pos.z);
-            world.setBlock(pos.x, pos.y, pos.z, Blocks.air);
-
-            world.spawnEntityInWorld(entity);
-            ChannelHandler.instance().sendToDimension(new EntitySyncPacketC(entity), world.provider.dimensionId);
+                    world.spawnEntityInWorld(entityfallingblock);
+                }
+            }
         }
     }
 
-    @OverrideBlock(overrideBlockFunc = false)
-    public void onNeighborBlockChange(World world, int x, int y, int z, Block block) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+    @Override
+    @BlockMethod(overrideBlockFunc = false)
+    public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
+        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
     }
 
-    @OverrideBlock(overrideBlockFunc = false)
-    public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+    @Override
+    @BlockMethod(overrideBlockFunc = false)
+    public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entityIn) {
+        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
     }
 
-    @OverrideBlock(overrideBlockFunc = false)
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float hitX, float hitY, float hitZ) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
-        return false;
-    }
-
-    @OverrideBlock(overrideBlockFunc = false)
-    public void onBlockAdded(World world, int x, int y, int z) {
-        world.scheduleBlockUpdate(x, y, z, world.getBlock(x, y, z), 1);
+    @Override
+    @BlockMethod(overrideBlockFunc = false)
+    public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
+        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
     }
 }

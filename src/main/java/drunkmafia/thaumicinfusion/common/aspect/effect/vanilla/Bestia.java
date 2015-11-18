@@ -7,20 +7,17 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import drunkmafia.thaumicinfusion.common.util.annotation.OverrideBlock;
-import net.minecraft.entity.EnumCreatureType;
+import net.minecraft.entity.EntityLiving;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
-@Effect(aspect = "bestia")
+@Effect(aspect = "bestia", cost = 4)
 public class Bestia extends AspectEffect {
     @Override
-    public int getCost() {
-        return 4;
-    }
-
-    @OverrideBlock
-    public boolean canCreatureSpawn(EnumCreatureType type, IBlockAccess world, int x, int y, int z) {
+    @BlockMethod
+    public boolean canCreatureSpawn(IBlockAccess world, BlockPos pos, EntityLiving.SpawnPlacementType type) {
         return false;
     }
 }

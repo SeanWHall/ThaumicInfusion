@@ -9,7 +9,7 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 
-@Effect(aspect = "praecantatio")
+@Effect(aspect = "praecantatio", cost = 1)
 public class Praecantatio extends AspectEffect {
 
     @Override

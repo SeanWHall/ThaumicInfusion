@@ -1,8 +1,5 @@
 package drunkmafia.thaumicinfusion.common.item;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -23,10 +20,5 @@ public class ItemCoordinatePaper extends Item {
             list.add("Z: " + nbt.getInteger("CoordinateZ"));
             list.add("Dimension: " + nbt.getInteger("CoordinateDim"));
         } else list.add("Hold shift for more info");
-    }
-
-    @SideOnly(Side.CLIENT)
-    public void registerIcons(IIconRegister ir) {
-        itemIcon = ir.registerIcon("thaumcraft:researchnotes");
     }
 }

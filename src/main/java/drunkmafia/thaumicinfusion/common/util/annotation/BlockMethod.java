@@ -10,6 +10,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface OverrideBlock {
+public @interface BlockMethod {
     boolean overrideBlockFunc() default true;
 }
