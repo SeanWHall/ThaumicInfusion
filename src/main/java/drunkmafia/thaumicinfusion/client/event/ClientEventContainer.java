@@ -29,31 +29,10 @@ import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.internal.WorldCoordinates;
 import thaumcraft.api.items.ItemsTC;
 import thaumcraft.api.wands.ItemFocusBasic;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import thaumcraft.client.lib.RenderEventHandler;
 
 @SideOnly(Side.CLIENT)
 public class ClientEventContainer {
-
-    private static Class renderEventHandler;
-    private static Object obj;
-    private static Method drawTagsOnContainer;
-    private static Field tagscale;
-
-    static {
-        try {
-            ClientEventContainer.renderEventHandler = Class.forName("thaumcraft.client.lib.RenderEventHandler");
-            Class thaumcraftClass = Class.forName("thaumcraft.common.Thaumcraft");
-            ClientEventContainer.obj = thaumcraftClass.getDeclaredField("renderEventHandler").get(thaumcraftClass.getDeclaredField("instance").get(null));
-
-            for (Method method : ClientEventContainer.renderEventHandler.getDeclaredMethods())
-                if (method.getName().equals("drawTagsOnContainer")) ClientEventContainer.drawTagsOnContainer = method;
-            ClientEventContainer.tagscale = ClientEventContainer.renderEventHandler.getDeclaredField("tagscale");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     private BlockData currentdata, lastDataLookedAt;
 
@@ -90,11 +69,10 @@ public class ClientEventContainer {
                 for (Aspect aspect : this.lastDataLookedAt.getAspects())
                     list.add(aspect, AspectHandler.getCostOfEffect(aspect));
 
-                float scale = (Float) ClientEventContainer.tagscale.get(ClientEventContainer.obj);
+                float scale = RenderEventHandler.tagscale;
                 if (scale < 0.5F)
-                    ClientEventContainer.tagscale.set(ClientEventContainer.obj, scale + 0.031F - scale / 10.0F);
-
-                ClientEventContainer.drawTagsOnContainer.invoke(ClientEventContainer.obj, (double) ((float) target.getBlockPos().getX() + (float) dir.getFrontOffsetX() / 2.0F), (double) ((float) target.getBlockPos().getY() + (float) dir.getFrontOffsetY() / 2.0F), (double) ((float) target.getBlockPos().getZ() + (float) dir.getFrontOffsetZ() / 2.0F), list, 220, dir, event.partialTicks);
+                    RenderEventHandler.tagscale = scale + 0.031F - scale / 10.0F;
+                RenderEventHandler.drawTagsOnContainer((double) ((float) target.getBlockPos().getX() + (float) dir.getFrontOffsetX() / 2.0F), (double) ((float) target.getBlockPos().getY() + (float) dir.getFrontOffsetY() / 2.0F), (double) ((float) target.getBlockPos().getZ() + (float) dir.getFrontOffsetZ() / 2.0F), list, 220, dir, event.partialTicks);
             }
         }
     }
@@ -113,7 +91,6 @@ public class ClientEventContainer {
 
             for (ChunkData chunk : worldData.getChunksInRange((int) player.posX - 64, (int) player.posZ - 64, (int) player.posX + 64, (int) player.posZ + 64)) {
                 if (chunk == null) continue;
-
 
                 for (BlockSavable savable : chunk.getAllBlocks()) {
                     if (savable != null && savable instanceof BlockData) {

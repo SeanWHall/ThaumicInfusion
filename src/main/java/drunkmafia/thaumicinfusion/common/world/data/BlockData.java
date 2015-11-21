@@ -10,6 +10,7 @@ import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect.MethodInfo;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
+import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import drunkmafia.thaumicinfusion.common.util.IBlockHook;
 import drunkmafia.thaumicinfusion.common.util.IClientTickable;
 import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
@@ -18,18 +19,34 @@ import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.server.BlockSyncPacketC;
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import org.lwjgl.opengl.GL11;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.internal.WorldCoordinates;
+import thaumcraft.client.lib.UtilsFX;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.awt.*;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 public class BlockData extends BlockSavable implements IBlockHook {
+
+    private static AnimatedFrames infusionFrames;
+
+    static {
+        ResourceLocation[] frame = new ResourceLocation[6];
+        for (int i = 0; i < frame.length; i++) {
+            System.out.println("Registering: " + i);
+            frame[i] = new ResourceLocation(ModInfo.MODID, "textures/blocks/infusion/" + (i + 1) + ".png");
+        }
+        BlockData.infusionFrames = new AnimatedFrames(frame, 60);
+    }
 
     public World world;
     public int ticksExisted;
@@ -37,6 +54,8 @@ public class BlockData extends BlockSavable implements IBlockHook {
     private Map<Integer, BlockMethod> methodsOverrides = new HashMap<Integer, BlockMethod>();
     private Map<Integer, Integer> methodsToBlock = new HashMap<Integer, Integer>();
     private ArrayList<AspectEffect> dataEffects = new ArrayList<AspectEffect>();
+    private Random rand = new Random();
+    private int tick, colour = 0;
 
     public BlockData() {
     }
@@ -100,6 +119,75 @@ public class BlockData extends BlockSavable implements IBlockHook {
         for (AspectEffect effect : this.getEffects()) {
             if (effect instanceof IClientTickable)
                 ((IClientTickable) effect).clientTick(this.world, (int) -iPX + x, (int) -iPY + y, (int) -iPZ + z, partialTicks);
+        }
+
+        TIWorldData worldData = TIWorldData.getWorldData(player.worldObj);
+
+        if (getAspects().length > 1) {
+            if (tick >= 120) {
+                int lastColour = colour;
+                boolean getNewColour = false;
+                for (Aspect aspect : getAspects()) {
+                    if (getNewColour) {
+                        colour = aspect.getColor();
+                        getNewColour = false;
+                        break;
+                    }
+                    if (aspect.getColor() == lastColour) getNewColour = true;
+                }
+                if (getNewColour) colour = getAspects()[0].getColor();
+                tick = 0;
+            } else {
+                tick++;
+            }
+        }
+
+        if (colour == 0) colour = getAspects()[0].getColor();
+
+        boolean[] sides = {
+                worldData.getBlock(BlockData.class, getCoords().pos.add(0, -1, 0)) == null,
+                worldData.getBlock(BlockData.class, getCoords().pos.add(0, 1, 0)) == null,
+                worldData.getBlock(BlockData.class, getCoords().pos.add(0, 0, -1)) == null,
+                worldData.getBlock(BlockData.class, getCoords().pos.add(0, 0, 1)) == null,
+                worldData.getBlock(BlockData.class, getCoords().pos.add(-1, 0, 0)) == null,
+                worldData.getBlock(BlockData.class, getCoords().pos.add(1, 0, 0)) == null
+        };
+
+        BlockPos pos = getCoords().pos;
+
+        drawSpecialBlockoverlay(infusionFrames.getTexture(), pos.getX(), pos.getY(), pos.getZ(), sides, partialTicks, colour, 255);
+    }
+
+    public void drawSpecialBlockoverlay(ResourceLocation texture, double x, double y, double z, boolean[] sides, float partialTicks, int color, float alpha) {
+        if (sides == null || sides.length != 6) return;
+
+        Color cc = new Color(color);
+        float r = (float) cc.getRed() / 255.0F;
+        float g = (float) cc.getGreen() / 255.0F;
+        float b = (float) cc.getBlue() / 255.0F;
+
+        EntityPlayer player = (EntityPlayer) Minecraft.getMinecraft().getRenderViewEntity();
+        double iPX = player.prevPosX + (player.posX - player.prevPosX) * (double) partialTicks;
+        double iPY = player.prevPosY + (player.posY - player.prevPosY) * (double) partialTicks;
+        double iPZ = player.prevPosZ + (player.posZ - player.prevPosZ) * (double) partialTicks;
+
+        for (int side = 0; side < 6; ++side) {
+            if (!sides[side]) continue;
+
+            GL11.glPushMatrix();
+            EnumFacing dir = EnumFacing.values()[side];
+            GL11.glTranslated(-iPX + x + 0.5D, -iPY + y + 0.5D, -iPZ + z + 0.5D);
+            GL11.glRotatef(90.0F, (float) (-dir.getFrontOffsetY()), (float) dir.getFrontOffsetX(), (float) (-dir.getFrontOffsetZ()));
+
+            GL11.glTranslated(0.0D, 0.0D, dir.getFrontOffsetZ() < 0 ? 0.5F : -0.5D);
+
+            GL11.glScaled(1.001D, 1.001D, 1.001D);
+            if (side == 2) GL11.glRotatef(180, 0.0F, 1.0F, 0.0F);
+            GL11.glTranslated(-0.001D, -0.001D, -0.001D);
+
+            UtilsFX.renderQuadCentered(texture, 1, 1, 0, 1.0F, r, g, b, 200, 1, alpha);
+
+            GL11.glPopMatrix();
         }
     }
 
@@ -208,5 +296,28 @@ public class BlockData extends BlockSavable implements IBlockHook {
     @Override
     public boolean shouldOverride(int method) {
         return this.methodsOverrides.get(method) != null && this.methodsOverrides.get(method).overrideBlockFunc();
+    }
+
+    static class AnimatedFrames {
+
+        int currentFrame = 0, fps, frameCounter = 0;
+        private ResourceLocation[] frames;
+
+        public AnimatedFrames(ResourceLocation[] frames, int fps) {
+            this.frames = frames;
+            this.fps = fps;
+        }
+
+        public ResourceLocation getTexture() {
+            ResourceLocation response = frames[currentFrame];
+            frameCounter++;
+            if (frameCounter >= fps) {
+                currentFrame++;
+                frameCounter = 0;
+                if (currentFrame >= frames.length) currentFrame = 0;
+            }
+            return response;
+        }
+
     }
 }

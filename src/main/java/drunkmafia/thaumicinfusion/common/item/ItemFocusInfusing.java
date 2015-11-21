@@ -42,7 +42,7 @@ public class ItemFocusInfusing extends ItemFocusBasic {
     }
 
     public ItemFocusInfusing() {
-        super("infusion", new ResourceLocation(ModInfo.MODID, "items/focus_infusion.png"), 8747923);
+        super("infusion", new ResourceLocation(ModInfo.MODID, "items/"), 8747923);
         setUnlocalizedName("focus_infusion");
         setCreativeTab(ThaumicInfusion.instance.tab);
     }

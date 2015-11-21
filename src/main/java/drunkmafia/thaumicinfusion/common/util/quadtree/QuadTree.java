@@ -300,6 +300,8 @@ public class QuadTree<T> {
      * or null if it doesn't exist.
      */
     public Node find(Node node, double x, double y) {
+        if (node == null) return null;
+
         Node resposne = null;
         switch (node.getNodeType()) {
             case EMPTY:

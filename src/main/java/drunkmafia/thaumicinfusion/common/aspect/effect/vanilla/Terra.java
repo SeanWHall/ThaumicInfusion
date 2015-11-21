@@ -35,8 +35,6 @@ public class Terra extends AspectEffect {
     @BlockMethod(overrideBlockFunc = false)
     @Override
     public void updateTick(World world, BlockPos pos, IBlockState state, Random rand) {
-        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
-
         if (BlockFalling.canFallInto(world, pos.down()) && pos.getY() >= 0) {
             if (world.isAreaLoaded(pos.add(-32, -32, -32), pos.add(32, 32, 32))) {
                 if (!world.isRemote && state.getBlock().getMaterial().getMaterialMobility() > 0) {
@@ -53,6 +51,8 @@ public class Terra extends AspectEffect {
                 }
             }
         }
+
+        world.scheduleUpdate(pos, this, 4);
     }
 
     @Override

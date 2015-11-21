@@ -36,7 +36,7 @@ public class Perditio extends AspectEffect {
     @Override
     @BlockMethod(overrideBlockFunc = false)
     public void updateTick(World world, BlockPos pos, IBlockState state, Random rand) {
-        world.forceBlockUpdateTick(state.getBlock(), pos, world.rand);
+        world.scheduleUpdate(pos, state.getBlock(), 1);
         if (world.isRemote)
             return;
 

@@ -43,7 +43,7 @@ public class InfusionGui extends TIGui {
         super.initGui();
 
         this.background = new Image(this, new ResourceLocation(ModInfo.MODID, "textures/gui/gui_infusion.png"), 0, 0, 0, 0, this.xSize, this.ySize);
-        this.parchment = new Image(this, new ResourceLocation("thaumcraft", "textures/misc/parchment3.png"), 110, -20, 0, 0, 150, 150);
+        this.parchment = new Image(this, new ResourceLocation(ModInfo.MODID, "textures/gui/parchment3.png"), 110, -20, 0, 0, 150, 150);
 
         NBTTagCompound tagCompound = this.wand.getTagCompound();
         Aspect selected = null;
@@ -56,10 +56,7 @@ public class InfusionGui extends TIGui {
     private InfusionGui.ScrollRect getScrollRect(Aspect[] aspects, Aspect selected) {
         AspectList knownAspects = new AspectList();
 
-        for (Aspect aspect : new ArrayList<Aspect>() {{
-            addAll(Aspect.getPrimalAspects());
-            addAll(Aspect.getCompoundAspects());
-        }}) {
+        for (Aspect aspect : AspectHandler.getAllAspects()) {
             for (String research : ResearchManager.getResearchForPlayer(player.getName())) {
                 if (Aspect.getAspect(research.replace("!", "")) != null || aspect.isPrimal()) {
                     knownAspects.add(aspect, 1);

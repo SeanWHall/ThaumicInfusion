@@ -36,11 +36,10 @@ public class Permutatio extends AspectLink {
     @BlockMethod(overrideBlockFunc = false)
     public void updateTick(World world, BlockPos pos, IBlockState state, Random rand) {
         if (world.isRemote) return;
+        world.scheduleUpdate(pos, this, 4);
+
         WorldCoordinates destin = getDestination();
-        if (destin == null) {
-            world.scheduleUpdate(pos, state.getBlock(), 1);
-            return;
-        }
+        if (destin == null) return;
 
         World destinationWorld = DimensionManager.getWorld(destin.dim);
         boolean power = world.isBlockIndirectlyGettingPowered(pos) > 1;
@@ -59,8 +58,6 @@ public class Permutatio extends AspectLink {
             world.setBlockState(pos, Blocks.air.getDefaultState());
             world.setBlockState(pos, newBlock);
 
-            destinationWorld.forceBlockUpdateTick(newBlock.getBlock(), destin.pos, world.rand);
-
             if (oldTile != null) {
                 destinationWorld.removeTileEntity(destin.pos);
                 oldTile.validate();
@@ -73,7 +70,6 @@ public class Permutatio extends AspectLink {
                 world.setTileEntity(pos, newTile);
             }
         }
-        world.forceBlockUpdateTick(state.getBlock(), pos, world.rand);
     }
 
     @Override

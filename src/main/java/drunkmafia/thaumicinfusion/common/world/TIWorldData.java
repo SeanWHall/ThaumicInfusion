@@ -113,6 +113,10 @@ public class TIWorldData implements ISavable {
         return chunkData != null ? chunkData.getBlock(type, coords.pos) : null;
     }
 
+    public <T> T getBlock(Class<T> type, BlockPos pos) {
+        return getBlock(type, new WorldCoordinates(pos, world.provider.getDimensionId()));
+    }
+
     /**
      * Will remove a specific Data from a position in the world.
      *
