@@ -47,7 +47,9 @@ public class Volatus extends AspectEffect {
 
     @BlockMethod(overrideBlockFunc = false)
     public void updateTick(World world, BlockPos pos, IBlockState state, Random rand) {
-        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
+        if (world.isRemote) return;
+        world.scheduleUpdate(pos, state.getBlock(), 1);
+
         if (!world.isAirBlock(new BlockPos(pos.getX(), pos.getY() + 1, pos.getZ())))
             return;
 
@@ -111,18 +113,18 @@ public class Volatus extends AspectEffect {
     @Override
     @BlockMethod(overrideBlockFunc = false)
     public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
-        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
+        updateTick(world, pos, state, world.rand);
     }
 
     @Override
     @BlockMethod(overrideBlockFunc = false)
     public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entityIn) {
-        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
+        updateTick(world, pos, world.getBlockState(pos), world.rand);
     }
 
     @Override
     @BlockMethod(overrideBlockFunc = false)
     public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
-        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
+        updateTick(world, pos, state, world.rand);
     }
 }

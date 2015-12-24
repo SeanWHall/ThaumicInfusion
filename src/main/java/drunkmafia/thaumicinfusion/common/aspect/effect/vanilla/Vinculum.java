@@ -32,7 +32,11 @@ public class Vinculum extends AspectEffect {
     }
 
     @BlockMethod(overrideBlockFunc = false)
+    @Override
     public void updateTick(World world, BlockPos pos, IBlockState state, Random rand) {
+        if (world.isRemote) return;
+        world.scheduleUpdate(pos, state.getBlock(), 1);
+
         AxisAlignedBB axisalignedbb = AxisAlignedBB.fromBounds(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 3, pos.getZ() + 1);
         ArrayList<EntityLivingBase> entities = (ArrayList<EntityLivingBase>) world.getEntitiesWithinAABB(EntityLivingBase.class, axisalignedbb);
 
@@ -41,24 +45,23 @@ public class Vinculum extends AspectEffect {
             ent.motionY = 0;
             ent.motionZ = 0;
         }
-        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
     }
 
     @Override
     @BlockMethod(overrideBlockFunc = false)
     public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
-        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
+        updateTick(world, pos, state, world.rand);
     }
 
     @Override
     @BlockMethod(overrideBlockFunc = false)
     public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entityIn) {
-        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
+        updateTick(world, pos, world.getBlockState(pos), world.rand);
     }
 
     @Override
     @BlockMethod(overrideBlockFunc = false)
     public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
-        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
+        updateTick(world, pos, state, world.rand);
     }
 }

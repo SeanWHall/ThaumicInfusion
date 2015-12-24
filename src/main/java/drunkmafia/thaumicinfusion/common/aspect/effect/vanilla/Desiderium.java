@@ -25,8 +25,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-@Effect(aspect = "lucrum", cost = 4)
-public class Lucrum extends AspectEffect {
+@Effect(aspect = "desiderium", cost = 4)
+public class Desiderium extends AspectEffect {
 
     private int range = 10, tickTime = 4;
     private Map<EntityItem, PathEntity> paths = new HashMap<EntityItem, PathEntity>();
@@ -34,8 +34,8 @@ public class Lucrum extends AspectEffect {
     @Override
     public void readConfig(Configuration config) {
         super.readConfig(config);
-        range = config.getInt("The range that lucrum can find items to pull", "Lucrum", range, 1, 40, "");
-        tickTime = config.getInt("Tick Time", "Lucrum", tickTime, 1, 20, "Delay before the effect ticks again");
+        range = config.getInt("The range that lucrum can find items to pull", "Desiderium", range, 1, 40, "");
+        tickTime = config.getInt("Tick Time", "Desiderium", tickTime, 1, 20, "Delay before the effect ticks again");
     }
 
 

@@ -56,6 +56,8 @@ public class ClientEventContainer {
         MovingObjectPosition target = event.target;
         EntityPlayer player = event.player;
 
+        if (target.getBlockPos() == null) return;
+
         if (player.isSneaking() && player.getCurrentEquippedItem() != null && player.getCurrentEquippedItem().getItem().getClass().isAssignableFrom(ItemsTC.wand.getClass()) && ClientEventContainer.getFocus(player.getCurrentEquippedItem()) != null && ClientEventContainer.getFocus(player.getCurrentEquippedItem()) instanceof ItemFocusInfusing) {
             if (this.lastDataLookedAt == null || this.lastDataLookedAt.getCoords().pos.getX() != target.getBlockPos().getX() || this.lastDataLookedAt.getCoords().pos.getY() != target.getBlockPos().getY() || this.lastDataLookedAt.getCoords().pos.getZ() != target.getBlockPos().getZ()) {
                 TIWorldData worldData = TIWorldData.getWorldData(player.worldObj);

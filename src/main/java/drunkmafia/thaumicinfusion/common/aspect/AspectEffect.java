@@ -10,6 +10,7 @@ import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.asm.BlockTransformer;
 import drunkmafia.thaumicinfusion.common.aspect.effect.vanilla.*;
 import drunkmafia.thaumicinfusion.common.aspect.entity.InfusedBlockFalling;
+import drunkmafia.thaumicinfusion.common.block.TIBlocks;
 import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.common.world.AspectStablizer;
@@ -48,8 +49,6 @@ public abstract class AspectEffect extends Block implements ISavable {
 
         AspectHandler.registerEffect(Cognitio.class);
 
-        AspectHandler.registerEffect(Exanimis.class);
-
         AspectHandler.registerEffect(Fabrico.class);
 
         AspectHandler.registerEffect(Gelum.class);
@@ -57,30 +56,24 @@ public abstract class AspectEffect extends Block implements ISavable {
         AspectHandler.registerEffect(Humanus.class);
 
         AspectHandler.registerEffect(Ignis.class);
-        AspectHandler.registerEffect(Infernus.class);
-        AspectHandler.registerEffect(Iter.class);
+        AspectHandler.registerEffect(Motus.class);
 
-        AspectHandler.registerEffect(Lucrum.class);
+        AspectHandler.registerEffect(Desiderium.class);
         AspectHandler.registerEffect(Lux.class);
 
         AspectHandler.registerEffect(Machina.class);
-        AspectHandler.registerEffect(Messis.class);
-        //AspectHandler.registerEffect(Metallum.class);
+        AspectHandler.registerEffect(Herba.class);
         AspectHandler.registerEffect(Mortuus.class);
 
-        AspectHandler.registerEffect(Pannus.class);
-        AspectHandler.registerEffect(Perditio.class);
+        AspectHandler.registerEffect(Aqua.class);
         AspectHandler.registerEffect(Potentia.class);
         AspectHandler.registerEffect(Permutatio.class);
-        AspectHandler.registerEffect(Praecantatio.class);
+        AspectHandler.registerEffect(Auram.class);
 
-        AspectHandler.registerEffect(Sano.class);
         AspectHandler.registerEffect(Spiritus.class);
 
-        AspectHandler.registerEffect(Tempestas.class);
         AspectHandler.registerEffect(Terra.class);
 
-        AspectHandler.registerEffect(Venenum.class);
         AspectHandler.registerEffect(Vinculum.class);
         AspectHandler.registerEffect(Vitreus.class);
         AspectHandler.registerEffect(Volatus.class);
@@ -138,6 +131,7 @@ public abstract class AspectEffect extends Block implements ISavable {
 
     public void aspectInit(World world, WorldCoordinates pos) {
         this.pos = pos;
+        if (world.isAirBlock(pos.pos)) world.setBlockState(pos.pos, TIBlocks.fakeAirBlock.getDefaultState());
     }
 
     public WorldCoordinates getPos() {

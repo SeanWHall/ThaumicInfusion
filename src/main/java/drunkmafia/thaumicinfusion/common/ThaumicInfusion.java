@@ -67,10 +67,10 @@ public class ThaumicInfusion {
 
         config = new Configuration(event.getSuggestedConfigurationFile());
         config.load();
-        shouldStablizer = config.get("aspects", "Should Have to Stabilizer?", true).getBoolean();
+        shouldStablizer = config.get("aspects", "Should Have to Stabilizer?", false).getBoolean();
         config.save();
 
-        TIItems.init();
+        TIItems.preInit();
         TIBlocks.initBlocks();
         AspectEffect.init();
 

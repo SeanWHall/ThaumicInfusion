@@ -21,8 +21,8 @@ import thaumcraft.api.internal.WorldCoordinates;
 import java.util.ArrayList;
 import java.util.Random;
 
-@Effect(aspect = ("iter"), cost = 4)
-public class Iter extends AspectLink {
+@Effect(aspect = ("motus"), cost = 4)
+public class Motus extends AspectLink {
 
     @Override
     public void aspectInit(World world, WorldCoordinates pos) {
@@ -34,9 +34,10 @@ public class Iter extends AspectLink {
     @Override
     @BlockMethod(overrideBlockFunc = false)
     public void updateTick(World world, BlockPos blockPos, IBlockState state, Random random) {
-        world.scheduleUpdate(blockPos, state.getBlock(), 1);
         if (world.isRemote)
             return;
+
+        world.scheduleUpdate(blockPos, state.getBlock(), 1);
 
         WorldCoordinates pos = getPos();
         if (pos == null || world.isAirBlock(pos.pos))
@@ -63,18 +64,18 @@ public class Iter extends AspectLink {
     @Override
     @BlockMethod(overrideBlockFunc = false)
     public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
-        world.forceBlockUpdateTick(state.getBlock(), pos, world.rand);
+        updateTick(world, pos, state, world.rand);
     }
 
     @Override
     @BlockMethod(overrideBlockFunc = false)
     public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entityIn) {
-        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
+        updateTick(world, pos, world.getBlockState(pos), world.rand);
     }
 
     @Override
     @BlockMethod(overrideBlockFunc = false)
     public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
-        world.forceBlockUpdateTick(state.getBlock(), pos, world.rand);
+        updateTick(world, pos, state, world.rand);
     }
 }

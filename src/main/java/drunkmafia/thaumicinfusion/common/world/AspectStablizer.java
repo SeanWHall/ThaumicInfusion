@@ -2,7 +2,7 @@ package drunkmafia.thaumicinfusion.common.world;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
-import drunkmafia.thaumicinfusion.common.aspect.effect.vanilla.Praecantatio;
+import drunkmafia.thaumicinfusion.common.aspect.effect.vanilla.Auram;
 import drunkmafia.thaumicinfusion.common.world.data.BlockData;
 import drunkmafia.thaumicinfusion.common.world.data.BlockSavable;
 import net.minecraft.tileentity.TileEntity;
@@ -104,7 +104,7 @@ public class AspectStablizer implements Runnable {
                         IAspectSource source = (IAspectSource) tileEntity;
                         BlockData data = worldData.getBlock(BlockData.class, new WorldCoordinates(tileEntity.getPos(), world.provider.getDimensionId()));
 
-                        if (data != null && data.hasEffect(Praecantatio.class) && source.doesContainerContainAmount(aspect, cost)) {
+                        if (data != null && data.hasEffect(Auram.class) && source.doesContainerContainAmount(aspect, cost)) {
                             source.takeFromContainer(aspect, cost);
                             world.playSound((double) ((float) x + 0.5F), (double) ((float) y + 0.5F), (double) ((float) z + 0.5F), "game.neutral.swim", 0.5F, 1.0F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.3F, false);
                             return true;

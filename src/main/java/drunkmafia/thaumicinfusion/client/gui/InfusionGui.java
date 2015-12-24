@@ -91,11 +91,10 @@ public class InfusionGui extends TIGui {
         if (this.normalScrollRect.selected != null) {
             GL11.glPushMatrix();
             GL11.glTranslatef((float) this.guiLeft, (float) this.guiTop, 0.0F);
-            GL11.glDisable(GL11.GL_LIGHTING);
             this.fontRendererObj.drawSplitString(ThaumicInfusion.translate("ti.effect_info." + this.normalScrollRect.selected.aspect.getName().toUpperCase()), this.parchment.x + 10, this.parchment.y + 5, this.parchment.width - 10, 1);
-            GL11.glEnable(GL11.GL_LIGHTING);
             GL11.glPopMatrix();
         }
+
     }
 
     @Override

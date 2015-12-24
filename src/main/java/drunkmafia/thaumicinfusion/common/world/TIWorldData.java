@@ -108,6 +108,7 @@ public class TIWorldData implements ISavable {
      * @param <T>    The Type of Data that will be returned
      */
     public <T> T getBlock(Class<T> type, WorldCoordinates coords) {
+        if (coords == null || type == null) return null;
         ChunkCoordIntPair chunkPos = new ChunkCoordIntPair(coords.pos.getX() >> 4, coords.pos.getZ() >> 4);
         ChunkData chunkData = this.chunkDatas.get(chunkPos.getCenterXPos(), chunkPos.getCenterZPosition(), null);
         return chunkData != null ? chunkData.getBlock(type, coords.pos) : null;

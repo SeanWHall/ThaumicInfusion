@@ -23,7 +23,7 @@ import thaumcraft.api.research.ResearchPage;
 public class ThaumcraftIntergration {
 
     public static void init() {
-        ResearchCategories.registerCategory("THAUMICINFUSION", "THAUMICINFUSION", new ResourceLocation(ModInfo.MODID, "textures/research/r_ti.png"), new ResourceLocation(ModInfo.MODID, "textures/research/r_tibg.png"));
+        ResearchCategories.registerCategory("THAUMICINFUSION", null, new ResourceLocation(ModInfo.MODID, "textures/research/r_ti.png"), new ResourceLocation(ModInfo.MODID, "textures/research/r_tibg.png"));
 
         InfusionRecipe infusionRecipe = ThaumcraftApi.addInfusionCraftingRecipe("FOCUSINFUSION", new ItemStack(TIItems.focusInfusing), 4, new AspectList().add(Aspect.EARTH, 25).add(Aspect.ORDER, 25).add(Aspect.MIND, 10), new ItemStack(ItemsTC.focusWarding), new ItemStack[]{new ItemStack(ItemsTC.crystalEssence, 3), new ItemStack(ItemsTC.crystalEssence, 3), new ItemStack(Items.quartz), new ItemStack(ItemsTC.shard, 3), new ItemStack(ItemsTC.crystalEssence, 3), new ItemStack(ItemsTC.shard, 3), new ItemStack(Items.quartz), new ItemStack(ItemsTC.shard, 3)});
 

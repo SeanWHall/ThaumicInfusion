@@ -15,8 +15,8 @@ key.essentiaBlock.chiseled=Chiseled
 
 # Item
 
-item.FocusInfusion.name=Wand Focus: Infusing
-item.CoordinatePaper.name=Coordinate Imbued Paper
+item.focus_infusion.name=Wand Focus: Infusing
+item.coordinate_paper.name=Coordinate Imbued Paper
 
 # Research
 tc.research_category.THAUMICINFUSION=Thaumic Infusion
@@ -47,12 +47,15 @@ clean.data.usage=/cleandata Only run this command when TI blocks are crashing th
 
 # Effects Description
 ti.effect_info.EXANIMIS=After infusion, any player that happens to die while standing on the infused block will be teleported straight back to it upon respawn. Just the thing for dangerous environments!
+ti.effect_info.AQUA=Falling hurts, so using aqua to make blocks squishy like water. Will help dissipate the falling velocity and let you walk away unscathed.
+ti.effect_info.AURAM=Marks a jar as a source drain aspects from for nearby infusions (WIP! Only needed if turned on in config.)
+ti.effect_info.HERBA=Tiered of using farmland? Tiered of people jumping on your crops and messing everything up, well infuse Herba into a block to let plants be placed ontop of them.
 ti.effect_info.FABRICO=This neat little aspect adds a world of colours to every single block (in other words, any block can become any colour!) All you have to do is grab a phial of an aspect which is the colour that you want the block to be, then right click on the block with the phial, to dye the block.
 ti.effect_info.LUX=Does what more or less what you'd expect, causes any block that is infused with this to become a light source, that is equal to a torch. Predictable, but useful.
 ti.effect_info.SANO=A very useful aspect, if you are nice and fed that is. It simply regenerates your health based on your hunger level. Soothing to the touch.
 ti.effect_info.PANNUS=HI! Billy Mays here, showing you the new aspect you should infuse into your blocks: PANNUS! Ever died from fall damage? Well worry no more, with these new and improved padded blocks, which will negate all fall damage of any player, that is if you land on them. Don't worry, if you don't, the effect comes with a free bucket to scoop yourself into. ONLY $19.99!
 ti.effect_info.COGNITIO=Do you hate bookcases? Why what's wrong with them? Well in any case, this effect causes blocks to act like bookcases and increase the enchantment levels of nearby enchantment tables. Knowledge is power!
-ti.effect_info.ITER=If you hate walking then this is the effect for you. This multi-dimensional teleporter works by having two effects placed down in the world and shifting while standing on one to teleport seamlessly between them. To link the two effects up, simply take a piece of paper and right click on the infused block. This will imbue the coordinates into the paper. Then right click on the other infused block to link them.
+ti.effect_info.MOTUS=If you hate walking then this is the effect for you. This multi-dimensional teleporter works by having two effects placed down in the world and shifting while standing on one to teleport seamlessly between them. To link the two effects up, simply take a piece of paper and right click on the infused block. This will imbue the coordinates into the paper. Then right click on the other infused block to link them.
 ti.effect_info.ALIENIS=Not much uses in this one, but fun to troll people with. This aspect has a strange effect, where if you interact with the block in any way you will be teleported randomly in the local area.
 ti.effect_info.TEMPESTAS=THUNDER! Na na na na naaa na na. THUNDER! Ahem..to explain, while raining, lighting is more likely to strike the block that is infused.
 ti.effect_info.VOLATUS=Yet another effect that does what you would probably think. While standing above the block infused with this, You gain flight! But only while above the infused block and only 10 blocks high, which can be increased by infusing blocks below each other.
@@ -67,7 +70,7 @@ ti.effect_info.PERDITIO=This effect is quite dangerous, any interaction with the
 ti.effect_info.VINCULUM=After infusion, the block  will immobilize any entity that so happens to step onto the block. Great for stopping mobs in their tracks! Also, pet creepers.
 ti.effect_info.PERMUTATIO=Ever wanted to swap blocks between each other? Well, this works by having two effects placed down in the world and applying a redstone signal to one of the linked blocks to swap between them. To link the two effects up, simply take a piece of paper and right click on the infused block. This will imbue the coordinates into the paper. Then right click on the other infused block to link them.
 ti.effect_info.PRAECANTATIO=Use this aspect to mark a jar and other aspect containers as suppliers for all neighbouring infusions.
-ti.effect_info.LUCRUM=This greedy little thing likes to pull in any item it can find, which just happens to be on the ground towards itself. Basically, EA and your money.
+ti.effect_info.DESIDERIUM=This greedy little thing likes to pull in any item it can find, which just happens to be on the ground towards itself. Basically, EA and your money.
 ti.effect_info.MORTUUS=If you supply this effect with a jar that is filled with more Mortuus and is within 10 blocks, the effect will spawn aggressive mobs during night and will drain the jar.
 ti.effect_info.VICTUS=If you supply this effect with a jar that is filled with more Victus and is within 10 blocks, the effect will spawn friendly mobs during night and will drain the jar.
 ti.effect_info.VITREUS=This effect makes light pass though the block like glass, useful for building a skylight without the need of glass. Let the light shine upon you!

@@ -46,7 +46,7 @@ public class BlockTransformer implements IClassTransformer {
     private static List<String> blockClasses = new ArrayList<String>();
 
     private static Map<String, List<String>> injectedClassess = new HashMap<String, List<String>>();
-    private static int injectedClasses, totalClasses;
+    private static int injectedClasses, totalClasses, injectedMethods, totalMethods;
 
     static {
         Interface infusionStabiliser = new Interface("thaumcraft/api/crafting/IInfusionStabiliser");
@@ -68,13 +68,19 @@ public class BlockTransformer implements IClassTransformer {
             }
         }
 
-        log.info("Thaumic Infusion has finished transforming Block Classes, a total of " + BlockTransformer.injectedClasses + " out of " + BlockTransformer.totalClasses + " have been found & transformed!");
+        log.info("Thaumic Infusion has finished transforming Block Classes, a total of " + injectedClasses + " out of " + totalClasses + " have been found & transformed!");
+        log.info("Also " + injectedMethods + " out of " + totalMethods + " possible methods have had code injected into them!");
         log.info("Transformer has been disabled, since no more block classes should be getting loaded in!");
 
-        BlockTransformer.shouldInject = false;
+        shouldInject = false;
 
-        BlockTransformer.injectedClassess = null;
-        BlockTransformer.blockClasses = null;
+        totalClasses = 0;
+        injectedClasses = 0;
+        totalMethods = 0;
+        injectedMethods = 0;
+
+        injectedClassess = null;
+        blockClasses = null;
     }
 
     private static void searchBlock(byte[] bytecode) throws IOException {
@@ -161,6 +167,10 @@ public class BlockTransformer implements IClassTransformer {
 
                 //Makes sure that the method has a world object and three integers after it which is then inferred as coordinates.
                 if (worldPars == null) continue;
+
+                totalMethods++;
+
+                //At this point, the method is considered a block method and is check further for any duplicate injections or super calls
 
                 boolean skip = false;
 
@@ -250,6 +260,7 @@ public class BlockTransformer implements IClassTransformer {
                 if (!hasInjectedCode) {
                     logger.println("==== " + transformedName + " (SuperClass: " + classNode.superName + ") ====");
                     hasInjectedCode = true;
+                    injectedMethods++;
                 }
 
                 logger.println(methodNo++ + ") Block Method found: " + deobfMethod.name + " (" + deobfMethod.name.hashCode() + ") " + method.desc + " Access: " + method.access + " | INJECTED");
@@ -354,7 +365,7 @@ public class BlockTransformer implements IClassTransformer {
         for (int i = 0; i < pars.length; i++) {
             Type par = pars[i];
             if (worldPars.world != -1) {
-                if (par.getClassName().equals("net.minecraft.util.BlockPos")) {
+                if (par.getClassName().equals(blockPos) || par.getClassName().equals("net.minecraft.util.BlockPos")) {
                     if (worldPars.blockPos == -1) worldPars.blockPos = i + 1;
                     else break;
                 }

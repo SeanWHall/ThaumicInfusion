@@ -90,14 +90,16 @@ public final class AspectHandler {
             Effect annotation = effect.getAnnotation(Effect.class);
             Aspect aspect = Aspect.getAspect(annotation.aspect().toLowerCase());
             if (aspect != null) {
-                if (!AspectHandler.registeredEffects.containsKey(aspect))
+                if (!AspectHandler.registeredEffects.containsKey(aspect)) {
                     AspectHandler.registeredEffects.put(aspect, effect);
+                    logger.info("Registered Aspect Effect: " + aspect.getName());
+                }
             } else logger.log(Level.ERROR, "Aspect: " + annotation.aspect() + " does not exist in the instance");
         }
 
-        for (Aspect aspect : AspectHandler.getRegisteredAspects())
+        for (Aspect aspect : AspectHandler.getRegisteredAspects()) {
             AspectHandler.opposites.put(aspect, AspectHandler.calculateEffectOpposites(aspect));
-
+        }
 
         logger.info(AspectHandler.registeredEffects.size() + " effects have been binded to their aspect, Failed to find: " + (AspectHandler.effectsToRegister.size() - AspectHandler.registeredEffects.size()) + " effects aspects.");
         AspectHandler.effectsToRegister = null;

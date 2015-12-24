@@ -13,18 +13,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
-@Effect(aspect = ("pannus"), cost = 1)
-public class Pannus extends AspectEffect {
+@Effect(aspect = ("aqua"), cost = 1)
+public class Aqua extends AspectEffect {
 
     @Override
-    @BlockMethod(overrideBlockFunc = false)
+    @BlockMethod()
     public void onFallenUpon(World worldIn, BlockPos pos, Entity entityIn, float fallDistance) {
-        entityIn.fallDistance = 0;
-    }
-
-    @Override
-    @BlockMethod(overrideBlockFunc = false)
-    public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, Entity entityIn) {
-        entityIn.fallDistance = 0;
+        entityIn.fall(0, 0);
     }
 }

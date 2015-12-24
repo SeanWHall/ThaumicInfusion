@@ -25,7 +25,7 @@ public class ThaumicInfusionPlugin implements IFMLLoadingPlugin {
     public static PrintWriter logger;
     public static boolean isObf;
 
-    public static String block, world, iBlockAccess;
+    public static String block, blockPos, world, iBlockAccess;
 
     public ThaumicInfusionPlugin() {
         try {
@@ -38,10 +38,11 @@ public class ThaumicInfusionPlugin implements IFMLLoadingPlugin {
             e.printStackTrace();
         }
 
-        ThaumicInfusionPlugin.log.info("Thaumic Infusion has detected an " + (ThaumicInfusionPlugin.isObf ? "Obfuscated" : "Deobfuscated") + " environment!");
-        ThaumicInfusionPlugin.block = ThaumicInfusionPlugin.isObf ? "aji" : "net/minecraft/block/Block";
-        ThaumicInfusionPlugin.world = ThaumicInfusionPlugin.isObf ? "ahb" : "net/minecraft/world/World";
-        ThaumicInfusionPlugin.iBlockAccess = ThaumicInfusionPlugin.isObf ? "ahl" : "net/minecraft/world/IBlockAccess";
+        log.info("Thaumic Infusion has detected an " + (ThaumicInfusionPlugin.isObf ? "Obfuscated" : "Deobfuscated") + " environment!");
+        block = ThaumicInfusionPlugin.isObf ? "atr" : "net/minecraft/block/Block";
+        blockPos = ThaumicInfusionPlugin.isObf ? "dt" : "net/minecraft/util/BlockPos";
+        world = ThaumicInfusionPlugin.isObf ? "aqu" : "net/minecraft/world/World";
+        iBlockAccess = ThaumicInfusionPlugin.isObf ? "ard" : "net/minecraft/world/IBlockAccess";
     }
 
     @Override

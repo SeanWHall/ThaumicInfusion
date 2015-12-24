@@ -9,7 +9,6 @@ package drunkmafia.thaumicinfusion.common.item;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
-import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.data.BlockData;
 import net.minecraft.block.Block;
@@ -21,7 +20,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
@@ -42,8 +40,7 @@ public class ItemFocusInfusing extends ItemFocusBasic {
     }
 
     public ItemFocusInfusing() {
-        super("infusion", new ResourceLocation(ModInfo.MODID, "items/"), 8747923);
-        setUnlocalizedName("focus_infusion");
+        super("infusion", 8747923);
         setCreativeTab(ThaumicInfusion.instance.tab);
     }
 

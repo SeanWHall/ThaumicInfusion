@@ -9,6 +9,7 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.BlockPos;
@@ -29,20 +30,21 @@ public class Alienis extends AspectEffect {
         size = config.getInt("Size of random tp", "Alienis", size, 1, 50, "");
     }
 
+
     @BlockMethod(overrideBlockFunc = false)
-    public void onEntityCollidedWithBlock(World world, int x, int y, int z, Entity entity) {
+    public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entity) {
         if (!world.isRemote && entity instanceof EntityLivingBase)
             warpEntity(world, (EntityLivingBase) entity);
     }
 
     @BlockMethod(overrideBlockFunc = false)
-    public void onEntityWalking(World world, int x, int y, int z, Entity entity) {
+    public void onEntityCollidedWithBlock(World world, BlockPos pos, IBlockState state, Entity entity) {
         if (!world.isRemote && entity instanceof EntityLivingBase)
             warpEntity(world, (EntityLivingBase) entity);
     }
 
     @BlockMethod(overrideBlockFunc = false)
-    public void onFallenUpon(World world, int x, int y, int z, Entity entity, float dist) {
+    public void onFallenUpon(World world, BlockPos pos, Entity entity, float fallDistance) {
         if (!world.isRemote && entity instanceof EntityLivingBase)
             warpEntity(world, (EntityLivingBase) entity);
     }
@@ -57,12 +59,12 @@ public class Alienis extends AspectEffect {
 
     public WorldCoordinates[] getPossibleWarps(World world) {
         WorldCoordinates pos = getPos();
-        ArrayList<BlockPos> warps = new ArrayList<BlockPos>();
+        ArrayList<WorldCoordinates> warps = new ArrayList<WorldCoordinates>();
         for (int x = -size + pos.pos.getX(); x < size + pos.pos.getX(); x++) {
             for (int y = -size + pos.pos.getY(); y < size + pos.pos.getY(); y++) {
                 for (int z = -size + pos.pos.getZ(); z < size + pos.pos.getZ(); z++) {
                     if (!world.isAirBlock(new BlockPos(x, y - 1, z)) && world.isAirBlock(new BlockPos(x, y, z)) && world.isAirBlock(new BlockPos(x, y + 1, z)))
-                        warps.add(new BlockPos(x, y, z));
+                        warps.add(new WorldCoordinates(new BlockPos(x, y, z), world.provider.getDimensionId()));
                 }
             }
         }

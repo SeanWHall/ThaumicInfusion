@@ -33,60 +33,62 @@ public class Permutatio extends AspectLink {
     }
 
     @Override
-    @BlockMethod(overrideBlockFunc = false)
+    @BlockMethod()
     public void updateTick(World world, BlockPos pos, IBlockState state, Random rand) {
         if (world.isRemote) return;
-        world.scheduleUpdate(pos, this, 4);
+        world.scheduleUpdate(pos, state.getBlock(), 1);
 
         WorldCoordinates destin = getDestination();
         if (destin == null) return;
 
         World destinationWorld = DimensionManager.getWorld(destin.dim);
         boolean power = world.isBlockIndirectlyGettingPowered(pos) > 1;
-        if (power != lastRedstoneSignal) {
+        if (power != lastRedstoneSignal && state.getBlock().getMobilityFlag() == 0 && state.getBlock() != Blocks.obsidian && state.getBlock().getBlockHardness(world, pos) != -1.0F) {
             lastRedstoneSignal = power;
 
             IBlockState newBlock = destinationWorld.getBlockState(destin.pos);
-            TileEntity oldTile = world.getTileEntity(pos), newTile = destinationWorld.getTileEntity(destin.pos);
+            if (newBlock == null || (newBlock.getBlock().getMobilityFlag() == 0 && newBlock.getBlock() != Blocks.obsidian && newBlock.getBlock().getBlockHardness(world, pos) != -1.0F)) {
+                TileEntity oldTile = world.getTileEntity(pos), newTile = destinationWorld.getTileEntity(destin.pos);
 
-            destinationWorld.removeTileEntity(destin.pos);
-            world.removeTileEntity(pos);
-
-            destinationWorld.setBlockState(destin.pos, Blocks.air.getDefaultState());
-            destinationWorld.setBlockState(destin.pos, state);
-
-            world.setBlockState(pos, Blocks.air.getDefaultState());
-            world.setBlockState(pos, newBlock);
-
-            if (oldTile != null) {
                 destinationWorld.removeTileEntity(destin.pos);
-                oldTile.validate();
-                destinationWorld.setTileEntity(destin.pos, oldTile);
-            }
-
-            if (newTile != null) {
                 world.removeTileEntity(pos);
-                newTile.validate();
-                world.setTileEntity(pos, newTile);
+
+                destinationWorld.setBlockState(destin.pos, Blocks.air.getDefaultState());
+                destinationWorld.setBlockState(destin.pos, state);
+
+                world.setBlockState(pos, Blocks.air.getDefaultState());
+                world.setBlockState(pos, newBlock);
+
+                if (oldTile != null) {
+                    destinationWorld.removeTileEntity(destin.pos);
+                    oldTile.validate();
+                    destinationWorld.setTileEntity(destin.pos, oldTile);
+                }
+
+                if (newTile != null) {
+                    world.removeTileEntity(pos);
+                    newTile.validate();
+                    world.setTileEntity(pos, newTile);
+                }
             }
         }
     }
 
     @Override
-    @BlockMethod(overrideBlockFunc = false)
+    @BlockMethod()
     public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
-        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
+        updateTick(world, pos, state, world.rand);
     }
 
     @Override
-    @BlockMethod(overrideBlockFunc = false)
+    @BlockMethod()
     public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entityIn) {
-        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
+        updateTick(world, pos, world.getBlockState(pos), world.rand);
     }
 
     @Override
-    @BlockMethod(overrideBlockFunc = false)
+    @BlockMethod()
     public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
-        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
+        updateTick(world, pos, state, world.rand);
     }
 }
