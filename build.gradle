@@ -3,12 +3,12 @@ plugins {
     id "net.minecraftforge.gradle.forge" version "2.0.2"
 }
 
-version = "4.32"
+version = "4.5"
 group= "drunkmafia.thaumicinfusion"
 archivesBaseName = "ThaumicInfusion"
 
 minecraft {
-    version = "1.8-11.14.4.1565"
+    version = "1.8-11.14.4.1577"
     runDir = "run"
 
     // the mappings can be changed at any time, and must be in the following format.
