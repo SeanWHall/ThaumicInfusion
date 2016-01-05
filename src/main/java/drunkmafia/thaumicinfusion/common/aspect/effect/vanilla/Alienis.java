@@ -30,7 +30,6 @@ public class Alienis extends AspectEffect {
         size = config.getInt("Size of random tp", "Alienis", size, 1, 50, "");
     }
 
-
     @BlockMethod(overrideBlockFunc = false)
     public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entity) {
         if (!world.isRemote && entity instanceof EntityLivingBase)

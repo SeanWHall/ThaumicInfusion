@@ -21,7 +21,6 @@ public class Gelum extends AspectEffect {
 
     public static long cooldownTimer = 10000L;
     private long cooldown;
-    private int radius = 10;
 
     @Override
     public void aspectInit(World world, WorldCoordinates pos) {
@@ -57,6 +56,7 @@ public class Gelum extends AspectEffect {
         if (world.isRemote || System.currentTimeMillis() < cooldown + cooldownTimer)
             return;
 
+        int radius = 10;
         for (int xPos = pos.getX() - radius; xPos < pos.getX() + radius; xPos++) {
             for (int yPos = pos.getY() - radius; yPos < pos.getY() + radius; yPos++) {
                 for (int zPos = pos.getZ() - radius; zPos < pos.getZ() + radius; zPos++) {

@@ -17,7 +17,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
@@ -105,12 +104,6 @@ public abstract class AspectEffect extends Block implements ISavable {
 
     public int getCost() {
         return AspectHandler.getCost(getClass());
-    }
-
-
-    @Override
-    public void onBlockClicked(World worldIn, BlockPos pos, EntityPlayer playerIn) {
-        super.onBlockClicked(worldIn, pos, playerIn);
     }
 
     public void readConfig(Configuration config) {

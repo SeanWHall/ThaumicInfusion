@@ -31,7 +31,8 @@ import static org.objectweb.asm.Opcodes.*;
  * }else{
  * BlockWrapper.block.onBlockActivated(World, x, y, z, player, side, hitX, hitY, hitZ);
  * }
- * }}
+ * }
+ * }
  * <p/>
  * This class is heavily annotated to help debugging if future issues arise & it is essential that this transformer does not conflict with any other mod
  **/
@@ -57,8 +58,6 @@ public class BlockTransformer implements IClassTransformer {
 
         BlockTransformer.blockClasses.add("net/minecraft/block/Block");
     }
-
-    private long startTime;
 
     public static void blockCheck(Iterator classesIter) {
         logger.println("==== Failed Blocks ====");
@@ -123,7 +122,7 @@ public class BlockTransformer implements IClassTransformer {
         if (bytecode == null || !BlockTransformer.shouldInject)
             return bytecode;
 
-        startTime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
 
         ClassNode classNode = new ClassNode(ASM5), deobfClassNode = new ClassNode(ASM5);
 
