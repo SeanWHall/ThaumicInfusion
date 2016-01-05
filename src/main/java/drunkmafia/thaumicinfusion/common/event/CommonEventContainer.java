@@ -6,7 +6,6 @@
 
 package drunkmafia.thaumicinfusion.common.event;
 
-import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.world.IWorldDataProvider;
 import drunkmafia.thaumicinfusion.common.world.SavableHelper;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
@@ -26,7 +25,6 @@ import net.minecraftforge.event.world.ChunkEvent.Unload;
 import net.minecraftforge.event.world.WorldEvent.Load;
 import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -36,11 +34,10 @@ public class CommonEventContainer {
 
     //Tick Syncing
 
-    @SubscribeEvent
-    public void onWorldTick(TickEvent.WorldTickEvent event) {
-        if (ThaumicInfusion.instance.stablizerThread != null && event.phase == TickEvent.Phase.START)
-            ThaumicInfusion.instance.stablizerThread.setFlags(true, false);
-    }
+//    @SubscribeEvent
+//    public void onWorldTick(TickEvent.WorldTickEvent event) {
+//
+//    }
 
     //Client Data Syncing
 

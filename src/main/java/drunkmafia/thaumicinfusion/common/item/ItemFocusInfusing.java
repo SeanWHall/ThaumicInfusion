@@ -114,6 +114,7 @@ public class ItemFocusInfusing extends ItemFocusBasic {
                         return;
                     }
                 }
+
                 if (this.drainAspects(player, aspect)) {
                     ArrayList<Class> newAspects = new ArrayList<Class>();
                     newAspects.add(AspectHandler.getEffectFromAspect(aspect));

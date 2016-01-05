@@ -34,7 +34,6 @@ public final class BlockWrapper {
 
     /**
      * Used to decided if an effects exists in this blocks position
-     *
      * @return If true then it triggers the ASM code within the block to run the effects code
      */
     public static boolean hasWorldData(IBlockAccess access, BlockPos pos, Block block, int methodHash) {
@@ -66,7 +65,6 @@ public final class BlockWrapper {
 
     /**
      * Used to decide if an effects functionality should override the blocks own functionality
-     *
      * @return If true then it stops the blocks code from running and returns the value
      */
     public static boolean overrideBlockFunctionality(IBlockAccess access, BlockPos pos, int methodName) {

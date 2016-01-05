@@ -8,13 +8,20 @@ package drunkmafia.thaumicinfusion.common.aspect;
 
 import drunkmafia.thaumicinfusion.client.gui.aspect.EffectGui;
 import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
+import drunkmafia.thaumicinfusion.common.asm.BlockTransformer;
 import drunkmafia.thaumicinfusion.common.lib.ModInfo;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.LoaderState;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
 import thaumcraft.api.aspects.Aspect;
 
 import java.lang.reflect.Method;
@@ -26,7 +33,6 @@ import java.util.Map;
 public final class AspectHandler {
 
     private static final Map<Aspect, Class<? extends AspectEffect>> registeredEffects = new HashMap<Aspect, Class<? extends AspectEffect>>();
-    private static final List<AspectHandler.EffectBundle> guiEffects = new ArrayList<AspectHandler.EffectBundle>();
     private static final Map<Aspect, Aspect[]> opposites = new HashMap<Aspect, Aspect[]>();
 
     private static ArrayList<Class<? extends AspectEffect>> effectsToRegister = new ArrayList<Class<? extends AspectEffect>>();
@@ -90,7 +96,7 @@ public final class AspectHandler {
             Effect annotation = effect.getAnnotation(Effect.class);
             Aspect aspect = Aspect.getAspect(annotation.aspect().toLowerCase());
             if (aspect != null) {
-                if (!AspectHandler.registeredEffects.containsKey(aspect)) {
+                if (!AspectHandler.registeredEffects.containsKey(aspect) && isEffectSafe(effect)) {
                     AspectHandler.registeredEffects.put(aspect, effect);
                     logger.info("Registered Aspect Effect: " + aspect.getName());
                 }
@@ -131,6 +137,52 @@ public final class AspectHandler {
         return new Aspect[0];
     }
 
+    private static boolean isEffectSafe(Class<? extends AspectEffect> effect) {
+        try {
+            ClassNode classNode = new ClassNode();
+            new ClassReader(Launch.classLoader.getClassBytes(effect.getName().replace('/', '.'))).accept(classNode, ClassReader.EXPAND_FRAMES);
+
+            if (classNode.superName == null) return false;
+
+            for (MethodNode methodNode : classNode.methods) {
+                if (!BlockTransformer.blockMethods.contains(methodNode.name))
+                    continue;
+
+                if (!isMethodSafe(classNode, methodNode)) {
+                    ThaumicInfusion.getLogger().error("ERROR! Effect: " + effect.getSimpleName() + " | Method: " + methodNode.name + " | Super Call to Block detected, This would cause an infinite loop. Effect will not be registered!");
+                    return false;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return true;
+    }
+
+    private static boolean isMethodSafe(ClassNode classNode, MethodNode methodNode) throws Exception {
+        for (AbstractInsnNode insnNode : methodNode.instructions.toArray()) {
+            if (insnNode instanceof MethodInsnNode) {
+                MethodInsnNode methodInsn = (MethodInsnNode) insnNode;
+
+                if (methodInsn.owner.equals("drunkmafia/thaumicinfusion/common/aspect/AspectEffect") && methodInsn.name.equals(methodNode.name))
+                    return false;
+
+                if (methodInsn.owner.equals(classNode.superName) && methodInsn.name.equals(methodNode.name)) {
+                    ClassNode methodOwner = new ClassNode();
+                    new ClassReader(Launch.classLoader.getClassBytes(methodInsn.owner)).accept(methodOwner, ClassReader.EXPAND_FRAMES);
+
+                    for (MethodNode ownerMethods : methodOwner.methods) {
+                        if (ownerMethods.name.equals(methodNode.name))
+                            return isMethodSafe(methodOwner, ownerMethods);
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
     /**
      * Internal function to ensure that the methods are called in order
      *
@@ -140,33 +192,6 @@ public final class AspectHandler {
     private static boolean isInCorretState(LoaderState state) {
         Loader loader = Loader.instance();
         return !loader.isInState(state) && loader.activeModContainer().getModId().matches(ModInfo.MODID);
-    }
-
-    public static AspectHandler.EffectBundle getGUI(int id) {
-        for (AspectHandler.EffectBundle bundle : AspectHandler.guiEffects)
-            if (bundle.guiID == id) return bundle;
-        return null;
-    }
-
-    public static AspectHandler.EffectBundle getGUI(Class<? extends AspectEffect> effect) {
-        for (AspectHandler.EffectBundle bundle : AspectHandler.guiEffects)
-            if (bundle.effect == effect) return bundle;
-        return null;
-    }
-
-    /**
-     * Used to get a list of Aspects that have GUI's
-     *
-     * @return An Array of {@link Aspect} which have a gui attached to their effect
-     */
-    public static Aspect[] getGUIAspects() {
-        List<Aspect> aspects = new ArrayList<Aspect>();
-
-        for (Aspect aspect : AspectHandler.getRegisteredAspects()) {
-            Class<? extends AspectEffect> effect = AspectHandler.getEffectFromAspect(aspect);
-            //if(effect != null && effect.getAnnotation(Effect.class).getGUIClass() != EffectGui.class) aspects.add(aspect);
-        }
-        return aspects.toArray(new Aspect[aspects.size()]);
     }
 
     /**

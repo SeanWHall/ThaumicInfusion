@@ -14,7 +14,6 @@ import drunkmafia.thaumicinfusion.common.command.TICommand;
 import drunkmafia.thaumicinfusion.common.event.CommonEventContainer;
 import drunkmafia.thaumicinfusion.common.intergration.ThaumcraftIntergration;
 import drunkmafia.thaumicinfusion.common.item.TIItems;
-import drunkmafia.thaumicinfusion.common.world.AspectStablizer;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import net.minecraft.block.Block;
 import net.minecraft.command.ServerCommandManager;
@@ -43,9 +42,6 @@ public class ThaumicInfusion {
     private static Logger logger;
     public Configuration config;
 
-    public boolean shouldStablizer;
-    public AspectStablizer stablizerThread;
-
     public CreativeTabs tab = new CreativeTabs(CREATIVETAB_UNLOCAL) {
         @Override
         public Item getTabIconItem() {
@@ -67,7 +63,6 @@ public class ThaumicInfusion {
 
         config = new Configuration(event.getSuggestedConfigurationFile());
         config.load();
-        shouldStablizer = config.get("aspects", "Should Have to Stabilizer?", false).getBoolean();
         config.save();
 
         TIItems.preInit();
@@ -99,18 +94,5 @@ public class ThaumicInfusion {
     public void serverStart(FMLServerStartingEvent event) {
         MinecraftServer server = event.getServer();
         TICommand.init((ServerCommandManager) server.getCommandManager());
-
-        if (shouldStablizer) {
-            this.stablizerThread = new AspectStablizer(server.worldServers);
-            new Thread(this.stablizerThread, "Aspect Stabilizer").start();
-        }
-    }
-
-    @Mod.EventHandler
-    public void serverStop(FMLServerStoppingEvent event) {
-        if (stablizerThread != null) {
-            this.stablizerThread.setFlags(false, false);
-            this.stablizerThread = null;
-        }
     }
 }

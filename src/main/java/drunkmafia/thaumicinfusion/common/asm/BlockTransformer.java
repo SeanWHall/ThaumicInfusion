@@ -41,12 +41,14 @@ public class BlockTransformer implements IClassTransformer {
     public static List<Interface> blockInterfaces = new ArrayList<Interface>();
     //The Block method which are compatible with the system
     public static List<String> blockMethods = new ArrayList<String>();
+    private static BlockTransformer instance;
     private static boolean shouldInject = true;
     //All the sub classes of the block class that have been found, makes it easier to step though the super classes of the current class being transformed
     private static List<String> blockClasses = new ArrayList<String>();
 
     private static Map<String, List<String>> injectedClassess = new HashMap<String, List<String>>();
     private static int injectedClasses, totalClasses, injectedMethods, totalMethods;
+    private static long overallTimeSpent;
 
     static {
         Interface infusionStabiliser = new Interface("thaumcraft/api/crafting/IInfusionStabiliser");
@@ -56,7 +58,11 @@ public class BlockTransformer implements IClassTransformer {
         BlockTransformer.blockClasses.add("net/minecraft/block/Block");
     }
 
+    private long startTime;
+
     public static void blockCheck(Iterator classesIter) {
+        logger.println("==== Failed Blocks ====");
+
         while (classesIter.hasNext()) {
             Object obj = classesIter.next();
             if (obj instanceof Block) {
@@ -70,6 +76,7 @@ public class BlockTransformer implements IClassTransformer {
 
         log.info("Thaumic Infusion has finished transforming Block Classes, a total of " + injectedClasses + " out of " + totalClasses + " have been found & transformed!");
         log.info("Also " + injectedMethods + " out of " + totalMethods + " possible methods have had code injected into them!");
+        log.info("Total time spent transforming classes: " + overallTimeSpent + " ms");
         log.info("Transformer has been disabled, since no more block classes should be getting loaded in!");
 
         shouldInject = false;
@@ -104,18 +111,25 @@ public class BlockTransformer implements IClassTransformer {
                 return;
             }
         }
+
+        logger.println("Class: " + classNode.name + " Super: " + classNode.superName);
+        logger.flush();
     }
 
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytecode) {
+        if (instance == null) instance = this;
+
         if (bytecode == null || !BlockTransformer.shouldInject)
             return bytecode;
+
+        startTime = System.currentTimeMillis();
 
         ClassNode classNode = new ClassNode(ASM5), deobfClassNode = new ClassNode(ASM5);
 
         //If the instance is obfuscated, then it will run though the deobf transformer to make sure that the src is deobfucated
         new ClassReader(bytecode).accept(classNode, ClassReader.EXPAND_FRAMES);
-        this.getDeobfReader(bytecode).accept(deobfClassNode, ClassReader.EXPAND_FRAMES);
+        getDeobfReader(bytecode).accept(deobfClassNode, ClassReader.EXPAND_FRAMES);
 
         //Uses a custom class writer to load classes from the Vanilla Class loader, to ensure no the classes can be found
         ClassWriter classWriter = new MinecraftClassWriter(classNode.name, ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
@@ -273,6 +287,8 @@ public class BlockTransformer implements IClassTransformer {
             if (hasInjectedCode) {
                 classNode.accept(classWriter);
                 BlockTransformer.injectedClassess.put(deobfClassNode.name.replace('/', '.'), methodsInjected);
+
+                overallTimeSpent += System.currentTimeMillis() - startTime;
 
                 return classWriter.toByteArray();
             }

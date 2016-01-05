@@ -42,12 +42,11 @@ public class BlockData extends BlockSavable implements IBlockHook {
 
     private static ResourceLocation[] textures;
     public TIWorldData worldData;
-    public int ticksExisted;
     private AnimatedFrames infusionFrames;
-    private int[] methods = new int[0];
     private Map<Integer, BlockMethod> methodsOverrides = new HashMap<Integer, BlockMethod>();
     private Map<Integer, Integer> methodsToBlock = new HashMap<Integer, Integer>();
     private ArrayList<AspectEffect> dataEffects = new ArrayList<AspectEffect>();
+    private int[] methods = new int[0];
     private int tick, colour = 0;
 
     public BlockData() {
@@ -57,16 +56,14 @@ public class BlockData extends BlockSavable implements IBlockHook {
         super(coords);
 
         for (AspectEffect effect : this.classesToEffects(list)) {
-            if (effect == null) continue;
-            effect.data = this;
-            this.dataEffects.add(effect);
+            if (effect != null) this.dataEffects.add(effect);
         }
     }
 
     private static int[] toPrimitive(Integer[] IntegerArray) {
         int[] result = new int[IntegerArray.length];
         for (int i = 0; i < IntegerArray.length; i++) {
-            result[i] = IntegerArray[i].intValue();
+            result[i] = IntegerArray[i];
         }
         return result;
     }
@@ -92,7 +89,6 @@ public class BlockData extends BlockSavable implements IBlockHook {
             }
 
             effect.aspectInit(world, this.getCoords());
-            effect.data = this;
 
             List<MethodInfo> effectMethods = AspectEffect.getMethods(effect.getClass());
             for (MethodInfo method : effectMethods) {
@@ -202,9 +198,7 @@ public class BlockData extends BlockSavable implements IBlockHook {
 
     public void addEffect(Class<? extends AspectEffect>[] classes) {
         for (AspectEffect effect : this.classesToEffects(classes)) {
-            if (effect == null) continue;
-            effect.data = this;
-            this.dataEffects.add(effect);
+            if (effect != null) this.dataEffects.add(effect);
         }
 
         if (!getWorld().isRemote)
@@ -222,7 +216,6 @@ public class BlockData extends BlockSavable implements IBlockHook {
         for (int i = 0; i < effects.length; i++) {
             try {
                 AspectEffect eff = (AspectEffect) list[i].newInstance();
-                eff.data = this;
                 effects[i] = eff;
             } catch (Exception e) {
             }

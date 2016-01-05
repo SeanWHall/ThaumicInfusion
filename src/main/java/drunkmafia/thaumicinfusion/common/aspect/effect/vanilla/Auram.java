@@ -11,12 +11,6 @@ import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 
 @Effect(aspect = "auram", cost = 1)
 public class Auram extends AspectEffect {
-
-    @Override
-    public boolean shouldDrain() {
-        return false;
-    }
-
     @Override
     public int getCost() {
         return 1;

@@ -10,16 +10,14 @@ import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.asm.BlockTransformer;
 import drunkmafia.thaumicinfusion.common.aspect.effect.vanilla.*;
 import drunkmafia.thaumicinfusion.common.aspect.entity.InfusedBlockFalling;
-import drunkmafia.thaumicinfusion.common.block.TIBlocks;
 import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import drunkmafia.thaumicinfusion.common.world.AspectStablizer;
 import drunkmafia.thaumicinfusion.common.world.ISavable;
-import drunkmafia.thaumicinfusion.common.world.data.BlockData;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
@@ -34,7 +32,7 @@ import java.util.List;
 public abstract class AspectEffect extends Block implements ISavable {
 
     private static final HashMap<Class, ArrayList<AspectEffect.MethodInfo>> phasedMethods = new HashMap<Class, ArrayList<AspectEffect.MethodInfo>>();
-    public BlockData data;
+
     protected WorldCoordinates pos;
     private boolean shouldRegister;
 
@@ -109,29 +107,30 @@ public abstract class AspectEffect extends Block implements ISavable {
         return AspectHandler.getCost(getClass());
     }
 
-    public boolean shouldDrain() {
-        return true;
-    }
 
-    public void renderEffect(EntityPlayer player, float partialTicks) {
-
+    @Override
+    public void onBlockClicked(World worldIn, BlockPos pos, EntityPlayer playerIn) {
+        super.onBlockClicked(worldIn, pos, playerIn);
     }
 
     public void readConfig(Configuration config) {
         config.load();
         this.shouldRegister = config.getBoolean(this.getClass().getSimpleName(), "Effects", true, "");
-        AspectStablizer.dataExistedFor = config.getInt("DataExisted", "Aspects", AspectStablizer.dataExistedFor, 60, 1000, "The amount of ticks a infusion has to wait before it drains an aspect");
         AspectHandler.setCost(getClass(), config.getInt(this.getClass().getSimpleName(), "Effects Cost", getClass().getAnnotation(Effect.class).cost(), 0, 100, ""));
         config.save();
     }
 
-    public void onPlaceEffect(EntityPlayer player) {
+    public void renderEffect(EntityPlayer player, float partialTicks) {
+    }
 
+    public void onRemoveEffect(EntityPlayer player) {
+    }
+
+    public void onPlaceEffect(EntityPlayer player) {
     }
 
     public void aspectInit(World world, WorldCoordinates pos) {
         this.pos = pos;
-        if (world.isAirBlock(pos.pos)) world.setBlockState(pos.pos, TIBlocks.fakeAirBlock.getDefaultState());
     }
 
     public WorldCoordinates getPos() {
@@ -147,7 +146,9 @@ public abstract class AspectEffect extends Block implements ISavable {
     }
 
     public boolean hasMethod(String methName) {
-        return AspectEffect.getMethods(this.getClass()).contains(methName);
+        for (MethodInfo method : AspectEffect.getMethods(getClass()))
+            if (method.methodID == methName.hashCode()) return true;
+        return false;
     }
 
     public void writeNBT(NBTTagCompound tagCompound) {
