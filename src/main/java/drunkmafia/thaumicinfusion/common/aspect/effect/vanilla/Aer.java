@@ -50,8 +50,6 @@ public class Aer extends AspectEffect {
 
             cooldown = System.currentTimeMillis();
         }
-
-
     }
 
     @Override

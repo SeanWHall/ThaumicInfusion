@@ -18,7 +18,7 @@ import java.util.Map;
 
 @IFMLLoadingPlugin.Name(ModInfo.MODID)
 @IFMLLoadingPlugin.TransformerExclusions({"drunkmafia.thaumicinfusion.common.asm.", "drunkmafia.thaumicinfusion.common.aspect"})
-@IFMLLoadingPlugin.MCVersion("1.8")
+@IFMLLoadingPlugin.MCVersion("1.8.9")
 public class ThaumicInfusionPlugin implements IFMLLoadingPlugin {
 
     public static Logger log = LogManager.getLogger("TI Transformer");

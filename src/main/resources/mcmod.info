@@ -1,14 +1,14 @@
 [
 {
-  "modid": "thaumicinfusion",
-  "name": "Thaumic Infusion",
-  "description": "Allows alteration of the properties and purpose of a block through the use of Thaumcraft Aspects.",
-  "version": "4.5",
-  "mcversion": "1.8",
-  "url": "http://www.minecraftforum.net/forums/mapping-and-modding/minecraft-mods/wip-mods/1445452-tc4-add-on-thaumic-infusion-infusible-blocks",
-  "updateUrl": "http://www.curse.com/mc-mods/minecraft/220308-thaumic-infusion",
-  "authorList": ["DrunkMafia"],
-  "credits": "ImAWizardHagrid - English Localization",
+  "modid": "examplemod",
+  "name": "Example Mod",
+  "description": "Example placeholder mod.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["ExampleDude"],
+  "credits": "The Forge and FML guys, for making this example",
   "logoFile": "",
   "screenshots": [],
   "dependencies": []

@@ -12,7 +12,7 @@ import net.minecraft.world.ChunkCoordIntPair;
 public class CheckInstability extends CommandBase {
 
     @Override
-    public String getName() {
+    public String getCommandName() {
         return ThaumicInfusion.translate("check.instability");
     }
 
@@ -22,7 +22,7 @@ public class CheckInstability extends CommandBase {
     }
 
     @Override
-    public void execute(ICommandSender sender, String[] args) throws CommandException {
+    public void processCommand(ICommandSender sender, String[] args) throws CommandException {
         TIWorldData worldData = TIWorldData.getWorldData(sender.getEntityWorld());
         ChunkCoordIntPair playerChunk = new ChunkCoordIntPair(sender.getPosition().getX() >> 4, sender.getPosition().getZ() >> 4);
         ChunkData chunkData = worldData.chunkDatas.get(playerChunk.getCenterXPos(), playerChunk.getCenterZPosition(), null);

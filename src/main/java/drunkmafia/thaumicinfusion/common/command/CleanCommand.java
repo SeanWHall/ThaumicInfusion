@@ -22,7 +22,7 @@ public class CleanCommand extends CommandBase {
     ArrayList<String> players = new ArrayList<String>();
 
     @Override
-    public String getName() {
+    public String getCommandName() {
         return ThaumicInfusion.translate("clean.data");
     }
 
@@ -31,8 +31,9 @@ public class CleanCommand extends CommandBase {
         return "clean.data.usage";
     }
 
+
     @Override
-    public void execute(ICommandSender sender, String[] args) throws CommandException {
+    public void processCommand(ICommandSender sender, String[] args) throws CommandException {
         World world = sender.getEntityWorld();
         String playerName = sender.getName().toLowerCase();
 
