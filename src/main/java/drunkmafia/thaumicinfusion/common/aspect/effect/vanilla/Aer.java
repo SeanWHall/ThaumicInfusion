@@ -37,7 +37,7 @@ public class Aer extends AspectEffect {
     @Override
     @BlockMethod(overrideBlockFunc = false)
     public void updateTick(World world, BlockPos pos, IBlockState state, Random rand) {
-        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, rand);
+        world.scheduleUpdate(pos, state.getBlock(), 1);
         if (world.isRemote)
             return;
 
@@ -55,6 +55,6 @@ public class Aer extends AspectEffect {
     @Override
     @BlockMethod(overrideBlockFunc = false)
     public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
-        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
+        updateTick(world, pos, state, world.rand);
     }
 }

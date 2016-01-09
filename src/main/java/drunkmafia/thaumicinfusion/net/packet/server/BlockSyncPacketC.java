@@ -64,9 +64,13 @@ public class BlockSyncPacketC implements IMessage {
 
             if (worldData == null) return null;
 
-            worldData.removeData(data.getClass(), pos, false);
-            worldData.addBlock(data, true, false);
-            Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.pos);
+            //Packet can arrive before the worlds rendering has full initialized
+            try {
+                worldData.removeData(data.getClass(), pos, false);
+                worldData.addBlock(data, true, false);
+                Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.pos);
+            } catch (Exception e) {
+            }
 
             return null;
         }

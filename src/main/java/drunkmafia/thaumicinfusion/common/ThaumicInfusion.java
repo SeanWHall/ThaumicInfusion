@@ -37,8 +37,10 @@ public class ThaumicInfusion {
 
     @Mod.Instance(MODID)
     public static ThaumicInfusion instance;
+
     @SidedProxy(clientSide = CLIENT_PROXY_PATH, serverSide = COMMON_PROXY_PATH)
     public static CommonProxy proxy;
+
     private static Logger logger;
     public Configuration config;
 

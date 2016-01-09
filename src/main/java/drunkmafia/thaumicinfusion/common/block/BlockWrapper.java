@@ -23,6 +23,8 @@ import thaumcraft.api.internal.WorldCoordinates;
  */
 public final class BlockWrapper {
 
+    public static long handlerTime;
+
     /**
      * Accessed by block methods to invoke code dynamically, this is done over storing the object locally in the methods
      * as TI does not want to alter the block methods anymore than is required. Which means there is less room for error.
@@ -44,6 +46,8 @@ public final class BlockWrapper {
         //Which deals with super calls by blocks, that way the effect is not invoked multiple times by the same block
         if (world == null || block == Blocks.air || block instanceof AspectEffect) return false;
 
+        long start = System.nanoTime();
+
         TIWorldData worldData = TIWorldData.getWorldData(world);
         if (worldData == null) return false;
 
@@ -56,6 +60,8 @@ public final class BlockWrapper {
                 BlockWrapper.block = hook.getBlock(methodHash);
                 BlockWrapper.lastHook = hook;
                 BlockWrapper.lastPos = pos;
+
+                handlerTime = System.nanoTime() - start;
 
                 //Ensures that the block method does not try to invoke its method off a null Block
                 return BlockWrapper.block != null;
