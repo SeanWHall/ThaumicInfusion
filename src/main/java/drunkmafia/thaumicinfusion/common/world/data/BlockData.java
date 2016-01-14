@@ -28,6 +28,7 @@ import net.minecraft.client.model.*;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
@@ -283,12 +284,12 @@ public class BlockData extends BlockSavable implements IBlockHook {
 
         for (AspectEffect effect : this.getEffects()) {
             if (effect instanceof IClientTickable)
-                ((IClientTickable) effect).clientTick(getWorld(), (int) -iPX + x, (int) -iPY + y, (int) -iPZ + z, partialTicks);
+                ((IClientTickable) effect).clientTick(getWorld(), new BlockPos((int) -iPX + x, (int) -iPY + y, (int) -iPZ + z), partialTicks);
         }
     }
 
     @SideOnly(Side.CLIENT)
-    static class EffectModel extends ModelBase {
+    public static class EffectModel extends ModelBase {
         public ModelRenderer Block;
 
         public EffectModel(TIWorldData worldData, WorldCoordinates pos) {
@@ -306,7 +307,7 @@ public class BlockData extends BlockSavable implements IBlockHook {
     }
 
     @SideOnly(Side.CLIENT)
-    static class SidedBox extends ModelBox {
+    public static class SidedBox extends ModelBox {
 
         /**
          * X vertex coordinate of lower box corner

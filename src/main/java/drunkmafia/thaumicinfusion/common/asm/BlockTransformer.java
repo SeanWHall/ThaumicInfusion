@@ -42,22 +42,25 @@ public class BlockTransformer implements IClassTransformer {
     public static List<Interface> blockInterfaces = new ArrayList<Interface>();
     //The Block method which are compatible with the system
     public static List<String> blockMethods = new ArrayList<String>();
+    //All Block classes that are marked as banned
+    public static List<String> bannedClasses = new ArrayList<String>();
     private static BlockTransformer instance;
-    private static boolean shouldInject = true;
     //All the sub classes of the block class that have been found, makes it easier to step though the super classes of the current class being transformed
     private static List<String> blockClasses = new ArrayList<String>();
-
-    private static Map<String, List<String>> injectedClassess = new HashMap<String, List<String>>();
-    private static int injectedClasses, totalClasses, injectedMethods, totalMethods;
-    private static long overallTimeSpent;
 
     static {
         Interface infusionStabiliser = new Interface("thaumcraft/api/crafting/IInfusionStabiliser");
         infusionStabiliser.addMethod(new IMethod("canStabaliseInfusion", "Z", "L" + world + ";III"));
-        BlockTransformer.blockInterfaces.add(infusionStabiliser);
+        blockInterfaces.add(infusionStabiliser);
 
-        BlockTransformer.blockClasses.add("net/minecraft/block/Block");
+        bannedClasses.add("net/minecraft/block/BlockAir");
+        blockClasses.add("net/minecraft/block/Block");
     }
+
+    private boolean shouldInject = true;
+    private Map<String, List<String>> injectedClassess = new HashMap<String, List<String>>();
+    private int injectedClasses, totalClasses, injectedMethods, totalMethods;
+    private long overallTimeSpent;
 
     public static void blockCheck(Iterator classesIter) {
         logger.println("==== Failed Blocks ====");
@@ -73,19 +76,19 @@ public class BlockTransformer implements IClassTransformer {
             }
         }
 
-        log.info("Thaumic Infusion has finished transforming Block Classes, a total of " + injectedClasses + " out of " + totalClasses + " have been found & transformed!");
-        log.info("Also " + injectedMethods + " out of " + totalMethods + " possible methods have had code injected into them!");
-        log.info("Total time spent transforming classes: " + overallTimeSpent + " ms");
+        log.info("Thaumic Infusion has finished transforming Block Classes, a total of " + instance.injectedClasses + " out of " + instance.totalClasses + " have been found & transformed!");
+        log.info("Also " + instance.injectedMethods + " out of " + instance.totalMethods + " possible methods have had code injected into them!");
+        log.info("Total time spent transforming classes: " + instance.overallTimeSpent + " ms");
         log.info("Transformer has been disabled, since no more block classes should be getting loaded in!");
 
-        shouldInject = false;
+        instance.shouldInject = false;
 
-        totalClasses = 0;
-        injectedClasses = 0;
-        totalMethods = 0;
-        injectedMethods = 0;
+        instance.totalClasses = 0;
+        instance.injectedClasses = 0;
+        instance.totalMethods = 0;
+        instance.injectedMethods = 0;
 
-        injectedClassess = null;
+        instance.injectedClassess = null;
         blockClasses = null;
     }
 
@@ -99,14 +102,14 @@ public class BlockTransformer implements IClassTransformer {
         if (!classNode.superName.replace('/', '.').equals(Block.class.getName()))
             BlockTransformer.searchBlock(Launch.classLoader.getClassBytes(FMLDeobfuscatingRemapper.INSTANCE.unmap(classNode.superName.replace('.', '/')).replace('/', '.')));
 
-        List<String> methods = BlockTransformer.injectedClassess.get(classNode.name.replace('/', '.'));
+        List<String> methods = instance.injectedClassess.get(classNode.name.replace('/', '.'));
         if (methods == null) return;
 
-        BlockTransformer.totalClasses++;
+        instance.totalClasses++;
 
         for (MethodNode method : classNode.methods) {
             if (methods.contains(method.name)) {
-                BlockTransformer.injectedClasses++;
+                instance.injectedClasses++;
                 return;
             }
         }
@@ -119,7 +122,7 @@ public class BlockTransformer implements IClassTransformer {
     public byte[] transform(String name, String transformedName, byte[] bytecode) {
         if (instance == null) instance = this;
 
-        if (bytecode == null || !BlockTransformer.shouldInject)
+        if (bytecode == null || !shouldInject)
             return bytecode;
 
         long startTime = System.currentTimeMillis();
@@ -163,121 +166,151 @@ public class BlockTransformer implements IClassTransformer {
 
             List<String> methodsInjected = new ArrayList<String>();
 
-            //Iterates though class methods to find block methods and inject code into them
-            for (int i = 0; i < classNode.methods.size(); i++) {
-                if (i >= deobfClassNode.methods.size()) break;
+            if (bannedClasses.contains(classNode.name)) {
+                ClassNode blockNode = new ClassNode(ASM5);
+                getDeobfReader(Launch.classLoader.getClassBytes(block)).accept(blockNode, ClassReader.EXPAND_FRAMES);
 
-                MethodNode method = classNode.methods.get(i), deobfMethod = deobfClassNode.methods.get(i);
+                logger.println("==== " + transformedName + " (SuperClass: " + classNode.superName + ") ====");
+                logger.println("The Following Class has been marked as banned, it will now be filled with all methods that have not been overridden.\nThis is done to stop it from calling the Wrapper class and cause unneeded performance drops");
+                logger.println("This however does not effect existing methods super calls, therefore this system will prevent the majority of methods.");
 
-                // START OF PRE INJECTION CHECKS //
+                for (String method : blockMethods) {
+                    boolean hasMethod = false;
+                    for (MethodNode methodNode : deobfClassNode.methods)
+                        if (hasMethod = methodNode.name.equals(method)) break;
 
-                //Checks to make sure that the method is public or protected & Checks if the method is a block method
-                if (method.access != 1 && method.access != 2 || !isBlockClass && !BlockTransformer.blockMethods.contains(deobfMethod.name))
-                    continue;
+                    if (hasMethod) continue;
 
-                Type[] pars = Type.getArgumentTypes(method.desc);
-                BlockTransformer.WorldParamaters worldPars = this.getWorldPars(pars);
+                    MethodNode blockMethod = null;
+                    for (MethodNode methodNode : blockNode.methods)
+                        if ((blockMethod = methodNode).name.equals(method)) break;
 
-                //Makes sure that the method has a world object and three integers after it which is then inferred as coordinates.
-                if (worldPars == null) continue;
+                    if (blockMethod == null) {
+                        throw new Exception("Null Method returned in Lookup!");
+                    }
 
-                totalMethods++;
+                    classNode.methods.add(blockMethod);
+                    logger.println(methodNo++ + ") Adding Method: " + blockMethod.name + " (" + blockMethod.name.hashCode() + ") " + blockMethod.desc + " Access: " + blockMethod.access + " | INJECTED");
+                }
+            } else {
 
-                //At this point, the method is considered a block method and is check further for any duplicate injections or super calls
 
-                boolean skip = false;
+                //Iterates though class methods to find block methods and inject code into them
+                for (int i = 0; i < classNode.methods.size(); i++) {
+                    if (i >= deobfClassNode.methods.size()) break;
 
-                if (isBlockClass) BlockTransformer.blockMethods.add(deobfMethod.name);
-                else {
-                    //Check if current method has a super call, this is done to avoid the same method being invoked multiple times.
-                    //The method call will be handled to the furthest down super call, which in turn will increase performance
-                    for (AbstractInsnNode node : deobfMethod.instructions.toArray()) {
-                        if (node instanceof MethodInsnNode) {
-                            MethodInsnNode methodIsn = (MethodInsnNode) node;
-                            if (methodIsn.name.equals(deobfMethod.name) && methodIsn.owner.equals(deobfClassNode.superName)) {
-                                logger.println(methodNo++ + ") Block Method found: " + deobfMethod.name + " (" + deobfMethod.name.hashCode() + ") " + method.desc + " Access: " + method.access + " | SKIPPED (Super call Detected)");
-                                skip = true;
-                                break;
+                    MethodNode method = classNode.methods.get(i), deobfMethod = deobfClassNode.methods.get(i);
+
+                    // START OF PRE INJECTION CHECKS //
+
+                    //Checks to make sure that the method is public or protected & Checks if the method is a block method
+                    if (method.access != 1 && method.access != 2 || !isBlockClass && !BlockTransformer.blockMethods.contains(deobfMethod.name))
+                        continue;
+
+                    Type[] pars = Type.getArgumentTypes(method.desc);
+                    BlockTransformer.WorldParamaters worldPars = this.getWorldPars(pars);
+
+                    //Makes sure that the method has a world object and three integers after it which is then inferred as coordinates.
+                    if (worldPars == null) continue;
+
+                    totalMethods++;
+
+                    //At this point, the method is considered a block method and is check further for any duplicate injections or super calls
+
+                    boolean skip = false;
+
+                    if (isBlockClass) BlockTransformer.blockMethods.add(deobfMethod.name);
+                    else {
+                        //Check if current method has a super call, this is done to avoid the same method being invoked multiple times.
+                        //The method call will be handled to the furthest down super call, which in turn will increase performance
+                        for (AbstractInsnNode node : deobfMethod.instructions.toArray()) {
+                            if (node instanceof MethodInsnNode) {
+                                MethodInsnNode methodIsn = (MethodInsnNode) node;
+                                if (methodIsn.name.equals(deobfMethod.name) && methodIsn.owner.equals(deobfClassNode.superName)) {
+                                    logger.println(methodNo++ + ") Block Method found: " + deobfMethod.name + " (" + deobfMethod.name.hashCode() + ") " + method.desc + " Access: " + method.access + " | SKIPPED (Super call Detected)");
+                                    skip = true;
+                                    break;
+                                }
                             }
                         }
                     }
-                }
 
-                if (skip) continue;
+                    if (skip) continue;
 
-                // Sets up the conditional statements
-                int returnType = Type.getReturnType(method.desc).getOpcode(IRETURN);
+                    // Sets up the conditional statements
+                    int returnType = Type.getReturnType(method.desc).getOpcode(IRETURN);
 
-                //Checks to make sure that the methods has not already been injected
-                for (AbstractInsnNode node : method.instructions.toArray()) {
-                    if (node != null && node instanceof MethodInsnNode && ((MethodInsnNode) node).owner.equals("drunkmafia/thaumicinfusion/common/block/BlockWrapper")) {
-                        logger.println(methodNo++ + ") Block Method found: " + deobfMethod.name + " (" + deobfMethod.name.hashCode() + ") " + method.desc + " Access: " + method.access + " | SKIPPED (Already Injected)");
-                        skip = true;
-                        break;
+                    //Checks to make sure that the methods has not already been injected
+                    for (AbstractInsnNode node : method.instructions.toArray()) {
+                        if (node != null && node instanceof MethodInsnNode && ((MethodInsnNode) node).owner.equals("drunkmafia/thaumicinfusion/common/block/BlockWrapper")) {
+                            logger.println(methodNo++ + ") Block Method found: " + deobfMethod.name + " (" + deobfMethod.name.hashCode() + ") " + method.desc + " Access: " + method.access + " | SKIPPED (Already Injected)");
+                            skip = true;
+                            break;
+                        }
                     }
+
+                    //Skips the method if it has already been injected into
+                    if (skip) continue;
+
+                    // END OF PRE INJECTION CHECKS  //
+                    // ---------------------------- //
+                    // START OF CODE TO BE INJECTED //
+
+                    InsnList toInsert = new InsnList();
+
+                    //Loads the world object and three integers that the coordinate lookup deems to be the X, Y & Z
+                    worldPars.loadPars(toInsert);
+                    //Loads up the Block Object
+                    toInsert.add(new VarInsnNode(ALOAD, 0));
+                    //Passes in the method id to make the process of data detection even faster since method lookup is skipped
+                    //The ID is the methods position in the base Block class, working with ints over strings saves performance and memory
+                    toInsert.add(new LdcInsnNode(deobfMethod.name.hashCode()));
+
+                    toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockWrapper", "hasWorldData", "(Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/BlockPos;Lnet/minecraft/block/Block;I)Z", false));
+
+                    LabelNode hasWorldData = new LabelNode();
+                    toInsert.add(new JumpInsnNode(IFEQ, hasWorldData));
+                    toInsert.add(new LabelNode());
+
+                    worldPars.loadPars(toInsert);
+                    toInsert.add(new LdcInsnNode(deobfMethod.name.hashCode()));
+                    toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockWrapper", "overrideBlockFunctionality", "(Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/BlockPos;I)Z", false));
+
+                    LabelNode overrideBlockFunctionality = new LabelNode();
+                    toInsert.add(new JumpInsnNode(IFEQ, overrideBlockFunctionality));
+                    toInsert.add(new LabelNode());
+
+                    //Injects Block Invocation Code
+                    this.injectInvokeBlock(toInsert, method, pars);
+
+                    //If override returns true then it skips the blocks code by returning
+                    toInsert.add(new InsnNode(returnType));
+
+                    toInsert.add(overrideBlockFunctionality);
+
+                    //If override return false then it runs the effects code and continues with the rest of the method. This is what most effects do, which allows blocks to retain their core functionality
+                    //Injects Block Invocation Code
+                    this.injectInvokeBlock(toInsert, method, pars);
+
+                    //If the method has a return type, it pops the object off the stack
+                    if (returnType != RETURN) toInsert.add(new InsnNode(POP));
+
+                    toInsert.add(hasWorldData);
+
+                    //Adds above code into the method
+                    method.instructions.insert(toInsert);
+
+                    // END OF CODE TO BE INJECTED //
+
+                    if (!hasInjectedCode) {
+                        logger.println("==== " + transformedName + " (SuperClass: " + classNode.superName + ") ====");
+                        hasInjectedCode = true;
+                        injectedMethods++;
+                    }
+
+                    logger.println(methodNo++ + ") Block Method found: " + deobfMethod.name + " (" + deobfMethod.name.hashCode() + ") " + method.desc + " Access: " + method.access + " | INJECTED");
+                    methodsInjected.add(deobfMethod.name);
                 }
-
-                //Skips the method if it has already been injected into
-                if (skip) continue;
-
-                // END OF PRE INJECTION CHECKS  //
-                // ---------------------------- //
-                // START OF CODE TO BE INJECTED //
-
-                InsnList toInsert = new InsnList();
-
-                //Loads the world object and three integers that the coordinate lookup deems to be the X, Y & Z
-                worldPars.loadPars(toInsert);
-                //Loads up the Block Object
-                toInsert.add(new VarInsnNode(ALOAD, 0));
-                //Passes in the method id to make the process of data detection even faster since method lookup is skipped
-                //The ID is the methods position in the base Block class, working with ints over strings saves performance and memory
-                toInsert.add(new LdcInsnNode(deobfMethod.name.hashCode()));
-
-                toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockWrapper", "hasWorldData", "(Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/BlockPos;Lnet/minecraft/block/Block;I)Z", false));
-
-                LabelNode hasWorldData = new LabelNode();
-                toInsert.add(new JumpInsnNode(IFEQ, hasWorldData));
-                toInsert.add(new LabelNode());
-
-                worldPars.loadPars(toInsert);
-                toInsert.add(new LdcInsnNode(deobfMethod.name.hashCode()));
-                toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockWrapper", "overrideBlockFunctionality", "(Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/BlockPos;I)Z", false));
-
-                LabelNode overrideBlockFunctionality = new LabelNode();
-                toInsert.add(new JumpInsnNode(IFEQ, overrideBlockFunctionality));
-                toInsert.add(new LabelNode());
-
-                //Injects Block Invocation Code
-                this.injectInvokeBlock(toInsert, method, pars);
-
-                //If override returns true then it skips the blocks code by returning
-                toInsert.add(new InsnNode(returnType));
-
-                toInsert.add(overrideBlockFunctionality);
-
-                //If override return false then it runs the effects code and continues with the rest of the method. This is what most effects do, which allows blocks to retain their core functionality
-                //Injects Block Invocation Code
-                this.injectInvokeBlock(toInsert, method, pars);
-
-                //If the method has a return type, it pops the object off the stack
-                if (returnType != RETURN) toInsert.add(new InsnNode(POP));
-
-                toInsert.add(hasWorldData);
-
-                //Adds above code into the method
-                method.instructions.insert(toInsert);
-
-                // END OF CODE TO BE INJECTED //
-
-                if (!hasInjectedCode) {
-                    logger.println("==== " + transformedName + " (SuperClass: " + classNode.superName + ") ====");
-                    hasInjectedCode = true;
-                    injectedMethods++;
-                }
-
-                logger.println(methodNo++ + ") Block Method found: " + deobfMethod.name + " (" + deobfMethod.name.hashCode() + ") " + method.desc + " Access: " + method.access + " | INJECTED");
-                methodsInjected.add(deobfMethod.name);
             }
 
             logger.flush();
@@ -285,7 +318,7 @@ public class BlockTransformer implements IClassTransformer {
             //Will only return a modified bytecode if any code has been injected into the methods
             if (hasInjectedCode) {
                 classNode.accept(classWriter);
-                BlockTransformer.injectedClassess.put(deobfClassNode.name.replace('/', '.'), methodsInjected);
+                injectedClassess.put(deobfClassNode.name.replace('/', '.'), methodsInjected);
 
                 overallTimeSpent += System.currentTimeMillis() - startTime;
 
@@ -331,7 +364,10 @@ public class BlockTransformer implements IClassTransformer {
                 BlockTransformer.blockClasses.add(superName);
                 return true;
             }
-        } catch (Throwable ignored) {/* Try 'N Catch is only here as a fail safe, if the code crashes out then the class it is stepping though is not a subclass of the Block */}
+        } catch (Throwable t) {
+            logger.println("Ran into issues while stepping though Class, Cause: " + superName);
+            t.printStackTrace(logger);
+        }
         return false;
     }
 

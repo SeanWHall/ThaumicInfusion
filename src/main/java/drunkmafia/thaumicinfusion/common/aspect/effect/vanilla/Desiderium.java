@@ -9,17 +9,14 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import drunkmafia.thaumicinfusion.common.util.helper.MathHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.pathfinding.PathEntity;
 import net.minecraft.pathfinding.PathFinder;
-import net.minecraft.pathfinding.PathPoint;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.pathfinder.WalkNodeProcessor;
 import net.minecraftforge.common.config.Configuration;
@@ -58,25 +55,24 @@ public class Desiderium extends AspectEffect {
     public void updateTick(World world, BlockPos pos, IBlockState state, Random rand) {
         if (world.isRemote) return;
 
+        float speed = 0.05F;
+
         world.scheduleUpdate(pos, state.getBlock(), 1);
         WorldCoordinates coord = getPos();
         AxisAlignedBB axisalignedbb = AxisAlignedBB.fromBounds(coord.pos.getX(), coord.pos.getY(), coord.pos.getZ(), coord.pos.getX() + 1, coord.pos.getY() + 1, coord.pos.getZ() + 1).expand(10, 10, 10);
         ArrayList<EntityItem> list = (ArrayList<EntityItem>) world.getEntitiesWithinAABB(EntityItem.class, axisalignedbb);
 
         for (EntityItem item : list) {
-            if (paths.containsKey(item.getEntityId())) {
-                PathEntity path = paths.get(item.getEntityId());
-                PathPoint point = path.getPathPointFromIndex(path.getCurrentPathIndex());
-                item.setPositionAndUpdate(MathHelper.lerp((float) item.posX, point.xCoord, tickTime), MathHelper.lerp((float) item.posY, point.yCoord, tickTime), MathHelper.lerp((float) item.posZ, point.zCoord, tickTime));
-                if (new Vec3(item.posX, item.posY, item.posZ).distanceTo(new Vec3(point.xCoord, point.yCoord, point.zCoord)) < 1F) {
-                    path.incrementPathIndex();
-                    if (path.getCurrentPathIndex() == path.getCurrentPathLength()) paths.remove(item.getEntityId());
-                }
-            } else if (new Vec3(item.posX, item.posY, item.posZ).distanceTo(new Vec3(pos.getX(), pos.getY(), pos.getZ())) > 1F)
-                paths.put(item.getEntityId(), pathFinder.createEntityPathTo(world, item, pos, range));
+            if (!this.isItemNearBlock(item)) {
+                item.motionX = item.posX > pos.getX() ? -speed : speed;
+                item.motionZ = item.posZ > pos.getZ() ? -speed : speed;
+            }
         }
     }
 
+    private boolean isItemNearBlock(EntityItem item) {
+        return this.getPos().getDistanceSquared(new BlockPos((int) item.posX, (int) item.posY, (int) item.posZ)) < 1;
+    }
 
     @Override
     @BlockMethod(overrideBlockFunc = false)

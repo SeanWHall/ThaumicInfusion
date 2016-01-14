@@ -113,9 +113,6 @@ public abstract class AspectEffect extends Block implements ISavable {
         config.save();
     }
 
-    public void renderEffect(EntityPlayer player, float partialTicks) {
-    }
-
     public void onRemoveEffect(EntityPlayer player) {
     }
 
