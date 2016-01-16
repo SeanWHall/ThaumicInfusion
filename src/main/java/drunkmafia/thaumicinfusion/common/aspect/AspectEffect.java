@@ -75,8 +75,6 @@ public abstract class AspectEffect extends Block implements ISavable {
         AspectHandler.registerEffect(Vitreus.class);
         AspectHandler.registerEffect(Volatus.class);
 
-        AspectHandler.registerEffect(Ordo.class);
-
         EntityRegistry.registerModEntity(InfusedBlockFalling.class, "InfusedBlockFalling", 0, ThaumicInfusion.instance, 80, 3, true);
     }
 

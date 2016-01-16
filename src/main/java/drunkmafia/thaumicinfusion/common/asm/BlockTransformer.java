@@ -49,10 +49,6 @@ public class BlockTransformer implements IClassTransformer {
     private static List<String> blockClasses = new ArrayList<String>();
 
     static {
-        Interface infusionStabiliser = new Interface("thaumcraft/api/crafting/IInfusionStabiliser");
-        infusionStabiliser.addMethod(new IMethod("canStabaliseInfusion", "Z", "L" + world + ";III"));
-        blockInterfaces.add(infusionStabiliser);
-
         bannedClasses.add("net/minecraft/block/BlockAir");
         blockClasses.add("net/minecraft/block/Block");
     }
@@ -159,14 +155,17 @@ public class BlockTransformer implements IClassTransformer {
             if (isBlockClass) {
                 for (Interface inter : BlockTransformer.blockInterfaces) {
                     inter.injectMethodsIntoClass(classNode);
-                    for (IMethod method : inter.getMethods())
+                    for (IMethod method : inter.getMethods()) {
                         BlockTransformer.blockMethods.add(method.getName());
+                        System.out.println(method.getName());
+                        blockMethods.add(method.getName());
+                    }
                 }
             }
 
             List<String> methodsInjected = new ArrayList<String>();
 
-            if (bannedClasses.contains(classNode.name)) {
+            if (bannedClasses.contains(deobfClassNode.name)) {
                 ClassNode blockNode = new ClassNode(ASM5);
                 getDeobfReader(Launch.classLoader.getClassBytes(block)).accept(blockNode, ClassReader.EXPAND_FRAMES);
 
@@ -175,6 +174,7 @@ public class BlockTransformer implements IClassTransformer {
                 logger.println("This however does not effect existing methods super calls, therefore this system will prevent the majority of methods.");
 
                 for (String method : blockMethods) {
+
                     boolean hasMethod = false;
                     for (MethodNode methodNode : deobfClassNode.methods)
                         if (hasMethod = methodNode.name.equals(method)) break;

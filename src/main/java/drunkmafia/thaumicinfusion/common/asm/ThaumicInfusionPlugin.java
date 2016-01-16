@@ -39,10 +39,10 @@ public class ThaumicInfusionPlugin implements IFMLLoadingPlugin {
         }
 
         log.info("Thaumic Infusion has detected an " + (ThaumicInfusionPlugin.isObf ? "Obfuscated" : "Deobfuscated") + " environment!");
-        block = ThaumicInfusionPlugin.isObf ? "atr" : "net/minecraft/block/Block";
-        blockPos = ThaumicInfusionPlugin.isObf ? "dt" : "net/minecraft/util/BlockPos";
-        world = ThaumicInfusionPlugin.isObf ? "aqu" : "net/minecraft/world/World";
-        iBlockAccess = ThaumicInfusionPlugin.isObf ? "ard" : "net/minecraft/world/IBlockAccess";
+        block = ThaumicInfusionPlugin.isObf ? "afh" : "net/minecraft/block/Block";
+        blockPos = ThaumicInfusionPlugin.isObf ? "cj" : "net/minecraft/util/BlockPos";
+        world = ThaumicInfusionPlugin.isObf ? "adm" : "net/minecraft/world/World";
+        iBlockAccess = ThaumicInfusionPlugin.isObf ? "adq" : "net/minecraft/world/IBlockAccess";
     }
 
     @Override

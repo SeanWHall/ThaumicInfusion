@@ -6,6 +6,7 @@
 
 package drunkmafia.thaumicinfusion.common.block;
 
+import drunkmafia.thaumicinfusion.common.ThaumicInfusion;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.util.IBlockHook;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
@@ -44,7 +45,7 @@ public final class BlockWrapper {
 
         //Checks to increase performance, Air blocks are not infuseable & it checks if the same method is being called at the same positions
         //Which deals with super calls by blocks, that way the effect is not invoked multiple times by the same block
-        if (world == null || block == Blocks.air || block instanceof AspectEffect) return false;
+        if (world == null || pos == null || block == Blocks.air || block instanceof AspectEffect) return false;
 
         long start = System.nanoTime();
 
@@ -55,18 +56,19 @@ public final class BlockWrapper {
 
         if (hook == null) return false;
 
-        for (int method : hook.hookMethods(block)) {
-            if (method == methodHash) {
-                BlockWrapper.block = hook.getBlock(methodHash);
-                BlockWrapper.lastHook = hook;
-                BlockWrapper.lastPos = pos;
+        Block efectBlock = hook.getBlock(methodHash);
 
-                handlerTime = System.nanoTime() - start;
+        if (efectBlock != null) {
+            BlockWrapper.block = efectBlock;
+            BlockWrapper.lastHook = hook;
+            BlockWrapper.lastPos = pos;
 
-                //Ensures that the block method does not try to invoke its method off a null Block
-                return BlockWrapper.block != null;
-            }
+            handlerTime = System.nanoTime() - start;
+
+            //Ensures that the block method does not try to invoke its method off a null Block
+            return BlockWrapper.block != null;
         }
+
         return false;
     }
 
@@ -77,7 +79,14 @@ public final class BlockWrapper {
      */
     public static boolean overrideBlockFunctionality(IBlockAccess access, BlockPos pos, int methodName) {
         World world = TIWorldData.getWorld(access);
-        IBlockHook hook = lastHook == null || lastPos.equals(pos) ? TIWorldData.getWorldData(world).getBlock(IBlockHook.class, new WorldCoordinates(pos, world.provider.getDimensionId())) : BlockWrapper.lastHook;
+        TIWorldData worldData = TIWorldData.getWorldData(world);
+
+        if (worldData == null) {
+            ThaumicInfusion.getLogger().error("Failed to get World data when it should be present, resorting to last known data. This could have averse effects");
+            return lastHook != null && lastHook.shouldOverride(methodName);
+        }
+
+        IBlockHook hook = lastHook == null || lastPos.equals(pos) ? worldData.getBlock(IBlockHook.class, new WorldCoordinates(pos, world.provider.getDimensionId())) : BlockWrapper.lastHook;
         return hook != null && hook.shouldOverride(methodName);
     }
 }
