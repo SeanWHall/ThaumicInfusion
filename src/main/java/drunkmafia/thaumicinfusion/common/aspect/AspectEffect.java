@@ -41,6 +41,7 @@ public abstract class AspectEffect extends Block implements ISavable {
 
     public static void init() {
         AspectHandler.registerEffect(Aer.class);
+        AspectHandler.registerEffect(Aqua.class);
         AspectHandler.registerEffect(Alienis.class);
         AspectHandler.registerEffect(Bestia.class);
 
@@ -60,12 +61,9 @@ public abstract class AspectEffect extends Block implements ISavable {
 
         AspectHandler.registerEffect(Machina.class);
         AspectHandler.registerEffect(Herba.class);
-        AspectHandler.registerEffect(Mortuus.class);
 
-        AspectHandler.registerEffect(Aqua.class);
         AspectHandler.registerEffect(Potentia.class);
         AspectHandler.registerEffect(Permutatio.class);
-        AspectHandler.registerEffect(Auram.class);
 
         AspectHandler.registerEffect(Spiritus.class);
 

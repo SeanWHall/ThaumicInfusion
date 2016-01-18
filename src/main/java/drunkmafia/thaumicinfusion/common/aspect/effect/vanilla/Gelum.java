@@ -6,11 +6,8 @@ import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import thaumcraft.api.internal.WorldCoordinates;
 
@@ -31,28 +28,17 @@ public class Gelum extends AspectEffect {
 
     @BlockMethod(overrideBlockFunc = false)
     public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
-        world.forceBlockUpdateTick(state.getBlock(), pos, world.rand);
+        world.scheduleUpdate(pos, state.getBlock(), 1);
     }
 
     @BlockMethod(overrideBlockFunc = false)
     public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
-        world.forceBlockUpdateTick(state.getBlock(), pos, world.rand);
-    }
-
-    @BlockMethod(overrideBlockFunc = false)
-    public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entityIn) {
-        world.forceBlockUpdateTick(world.getBlockState(pos).getBlock(), pos, world.rand);
-    }
-
-    @BlockMethod(overrideBlockFunc = false)
-    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumFacing side, float hitX, float hitY, float hitZ) {
-        world.forceBlockUpdateTick(state.getBlock(), pos, world.rand);
-        return false;
+        world.scheduleUpdate(pos, state.getBlock(), 1);
     }
 
     @BlockMethod(overrideBlockFunc = false)
     public void updateTick(World world, BlockPos pos, IBlockState state, Random rand) {
-        world.forceBlockUpdateTick(state.getBlock(), pos, world.rand);
+        world.scheduleUpdate(pos, state.getBlock(), 1);
         if (world.isRemote || System.currentTimeMillis() < cooldown + cooldownTimer)
             return;
 

@@ -11,51 +11,78 @@ import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.server.EffectSyncPacketC;
+import net.minecraft.block.Block;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
+import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
-import thaumcraft.api.aspects.Aspect;
-import thaumcraft.api.aspects.AspectList;
-import thaumcraft.api.aspects.IEssentiaContainerItem;
+
+import java.lang.reflect.Field;
 
 @Effect(aspect = "fabrico", cost = 4)
 public class Fabrico extends AspectEffect {
 
-    public Aspect aspect;
+    private static Field blockHardnessField;
+
+    public Block block;
 
     @Override
     @BlockMethod(overrideBlockFunc = false)
     public void onBlockClicked(World world, BlockPos pos, EntityPlayer player) {
-        ItemStack phial = player.getCurrentEquippedItem();
+        ItemStack itemInHand = player.getCurrentEquippedItem();
 
-        if (phial != null && phial.getItem() instanceof IEssentiaContainerItem) {
-            if (world.isRemote) {
-                System.out.println(aspect.getName());
-                world.playSound((double) ((float) pos.getX() + 0.5F), (double) ((float) pos.getY() + 0.5F), (double) ((float) pos.getZ() + 0.5F), "game.neutral.swim", 0.5F, 1.0F + (world.rand.nextFloat() - world.rand.nextFloat()) * 0.3F, false);
-                return;
-            }
+        if (!world.isRemote && itemInHand != null && itemInHand.getItem() instanceof ItemBlock) {
+            world.playSoundEffect((double) pos.getX(), (double) pos.getY(), (double) pos.getZ(), "random.pop", 0.2F, ((world.rand.nextFloat() - world.rand.nextFloat()) * 0.7F + 1.0F) * 1.6F);
 
-            AspectList aspects = ((IEssentiaContainerItem) phial.getItem()).getAspects(phial);
-            aspect = aspects != null ? aspects.getAspects()[0] : null;
+            block = Block.getBlockFromItem(itemInHand.getItem());
+            if (block == world.getBlockState(pos).getBlock()) block = null;
+
             ChannelHandler.instance().sendToAll(new EffectSyncPacketC(this, true));
         }
     }
 
     @Override
+    @BlockMethod
+    public float getExplosionResistance(World world, BlockPos pos, Entity exploder, Explosion explosion) {
+        return (block != null ? block : world.getBlockState(pos).getBlock()).getExplosionResistance(exploder);
+    }
+
+    @Override
+    @BlockMethod
+    public float getBlockHardness(World world, BlockPos pos) {
+        float ret = 0;
+
+        try {
+            if (blockHardnessField == null) {
+                blockHardnessField = Block.class.getDeclaredField("blockHardness");
+                blockHardnessField.setAccessible(true);
+            }
+
+            ret = (Float) blockHardnessField.get((block != null ? block : world.getBlockState(pos).getBlock()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return ret;
+    }
+
+    @Override
     public void readNBT(NBTTagCompound tagCompound) {
         super.readNBT(tagCompound);
-        if (tagCompound.hasKey("aspect"))
-            aspect = Aspect.getAspect(tagCompound.getString("aspect"));
+        if (tagCompound.hasKey("block"))
+            block = Block.getBlockById(tagCompound.getInteger("block"));
         else
-            aspect = null;
+            block = null;
     }
 
     @Override
     public void writeNBT(NBTTagCompound tagCompound) {
         super.writeNBT(tagCompound);
-        if (aspect != null)
-            tagCompound.setString("aspect", aspect.getTag());
+        if (block != null)
+            tagCompound.setInteger("block", Block.getIdFromBlock(block));
     }
 }
