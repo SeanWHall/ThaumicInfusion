@@ -22,11 +22,14 @@ public class WorldTransformer implements IClassTransformer {
         if (!transformedName.equals("net.minecraft.world.World"))
             return bytecode;
 
-        log.info("Injecting interface into World Class");
-
         ClassNode classNode = new ClassNode();
         ClassReader classReader = new ClassReader(bytecode);
         classReader.accept(classNode, 0);
+
+        if (classNode.interfaces.contains("drunkmafia/thaumicinfusion/common/world/IWorldDataProvider"))
+            return bytecode;
+
+        log.info("Injecting interface into World Class");
 
         classNode.interfaces.add("drunkmafia/thaumicinfusion/common/world/IWorldDataProvider");
         classNode.fields.add(new FieldNode(ACC_PRIVATE, "worldData", "Ldrunkmafia/thaumicinfusion/common/world/TIWorldData;", null, null));
