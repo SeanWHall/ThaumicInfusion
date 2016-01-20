@@ -2,6 +2,18 @@
 	"versionList": [
 		{
 		  "mcVersion": "Minecraft 1.8.9",
+		  "modVersion": " 4.75",
+		  "changeLog": [
+		  	"Fixed a ton of bugs",
+		  	"Removed useless effects",
+		  	"Reworked Others"
+		  ],
+		  "updateURL": "http://www.curse.com/mc-mods/minecraft/220308-thaumic-infusion",
+		  "isDirectLink": "false",
+		  "newFileName": ""
+		},
+		{
+		  "mcVersion": "Minecraft 1.8.9",
 		  "modVersion": " 4.73",
 		  "changeLog": [
 		  	"Fixed a ton of bugs"
