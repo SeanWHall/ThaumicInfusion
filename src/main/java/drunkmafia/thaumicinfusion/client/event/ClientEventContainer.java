@@ -6,6 +6,7 @@
 
 package drunkmafia.thaumicinfusion.client.event;
 
+import drunkmafia.thaumicinfusion.client.world.IClientRenderer;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.block.BlockWrapper;
 import drunkmafia.thaumicinfusion.common.item.ItemFocusInfusing;
@@ -75,9 +76,8 @@ public class ClientEventContainer {
                 if (chunk == null) continue;
 
                 for (BlockSavable savable : chunk.getAllBlocks()) {
-                    if (savable != null && savable instanceof BlockData) {
-                        ((BlockData) savable).renderData(player, partialTicks);
-                    }
+                    if (savable != null && savable instanceof IClientRenderer)
+                        ((IClientRenderer) savable).renderData(player, partialTicks);
                 }
             }
 

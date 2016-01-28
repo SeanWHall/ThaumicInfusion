@@ -9,7 +9,6 @@ package drunkmafia.thaumicinfusion.common.asm;
 import net.minecraft.block.Block;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.Launch;
-import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 import net.minecraftforge.fml.common.asm.transformers.deobf.FMLRemappingAdapter;
 import org.objectweb.asm.ClassReader;
@@ -18,10 +17,6 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.URL;
 import java.util.*;
 
 import static drunkmafia.thaumicinfusion.common.asm.ThaumicInfusionPlugin.*;
@@ -45,21 +40,13 @@ public class BlockTransformer implements IClassTransformer {
 
     //The Block method which are compatible with the system
     public static List<String> blockMethods = new ArrayList<String>();
-    private static Method readFully;
+
     private static BlockTransformer instance;
     //All the sub classes of the block class that have been found, makes it easier to step though the super classes of the current class being transformed
     private static List<String> blockClasses = new ArrayList<String>();
-    private static Map<String, byte[]> blockBytecode = new HashMap<String, byte[]>();
 
     static {
         blockClasses.add("net/minecraft/block/Block");
-
-        try {
-            readFully = LaunchClassLoader.class.getDeclaredMethod("readFully", InputStream.class);
-            readFully.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
     }
 
     private boolean shouldInject = true;
@@ -123,6 +110,23 @@ public class BlockTransformer implements IClassTransformer {
         logger.flush();
     }
 
+    /**
+     * Use in obfuscated environments to make it easier to parse though code, this is required because this transformer is loaded
+     * before the {@link net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper} which does exactly what this method does
+     * but for every class. This transformer is unable to be placed after the deobf transformer, as the FMLPlugin Sorting index will
+     * cause the transformer to miss it's chance to inject into the {@link Block}.
+     *
+     * @param bytecode The bytecode of the class which will be remapped to have deobfucated names
+     * @return will return a {@link ClassReader} that contains the modified bytecode
+     */
+    public static ClassReader getDeobfReader(byte[] bytecode) {
+        if (!isObf) return new ClassReader(bytecode);
+        ClassReader classReader = new ClassReader(bytecode);
+        ClassWriter classWriter = new ByteClassWriter(classReader, ClassWriter.COMPUTE_MAXS);
+        classReader.accept(new FMLRemappingAdapter(classWriter), ClassReader.EXPAND_FRAMES);
+        return new ClassReader(classWriter.toByteArray());
+    }
+
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytecode) {
         if (instance == null) instance = this;
@@ -135,28 +139,21 @@ public class BlockTransformer implements IClassTransformer {
         ClassNode classNode = new ClassNode(ASM5), deobfClassNode = new ClassNode(ASM5);
 
         //If the instance is obfuscated, then it will run though the deobf transformer to make sure that the src is deobfucated
-        new ClassReader(bytecode).accept(classNode, ClassReader.EXPAND_FRAMES);
-        getDeobfReader(bytecode).accept(deobfClassNode, ClassReader.EXPAND_FRAMES);
+        ClassReader reader = new ClassReader(bytecode);
+        reader.accept(classNode, ClassReader.EXPAND_FRAMES);
 
-        //Uses a custom class writer to load classes from the Vanilla Class loader, to ensure no the classes can be found
-        ClassWriter classWriter = new ClassWriterWithoutClassLoading(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+        ClassReader deobfReader = getDeobfReader(bytecode);
+        deobfReader.accept(deobfClassNode, ClassReader.EXPAND_FRAMES);
+
+        ByteClassWriter classWriter = new ByteClassWriter(deobfReader, ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
 
         boolean isBlockClass = deobfClassNode.name.equals("net/minecraft/block/Block");
 
-        if (blockBytecode.containsKey(deobfClassNode.name))
-            return blockBytecode.get(deobfClassNode.name);
-
-        if (isBlockClass) {
-            log.info("Found the Block Class");
-            logger.println("The following log shows the progress of the transformer, any crashes will be logged in here. If you are reporting a crash/bug for TI, please include this log along with the crash!");
-            logger.println("==== Transformers ====");
-            for (IClassTransformer transformer : Launch.classLoader.getTransformers())
-                logger.println("Transformer: " + transformer.getClass().getName());
-        }
-
         //Checks if the ClassNode is the Block class or a subclass
-        if (!isBlockClass && isClassOfType(deobfClassNode.superName, "net/minecraft/block/Block") != deobfClassNode.superName)
+        if (!isBlockClass && isClassOfType(deobfClassNode.superName, "net/minecraft/block/Block", classWriter) != deobfClassNode.superName)
             return bytecode;
+
+        if (!blockClasses.contains(deobfClassNode.superName)) blockClasses.add(deobfClassNode.superName);
 
         boolean hasInjectedCode = false;
 
@@ -192,7 +189,7 @@ public class BlockTransformer implements IClassTransformer {
                 if (isBlockClass) BlockTransformer.blockMethods.add(deobfMethod.name);
                 else {
                     //Check if current method has a super call, this is done to avoid the same method being invoked multiple times.
-                    //The method call will be handled to the furthest down super call, which in turn will increase performance
+                    //The method call will be handled by the furthest down method in the super call chain, which in turn will increase performance
                     for (AbstractInsnNode node : deobfMethod.instructions.toArray()) {
                         if (node instanceof MethodInsnNode) {
                             MethodInsnNode methodIsn = (MethodInsnNode) node;
@@ -291,11 +288,7 @@ public class BlockTransformer implements IClassTransformer {
                 injectedClassess.put(deobfClassNode.name.replace('/', '.'), methodsInjected);
 
                 overallTimeSpent += System.currentTimeMillis() - startTime;
-
-                byte[] bytes = classWriter.toByteArray();
-                blockBytecode.put(deobfClassNode.name, bytes);
-
-                return bytes;
+                return classWriter.toByteArray();
             }
         } catch (Throwable t) {
             this.handleCrash(transformedName, t);
@@ -306,7 +299,7 @@ public class BlockTransformer implements IClassTransformer {
     }
 
     private void handleCrash(String transformedName, Throwable t) {
-        log.info("Block: " + transformedName + "has an issue while merging the changes. A detailed crash has been printed to TI_Transformer_old.log, please upload this log to pastebin and report it to the mod author");
+        log.info("Block: " + transformedName + "has an issue while merging the changes. A detailed crash has been printed to TI_Transformer.log, please upload this log to pastebin and report it to the mod author");
         log.info("Reverting to original bytecode, this block will not be compatible with infusions and will behave abnormally");
         logger.println("==== Block: " + transformedName + " has failed injection ==== ");
         t.printStackTrace(logger);
@@ -318,48 +311,25 @@ public class BlockTransformer implements IClassTransformer {
      * @param className The class to step though
      * @param typeName The class to check for
      */
-    private String isClassOfType(String className, String typeName) {
+    private String isClassOfType(String className, String typeName, ByteClassWriter classWriter) {
         if (className == null) return null;
         if (className.equals(typeName)) return className;
 
         try {
-            byte[] bytecode = getClassBytecode(className.replace('/', '.'));
+            byte[] bytecode = classWriter.getClassBytecode(className.replace('/', '.'));
             if (bytecode == null) {
                 if (isObf)
-                    bytecode = getClassBytecode(FMLDeobfuscatingRemapper.INSTANCE.unmap(className.replace('.', '/')).replace('/', '.'));
+                    bytecode = classWriter.getClassBytecode(FMLDeobfuscatingRemapper.INSTANCE.unmap(className.replace('.', '/')).replace('/', '.'));
                 if (bytecode == null) return null;
             }
 
-            ClassReader reader = isObf ? this.getDeobfReader(bytecode) : new ClassReader(bytecode);
-            return this.isClassOfType(reader.getSuperName(), typeName);
+            ClassReader reader = isObf ? getDeobfReader(bytecode) : new ClassReader(bytecode);
+            return this.isClassOfType(reader.getSuperName(), typeName, classWriter);
 
         } catch (Throwable t) {
             logger.println("Ran into issues while stepping though Class, Cause: " + className);
             t.printStackTrace(logger);
         }
-        return null;
-    }
-
-    private byte[] getClassBytecode(String name) throws IOException {
-        LaunchClassLoader loader = Launch.classLoader;
-        InputStream var10 = null;
-        try {
-            String var11 = name.replace('.', '/').concat(".class");
-            URL var12 = loader.findResource(var11);
-            if (var12 == null) {
-                return null;
-            }
-
-            var10 = var12.openStream();
-            return (byte[]) readFully.invoke(loader, var10);
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } finally {
-            if (var10 != null) var10.close();
-        }
-
         return null;
     }
 
@@ -377,23 +347,6 @@ public class BlockTransformer implements IClassTransformer {
         }
 
         isnList.add(new MethodInsnNode(INVOKEVIRTUAL, block, method.name, method.desc, false));
-    }
-
-    /**
-     * Use in obfuscated environments to make it easier to parse though code, this is required because this transformer is loaded
-     * before the {@link net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper} which does exactly what this method does
-     * but for every class. This transformer is unable to be placed after the deobf transformer, as the FMLPlugin Sorting index will
-     * cause the transformer to miss it's chance to inject into the {@link Block}.
-     *
-     * @param bytecode The bytecode of the class which will be remapped to have deobfucated names
-     * @return will return a {@link ClassReader} that contains the modified bytecode
-     */
-    private ClassReader getDeobfReader(byte[] bytecode) {
-        if (!isObf) return new ClassReader(bytecode);
-        ClassReader classReader = new ClassReader(bytecode);
-        ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        classReader.accept(new FMLRemappingAdapter(classWriter), ClassReader.EXPAND_FRAMES);
-        return new ClassReader(classWriter.toByteArray());
     }
 
     /**

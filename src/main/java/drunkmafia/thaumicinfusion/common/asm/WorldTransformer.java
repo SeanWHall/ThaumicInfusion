@@ -5,7 +5,6 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.*;
 
-import static drunkmafia.thaumicinfusion.common.asm.ThaumicInfusionPlugin.log;
 import static org.objectweb.asm.Opcodes.*;
 
 /**
@@ -28,8 +27,6 @@ public class WorldTransformer implements IClassTransformer {
 
         if (classNode.interfaces.contains("drunkmafia/thaumicinfusion/common/world/IWorldDataProvider"))
             return bytecode;
-
-        log.info("Injecting interface into World Class");
 
         classNode.interfaces.add("drunkmafia/thaumicinfusion/common/world/IWorldDataProvider");
         classNode.fields.add(new FieldNode(ACC_PRIVATE, "worldData", "Ldrunkmafia/thaumicinfusion/common/world/TIWorldData;", null, null));
@@ -61,7 +58,6 @@ public class WorldTransformer implements IClassTransformer {
         ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
         classNode.accept(classWriter);
 
-        log.info("Injected interface into World Class");
         WorldTransformer.hasInjectedIntoWorld = true;
 
         return classWriter.toByteArray();

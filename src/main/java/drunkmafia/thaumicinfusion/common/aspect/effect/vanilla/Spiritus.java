@@ -20,6 +20,6 @@ public class Spiritus extends AspectEffect {
     @BlockMethod
     @Override
     public AxisAlignedBB getCollisionBoundingBox(World worldIn, BlockPos pos, IBlockState state) {
-        return null;
+        return AxisAlignedBB.fromBounds(0, 0, 0, 0, 0, 0);
     }
 }
