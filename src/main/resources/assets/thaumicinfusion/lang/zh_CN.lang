@@ -1,0 +1,81 @@
+#zh_CN
+
+# Creative Tab
+itemGroup.thaumicinfusion=神秘方块注魔
+
+# Blocks
+tile.local_infusionCore.name=Infusion Core
+tile.local_essentia.name=Essentia Block
+tile.local_inscriber.name=Inscriber Block
+
+key.infusedBlock.infused=Infused
+key.essentiaBlock.brick=Brick
+key.essentiaBlock.chiseled=Chiseled
+
+
+# Item
+
+item.focus_infusion.name=法杖核心: 方块注魔
+item.coordinate_paper.name=坐标绑定纸
+
+# Research
+tc.research_category.THAUMICINFUSION=神秘方块注魔
+tc.research_name.FOCUSINFUSION=方块注魔核心
+tc.research_text.FOCUSINFUSION=看起来很酷，但它是用来干什么的呢？
+tc.research_page.FOCUSINFUSION.1=在反复研究了无数个小时后，你现在终于解锁了关于神秘学已知的最强大注魔的相关知识. 这个核心会给予你将各种要素注入世界上任何方块的能力. 当注入要素后，方块将根据注入要素的类型获得一项相应的独特能力. 为了正确的使用这个核心，在仔细地通过奥术注魔构建出它后，玩家首先要把它装在他们的法杖上.
+tc.research_page.FOCUSINFUSION.2=装上核心后右击你的法杖，一个菜单将会出现，它显示了所有你可以用来注魔的要素. 但是，在你开始像哈利波特一样一边喊着“羽加迪姆勒维奥萨”一边试图注魔你视线所及的所有方块之前，你首先要有一个装满你想要给方块注魔的要素的源质罐子，并把它放在你的周围. 只有在你做完这些之后，你才能够通过注魔菜单选择你想要的要素并用法杖右击任何方块来将要素注入它里面. 如果你想将要素从方块内移除，简单地再用法杖右击一次方块就行了.
+tc.research_page.FOCUSINFUSION.3=注意: 在进行方块注魔时，任何要素都需要少量该种要素来使注魔得以正常进行(其数量在菜单中每个图标的右下角显示)，这些要素将直接从摆在附近的你之前所放置的源质罐子中提取.
+
+tc.research_name.ESSENTIABLOCKS=Essentia Block
+tc.research_text.ESSENTIABLOCKS=Aspects in their blocky form
+tc.research_page.ESSENTIABLOCKS.1=Essentia blocks are as they say on the tin, simply aspects in a solidified block form. The process for creating them is also a simple one; just place four phials containing the same essentia in an arcane workbench in a square shape and - voila! You now have a very aesthetically pleasing block. Go nuts.
+
+tc.research_name.ASPECTEFFECTS=The Effects of Aspects
+tc.research_text.ASPECTEFFECTS=Effects of aspects upon being infused
+
+ti.cost=消耗
+ti.linking.begin=连接已经开始，用此纸右击另一个方块以建立连接.
+ti.linking.end=连接已成功建立.
+ti.linking.fail=连接建立失败！
+
+# Commands
+
+check.instability=checkinstability
+check.instability.usage=/checkinstability 将会检测你所在区块的不稳定性
+clean.data=cleandata
+clean.data.usage=/cleandata 只有在神秘注魔的方块造成MC崩溃时再使用此指令，它将会移除当前维度所有神秘方块注魔的方块. 这是警告！
+
+# Effects Description
+ti.effect_info.EXANIMIS=After infusion, any player that happens to die while standing on the infused block will be teleported straight back to it upon respawn. Just the thing for dangerous environments!
+ti.effect_info.AQUA=摔落伤害真疼，所以要使用Aqua要素来使方块变得像水一样湿软. 它将耗散摔落的速度使你免受摔落伤害.
+ti.effect_info.AURAM=Marks a jar as a source drain aspects from for nearby infusions (WIP! Only needed if turned on in config.)
+ti.effect_info.HERBA=厌倦使用耕地了？ 或是厌倦别人在你的作物上跳来跳去把一切搞的一团糟？ 那么就给耕地注魔Herba要素吧.
+ti.effect_info.FABRICO=想要改变某个方块的属性？ 通过注魔这个要素，你可以让一个书架和黑曜石一样坚硬，只需简单地拿着你想要变成的方块来左击这个方块，它就能改变它的属性. 用相同的方块再次左击这个方块，将会移除它的属性. 十分简单吧！ 
+ti.effect_info.LUX=和你所期待的基本上一样，它将使得任何注入Lux要素的方块成为一个光源，其亮度和火把一样. 可以预见，它将非常有用.
+ti.effect_info.SANO=A very useful aspect, if you are nice and fed that is. It simply regenerates your health based on your hunger level. Soothing to the touch.
+ti.effect_info.COGNITIO=你是否讨厌书架？ 它们又有什么问题呢？ 但不管怎样，注魔Cognitio要素将使方块变得和书架一样可以增加周围附魔台的附魔等级. 知识就是力量！
+ti.effect_info.MOTUS=如果你讨厌走路，那么这将是你理想的注魔. 站在用Motus要素注魔的两个方块之一上，按下shift键，你就可以在它们间来回传送，传送甚至可以跨越不同维度. 要连接这两个方块，你只需先拿着一张纸，右击被注魔的方块之一. 这会使得坐标被绑定到纸上. 接着用这张纸右击另一个被注魔的方块就可以在它们间建立连接.
+ti.effect_info.ALIENIS=它不是特别实用，但是用它来整人却很有趣. 注魔这个要素的方块将产生一个奇特的效果，那就是当你踩到这个方块时，你将会被随机传送到附近.
+ti.effect_info.TEMPESTAS=THUNDER! Na na na na naaa na na. THUNDER! Ahem..to explain, while raining, lighting is more likely to strike the block that is infused.
+ti.effect_info.VOLATUS=这是另一个的你可能会想到的效果. 当站在注魔这个要素的方块上时，你能飞行了！但是你只能在这个被注魔的方块上方飞行，而且也只能飞到10格高，不过你可以通过注魔其下方的方块来使自己飞的更高.
+ti.effect_info.SPIRITUS=这是隐藏你贵重物品的一个好方法. 当Spiritus要素被注魔进一个方块时，这个方块将不再有任何碰撞体积，任何实体都可以穿过它. 所以基本上来说你可以像幽灵一样走过固体方块了，谁会想到还能这样呢？
+ti.effect_info.TERRA=注魔Terra要素会产生一个不错的效果，即让方块拥有重力. 也就是说方块会像沙子或砂砾一样下落了！
+ti.effect_info.BESTIA=你有没有在看你的房顶或是走进你的基地时突然发现一只爬行者或是一小群恼人的小僵尸？那么，注魔Bestia将会使得一切都成为过往，因为它将使得一切敌对生物都无法生成. 万岁！再也不会有烦人的咆哮声或是被炸毁的财物了！
+ti.effect_info.VITIUM=Stops pesky taint from spreading across the infused block. Simple, but effective if you don't want purple stuff growing out of your arcane infusion chamber. And why would the taint aspect stop taint? Double negative.
+ti.effect_info.MESSIS=Ever wanted to grow crops on any block? Well, this effect turns any block into a disguised farm block, so no more worrying about having to hoe grass. The farmers won't be pleased. Or will they? Well, we'll find out one way or another.
+ti.effect_info.IGNIS=一旦方块被注魔了Ignis要素，它上面的火焰将永不熄灭. 就像地狱岩一样，但这更加魔法,也更加美观.
+ti.effect_info.PERDITIO=This effect is quite dangerous, any interaction with the block after infusion makes it prone to exploding. Handle with extreme care!
+ti.effect_info.VINCULUM=注魔Vinculum要素后，方块将会禁锢住任何踏上它的实体. 利用它就可以在生物运动的路径上停住它们了. 除此之外，你也可以养你的爬行者宠物了.
+ti.effect_info.PERMUTATIO=有没有曾想过交换两个方块的位置？好的，现在你可以做到了. 通过给予两个相互连接的、注入Permutatio要素的方块之一一个红石信号，你就可以交换它俩的位置. 要连接这两个方块，你只需先拿着一张纸，右击被注魔的方块之一. 这会使得坐标被绑定到纸上. 接着用这张纸右击另一个被注魔的方块就可以在它们间建立连接.
+ti.effect_info.PRAECANTATIO=Use this aspect to mark a jar and other aspect containers as suppliers for all neighbouring infusions.
+ti.effect_info.DESIDERIUM=这个贪婪的小家伙儿会把它附近地上的任何东西拉向它. 基本上来说，EA和你的钱.
+ti.effect_info.VITREUS=给方块注魔Vitreus要素将会使得光线能像穿透玻璃一样穿透该方块，在建一个不用玻璃的天窗时十分有用. 让光照在你的身上！
+ti.effect_info.VENENUM=Any player who is unfortunate enough to stand on top of a block which is infused with this will be poisoned!
+ti.effect_info.AER=想像超级马里奥一样跳跃吗？ 那么现在你该给方块注魔Aer要素了！只要站在被注魔的方块上，你就能获得一个小幅度的跳跃提升！ 哈哈，让我们去跳跃吧！
+ti.effect_info.MACHINA=给方块注魔Machina将会给你提供一个简便的无线红石. 也就是说只要给两个相互连接的被注魔的方块之一输入一个红石信号，另一个就能输出这个红石信号. 要连接这两个方块，你只需先拿着一张纸，右击被注魔的方块之一. 这会使得坐标被绑定到纸上. 接着用这张纸右击另一个被注魔的方块就可以在它们间建立连接. 跨维度也是可以的！
+ti.effect_info.POTENTIA=给方块注魔Potentia将会给予能量. 它会输出一个红石信号. 对它真的无需多言.  
+ti.effect_info.HUMANUS=守护核心本身是十分强大的，但它也有它的限制. 给方块注魔Humanus将使方块变得无法被破坏！ 然而这个效果可以被任何有方块注魔核心的人解除.
+ti.effect_info.GELUM=Let it go...let it g...(冰雪奇缘梗)我无意打断. 这个要素被注入方块时，它将有几率使周围的水变成冰、固体方块顶部出现积雪. 你也能说这个要素十分地cool(双关). 噢，我很抱歉.
+
+#Mod Effects
+ti.effect_info.INFERNUS=Sets any entity that happens to touch this block on fire. So use with caution unless you want to become fried chicken.
