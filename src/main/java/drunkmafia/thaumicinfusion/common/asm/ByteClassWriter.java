@@ -41,6 +41,7 @@ public class ByteClassWriter extends ClassWriter {
     private final Map<String, Set<String>> classSuperTypes = new HashMap<String, Set<String>>();
     private final Map<String, String> superClasses = new HashMap<String, String>();
     private final Map<String, Boolean> superInterfaces = new HashMap<String, Boolean>();
+    private InputStream stream = null;
 
     public ByteClassWriter(ClassReader reader, int flags) {
         super(reader, flags);
@@ -74,18 +75,15 @@ public class ByteClassWriter extends ClassWriter {
         return type.cast(map.get(clazz));
     }
 
-    private void getSupersAndInterfaces(final String clazz) {
-        if (clazz == null) return;
+    private ClassReader getClassReader(final String clazz) {
 
-        ClassNode classNode = new ClassNode(ASM5);
-        InputStream stream = null;
         byte[] bytecode = getClassBytecode(clazz.replace('/', '.'));
         if (bytecode == null) {
             if (isObf)
                 bytecode = getClassBytecode(FMLDeobfuscatingRemapper.INSTANCE.unmap(clazz.replace('.', '/')).replace('/', '.'));
             if (bytecode == null) {
                 stream = Launch.classLoader.getResourceAsStream(clazz + ".class");
-                if (stream == null) return;
+                if (stream == null) return null;
             }
         }
 
@@ -98,6 +96,25 @@ public class ByteClassWriter extends ClassWriter {
                 exception.printStackTrace();
             }
         }
+        return classReader;
+    }
+
+    private void closeStream() {
+        if (stream != null) {
+            try {
+                stream.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void getSupersAndInterfaces(final String clazz) {
+        if (clazz == null) return;
+
+        ClassNode classNode = new ClassNode(ASM5);
+        ClassReader classReader = getClassReader(clazz);
 
         if (classReader == null) {
             ThaumicInfusionPlugin.log.error("Failed to get class: " + clazz + " expect a failure of classwriting");
@@ -114,26 +131,19 @@ public class ByteClassWriter extends ClassWriter {
         if (classNode.superName != null) {
             superTypes.add(classNode.superName);
             Set<String> types = checkMap(classSuperTypes, classNode.superName, Set.class);
-            if (types != null)
-                superTypes.addAll(types);
+
+            if (types != null) superTypes.addAll(types);
         }
 
         for (String superInterface : classNode.interfaces) {
             superTypes.add(superInterface);
             Set<String> types = checkMap(classSuperTypes, superInterface, Set.class);
-            if (types != null)
-                superTypes.addAll(types);
+
+            if (types != null) superTypes.addAll(types);
         }
 
         classSuperTypes.put(clazz, superTypes);
-
-        if (stream != null) {
-            try {
-                stream.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        closeStream();
     }
 
     public byte[] getClassBytecode(String name) {
