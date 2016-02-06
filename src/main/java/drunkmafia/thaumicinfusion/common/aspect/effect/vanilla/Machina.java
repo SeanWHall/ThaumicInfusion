@@ -61,7 +61,7 @@ public class Machina extends AspectLink {
     }
 
     @Override
-    @BlockMethod
+    @BlockMethod(overrideBlockFunc = false)
     public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock) {
         World destinationWorld;
         WorldCoordinates destin = getDestination();

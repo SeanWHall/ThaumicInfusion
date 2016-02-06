@@ -42,6 +42,7 @@ public abstract class AspectEffect extends Block implements ISavable {
     public static void init() {
         AspectHandler.registerEffect(Aer.class);
         AspectHandler.registerEffect(Aqua.class);
+        AspectHandler.registerEffect(Auram.class);
         AspectHandler.registerEffect(Alienis.class);
         AspectHandler.registerEffect(Bestia.class);
 
@@ -109,10 +110,7 @@ public abstract class AspectEffect extends Block implements ISavable {
         config.save();
     }
 
-    public void onRemoveEffect(EntityPlayer player) {
-    }
-
-    public void onPlaceEffect(EntityPlayer player) {
+    public void onRemoveEffect() {
     }
 
     public void aspectInit(World world, WorldCoordinates pos) {
@@ -145,6 +143,9 @@ public abstract class AspectEffect extends Block implements ISavable {
     public void readNBT(NBTTagCompound tagCompound) {
         this.pos = new WorldCoordinates();
         this.pos.readNBT(tagCompound);
+    }
+
+    public void onPlaceEffect(EntityPlayer player) {
     }
 
     public static class MethodInfo {

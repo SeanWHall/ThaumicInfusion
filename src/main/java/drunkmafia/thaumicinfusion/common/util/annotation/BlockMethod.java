@@ -13,3 +13,4 @@ import java.lang.annotation.RetentionPolicy;
 public @interface BlockMethod {
     boolean overrideBlockFunc() default true;
 }
+

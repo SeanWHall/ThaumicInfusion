@@ -58,6 +58,7 @@ public class BlockSyncPacketC implements IMessage {
         @SideOnly(Side.CLIENT)
         public IMessage onMessage(BlockSyncPacketC message, MessageContext ctx) {
             ClientBlockData data = new ClientBlockData();
+
             if (message.nbtTagCompound == null || ctx.side.isServer())
                 return null;
 

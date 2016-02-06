@@ -30,11 +30,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
-import net.minecraftforge.common.DimensionManager;
 import thaumcraft.api.internal.WorldCoordinates;
 
 public class AspectLink extends AspectEffect {
@@ -53,7 +53,7 @@ public class AspectLink extends AspectEffect {
         WorldCoordinates pos = new WorldCoordinates(blockPos, player.dimension);
         if (paper.getItem() == TIItems.coordinatePaper && paperTag != null && paperTag.hasKey("CoordinateX")) {
             WorldCoordinates storedDest = new WorldCoordinates(new BlockPos(paperTag.getInteger("CoordinateX"), paperTag.getInteger("CoordinateY"), paperTag.getInteger("CoordinateZ")), paperTag.getInteger("CoordinateDim"));
-            World worldDest = DimensionManager.getWorld(storedDest.dim);
+            World worldDest = MinecraftServer.getServer().worldServerForDimension(storedDest.dim);
 
             BlockData data = TIWorldData.getWorldData(worldDest).getBlock(BlockData.class, storedDest);
             if (data == null || data.getEffect(getClass()) == null || data.getEffect(getClass()) == this) {
@@ -96,7 +96,7 @@ public class AspectLink extends AspectEffect {
 
     public WorldCoordinates getDestination() {
         World world;
-        if (destination == null || (world = DimensionManager.getWorld(destination.dim)) == null)
+        if (destination == null || (world = MinecraftServer.getServer().worldServerForDimension(destination.dim)) == null)
             return destination = null;
 
         BlockData blockData = TIWorldData.getWorldData(world).getBlock(BlockData.class, destination);

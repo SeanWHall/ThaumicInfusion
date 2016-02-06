@@ -56,8 +56,10 @@ public class ChunkData implements ISavable {
 
         for (int i = 0; i < datas.size(); i++) {
             BlockSavable block = datas.get(i);
-            if (type.isAssignableFrom(block.getClass()))
+            if (type.isAssignableFrom(block.getClass())) {
+                block.dataUnload();
                 datas.remove(block);
+            }
         }
 
         if (datas.size() == 0)

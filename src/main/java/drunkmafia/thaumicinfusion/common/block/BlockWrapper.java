@@ -31,7 +31,7 @@ public final class BlockWrapper {
      * as TI does not want to alter the block methods anymore than is required. Which means there is less room for error.
      */
     public static Block block;
-
+    public static boolean suppressed = false;
     private static IBlockHook lastHook;
     private static BlockPos lastPos;
 
@@ -45,7 +45,9 @@ public final class BlockWrapper {
 
         //Checks to increase performance, Air blocks are not infuseable & it checks if the same method is being called at the same positions
         //Which deals with super calls by blocks, that way the effect is not invoked multiple times by the same block
-        if (world == null || pos == null || block == Blocks.air || block instanceof AspectEffect) return false;
+        //Also check to see if the position has been marked as suppressed
+        if (world == null || pos == null || block == Blocks.air || block instanceof AspectEffect || isSuppressed())
+            return false;
 
         long start = System.nanoTime();
 
@@ -70,6 +72,17 @@ public final class BlockWrapper {
         }
 
         return false;
+    }
+
+    /**
+     * Checks to see if the current hook is being suppressed
+     *
+     * @return If hook should be suppressed
+     */
+    private static boolean isSuppressed() {
+        boolean ret = suppressed;
+        if (ret) suppressed = false;
+        return ret;
     }
 
     /**

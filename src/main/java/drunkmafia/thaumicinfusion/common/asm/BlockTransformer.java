@@ -225,7 +225,7 @@ public class BlockTransformer implements IClassTransformer {
 
                 InsnList toInsert = new InsnList();
 
-                //Loads the world object and three integers that the coordinate lookup deems to be the X, Y & Z
+                //Loads the world object and the blockPos
                 worldPars.loadPars(toInsert);
                 //Loads up the Block Object
                 toInsert.add(new VarInsnNode(ALOAD, 0));
@@ -279,7 +279,6 @@ public class BlockTransformer implements IClassTransformer {
                 methodsInjected.add(deobfMethod.name);
             }
 
-
             logger.flush();
 
             //Will only return a modified bytecode if any code has been injected into the methods
@@ -324,7 +323,7 @@ public class BlockTransformer implements IClassTransformer {
             }
 
             ClassReader reader = isObf ? getDeobfReader(bytecode) : new ClassReader(bytecode);
-            return this.isClassOfType(reader.getSuperName(), typeName, classWriter);
+            return isClassOfType(reader.getSuperName(), typeName, classWriter);
 
         } catch (Throwable t) {
             logger.println("Ran into issues while stepping though Class, Cause: " + className);
@@ -355,8 +354,8 @@ public class BlockTransformer implements IClassTransformer {
      * @param pars The parameters of the method
      * @return a WorldParamaters that is used to load the variables
      */
-    public BlockTransformer.WorldParamaters getWorldPars(Type[] pars) {
-        BlockTransformer.WorldParamaters worldPars = new BlockTransformer.WorldParamaters();
+    public WorldParamaters getWorldPars(Type[] pars) {
+        WorldParamaters worldPars = new WorldParamaters();
 
         for (int i = 0; i < pars.length; i++) {
             Type par = pars[i];

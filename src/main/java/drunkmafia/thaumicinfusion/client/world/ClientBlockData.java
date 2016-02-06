@@ -66,7 +66,7 @@ public class ClientBlockData extends BlockData implements IClientRenderer {
 
             if (!Minecraft.getMinecraft().isGamePaused()) {
                 if (getAspects().length > 1) {
-                    if (tick >= 120) {
+                    if (tick >= 500) {
                         int lastColour = colour;
                         boolean getNewColour = false;
                         for (Aspect aspect : getAspects()) {

@@ -54,6 +54,12 @@ public class BlockData extends BlockSavable implements IBlockHook {
     }
 
     @Override
+    public void dataUnload() {
+        for (AspectEffect effect : dataEffects)
+            effect.onRemoveEffect();
+    }
+
+    @Override
     public void dataLoad(World world) {
         super.dataLoad(world);
 
