@@ -1,0 +1,18 @@
+<versions>
+	<minecraft id="1.8.9">
+	<version id="4.8">
+	    <changes>
+	      <1>debug test for checker</1>
+	      <2>New version checker</2>
+	    </changes>
+	  </version>
+	  <version id="4.79">
+	    <changes>
+	      <1>New version checker</1>
+	      <2>New version checker</2>
+	      <3>New version checker</3>
+	      <4>New version checker</4>
+	    </changes>
+	  </version>
+	</minecraft>
+</versions>
