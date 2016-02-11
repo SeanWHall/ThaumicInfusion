@@ -38,7 +38,6 @@ public class TIWorldData implements ISavable {
         IWorldDataProvider dataProvider = (IWorldDataProvider) world;
         TIWorldData worldData = dataProvider.getWorldData();
 
-        if (!world.isRemote) world = DimensionManager.getWorld(world.provider.getDimensionId());
         if (worldData == null) dataProvider.setWorldData(worldData = new TIWorldData());
 
         worldData.world = world;

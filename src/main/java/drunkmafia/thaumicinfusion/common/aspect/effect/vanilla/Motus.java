@@ -12,10 +12,10 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
 import thaumcraft.api.internal.WorldCoordinates;
 
 import java.util.ArrayList;
@@ -50,13 +50,13 @@ public class Motus extends AspectLink {
                 WorldCoordinates destin = getDestination();
 
                 World destWorld;
-                if (destin == null || (destWorld = MinecraftServer.getServer().worldServerForDimension(destin.dim)) == null || destWorld.isAirBlock(destin.pos))
+                if (destin == null || (destWorld = DimensionManager.getWorld(destination.dim)) == null || destWorld.isAirBlock(destin.pos))
                     return;
 
                 if (destin.dim != ent.worldObj.provider.getDimensionId())
                     ent.travelToDimension(destin.dim);
-                ent.moveToBlockPosAndAngles(destin.pos, ent.rotationYaw, ent.rotationPitch);
 
+                ent.moveToBlockPosAndAngles(destin.pos, ent.rotationYaw, ent.rotationPitch);
                 ent.setSneaking(false);
             }
         }

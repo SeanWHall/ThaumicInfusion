@@ -35,6 +35,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
+import net.minecraftforge.common.DimensionManager;
 import thaumcraft.api.internal.WorldCoordinates;
 
 public class AspectLink extends AspectEffect {
@@ -96,7 +97,7 @@ public class AspectLink extends AspectEffect {
 
     public WorldCoordinates getDestination() {
         World world;
-        if (destination == null || (world = MinecraftServer.getServer().worldServerForDimension(destination.dim)) == null)
+        if (destination == null || (world = DimensionManager.getWorld(destination.dim)) == null)
             return destination = null;
 
         BlockData blockData = TIWorldData.getWorldData(world).getBlock(BlockData.class, destination);

@@ -48,7 +48,7 @@ clean.data.usage=/cleandata Only run this command when TI blocks are crashing th
 # Effects Description
 ti.effect_info.EXANIMIS=After infusion, any player that happens to die while standing on the infused block will be teleported straight back to it upon respawn. Just the thing for dangerous environments!
 ti.effect_info.AQUA=Falling hurts, so using aqua to make blocks squishy like water. Will help dissipate the falling velocity and let you walk away unscathed.
-ti.effect_info.AURAM=Marks a jar as a source drain aspects from for nearby infusions (WIP! Only needed if turned on in config.)
+ti.effect_info.AURAM=Causes the chunk that the infusion resides in to become loaded so long as there is a block there.
 ti.effect_info.HERBA=Tiered of using farmland? Tiered of people jumping on your crops and messing everything up, well infuse Herba into a block to let plants be placed ontop of them.
 ti.effect_info.FABRICO=Want to change the properties of a certain block? With this aspect you can make a bookshelf hard as obsidian, simply left click the block with what you want it to take the properties off and click the block with the same block as it is, to remove the properties. Simple
 ti.effect_info.LUX=Does what more or less what you'd expect, causes any block that is infused with this to become a light source, that is equal to a torch. Predictable, but useful.
@@ -71,11 +71,11 @@ ti.effect_info.PRAECANTATIO=Use this aspect to mark a jar and other aspect conta
 ti.effect_info.DESIDERIUM=This greedy little thing likes to pull in any item it can find, which just happens to be on the ground towards itself. Basically, EA and your money.
 ti.effect_info.VITREUS=This effect makes light pass though the block like glass, useful for building a skylight without the need of glass. Let the light shine upon you!
 ti.effect_info.VENENUM=Any player who is unfortunate enough to stand on top of a block which is infused with this will be poisoned!
-ti.effect_info.AER=Ever wanted to jump like Super Mario? Well you can now when a block is infused with this! Just stand atop it and you will receive a small jump boost! Haha lets a go!
+ti.effect_info.AER=After infusing a block with this effect, once the block is removed. Collisions will remain and other infusions will act as normal
 ti.effect_info.MACHINA=This effect provides a simpler form of wireless redstone. This works by having two effects placed down in the world and then giving it a signal which will be outputted on the other end. To link the two effects up, simply take a piece of paper and right click on the infused block. This will imbue the coordinates into the paper. Then right click on the other infused block to link them. Works cross-dimension.
 ti.effect_info.POTENTIA=This effect gives you the power. It outputs a redstone signal. Not much to say on this one really.
 ti.effect_info.HUMANUS=Warding itself is very powerful, however it has its limitations. This effect will allow you to infuse any block and that block will become unbreakable! However the infusion can be removed by anyone with an infusion foci.
-ti.effect_info.GELUM=Let it go...let it g...I'm not even gonna bother. All this aspect does when infused into a block, is that it will turn nearby water into ice and solid blocks will have a chance to have snow spawn on top of it. You could even say this aspect is quite...cool. I'm sorry.
+ti.effect_info.GELUM=After infusing this into a liquid, anything will be able to walk ontop of that block. Allowing you to be able to not break stride, while you run across a lake.
 
 #Mod Effects
 ti.effect_info.INFERNUS=Sets any entity that happens to touch this block on fire. So use with caution unless you want to become fried chicken.

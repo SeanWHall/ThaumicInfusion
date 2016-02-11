@@ -34,6 +34,11 @@ import static org.objectweb.asm.Opcodes.*;
  * }
  * }
  * <p/>
+ *
+ * However which methods it injects into is another story, the transformer is actively working to try and not inject into a method unless it has to,
+ * it steps though the method super calling to make sure it does not run into a method with it already injected into and it also make sure that the
+ * method itself is a method that has been marked as compatible during the initial startup
+ *
  * This class is heavily annotated to help debugging if future issues arise & it is essential that this transformer does not conflict with any other mod
  **/
 public class BlockTransformer implements IClassTransformer {
@@ -231,7 +236,9 @@ public class BlockTransformer implements IClassTransformer {
                 toInsert.add(new VarInsnNode(ALOAD, 0));
                 //Passes in the method id to make the process of data detection even faster since method lookup is skipped
                 //The ID is the methods position in the base Block class, working with ints over strings saves performance and memory
-                toInsert.add(new LdcInsnNode(deobfMethod.name.hashCode()));
+
+                //toInsert.add(new LdcInsnNode(deobfMethod.name.hashCode()));
+                toInsert.add(new LdcInsnNode(blockMethods.indexOf(deobfMethod.name)));
 
                 toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockWrapper", "hasWorldData", "(Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/BlockPos;Lnet/minecraft/block/Block;I)Z", false));
 
@@ -240,7 +247,10 @@ public class BlockTransformer implements IClassTransformer {
                 toInsert.add(new LabelNode());
 
                 worldPars.loadPars(toInsert);
-                toInsert.add(new LdcInsnNode(deobfMethod.name.hashCode()));
+
+                //toInsert.add(new LdcInsnNode(deobfMethod.name.hashCode()));
+                toInsert.add(new LdcInsnNode(blockMethods.indexOf(deobfMethod.name)));
+
                 toInsert.add(new MethodInsnNode(INVOKESTATIC, "drunkmafia/thaumicinfusion/common/block/BlockWrapper", "overrideBlockFunctionality", "(Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/BlockPos;I)Z", false));
 
                 LabelNode overrideBlockFunctionality = new LabelNode();
