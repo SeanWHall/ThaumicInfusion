@@ -43,20 +43,23 @@ public class Motus extends AspectLink {
         if (pos == null || world.isAirBlock(pos.pos) || pos.dim == 1)
             return;
 
+        WorldCoordinates destin = getDestination();
+
+        if (destin == null)
+            return;
+
         AxisAlignedBB bb = AxisAlignedBB.fromBounds(pos.pos.getX(), pos.pos.getY(), pos.pos.getZ(), pos.pos.getX() + 1, pos.pos.getY() + 2, pos.pos.getZ() + 1);
         ArrayList<EntityPlayer> ents = (ArrayList<EntityPlayer>) world.getEntitiesWithinAABB(EntityPlayer.class, bb);
         for (EntityPlayer ent : ents) {
             if (ent.isSneaking()) {
-                WorldCoordinates destin = getDestination();
-
                 World destWorld;
-                if (destin == null || (destWorld = DimensionManager.getWorld(destination.dim)) == null || destWorld.isAirBlock(destin.pos))
+                if ((destWorld = DimensionManager.getWorld(destination.dim)) == null || destWorld.isAirBlock(destin.pos))
                     return;
 
                 if (destin.dim != ent.worldObj.provider.getDimensionId())
                     ent.travelToDimension(destin.dim);
 
-                ent.moveToBlockPosAndAngles(destin.pos, ent.rotationYaw, ent.rotationPitch);
+                ent.setPositionAndUpdate(destin.pos.getX() + 0.5F, destin.pos.getY() + 1F, destin.pos.getZ() + 0.5F);
                 ent.setSneaking(false);
             }
         }

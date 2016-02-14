@@ -96,7 +96,7 @@ public final class AspectHandler {
             Effect annotation = effect.getAnnotation(Effect.class);
             Aspect aspect = Aspect.getAspect(annotation.aspect().toLowerCase());
             if (aspect != null) {
-                if (!AspectHandler.registeredEffects.containsKey(aspect) && isEffectSafe(effect)) {
+                if (!AspectHandler.registeredEffects.containsKey(aspect)) {
                     AspectHandler.registeredEffects.put(aspect, effect);
                     logger.info("Registered Aspect Effect: " + aspect.getName());
                 }

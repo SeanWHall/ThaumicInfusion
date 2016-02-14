@@ -154,8 +154,10 @@ public class BlockTransformer implements IClassTransformer {
 
         boolean isBlockClass = deobfClassNode.name.equals("net/minecraft/block/Block");
 
+        String classType;
+
         //Checks if the ClassNode is the Block class or a subclass
-        if (!isBlockClass && isClassOfType(deobfClassNode.superName, "net/minecraft/block/Block", classWriter) != deobfClassNode.superName)
+        if (!isBlockClass && ((classType = isClassOfType(deobfClassNode.superName, "net/minecraft/block/Block", classWriter)) == null || !classType.equals(deobfClassNode.superName)))
             return bytecode;
 
         if (!blockClasses.contains(deobfClassNode.superName)) blockClasses.add(deobfClassNode.superName);

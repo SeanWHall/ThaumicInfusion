@@ -7,7 +7,7 @@
 package drunkmafia.thaumicinfusion.net.packet.server;
 
 import drunkmafia.thaumicinfusion.client.world.ClientBlockData;
-import drunkmafia.thaumicinfusion.common.world.SavableHelper;
+import drunkmafia.thaumicinfusion.common.util.helper.SavableHelper;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.data.BlockData;
 import drunkmafia.thaumicinfusion.common.world.data.BlockSavable;
@@ -75,7 +75,7 @@ public class BlockSyncPacketC implements IMessage {
                 worldData.removeData(BlockData.class, pos, false);
                 worldData.addBlock(data, true, false);
                 Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.pos);
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
 
             return null;

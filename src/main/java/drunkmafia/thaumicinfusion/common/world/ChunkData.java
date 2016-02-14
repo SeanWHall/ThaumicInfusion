@@ -6,6 +6,7 @@
 
 package drunkmafia.thaumicinfusion.common.world;
 
+import drunkmafia.thaumicinfusion.common.util.helper.SavableHelper;
 import drunkmafia.thaumicinfusion.common.world.data.BlockSavable;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;

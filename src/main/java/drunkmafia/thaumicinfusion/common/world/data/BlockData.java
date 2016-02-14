@@ -13,7 +13,7 @@ import drunkmafia.thaumicinfusion.common.aspect.AspectEffect.MethodInfo;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
 import drunkmafia.thaumicinfusion.common.util.IBlockHook;
 import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
-import drunkmafia.thaumicinfusion.common.world.SavableHelper;
+import drunkmafia.thaumicinfusion.common.util.helper.SavableHelper;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.server.BlockSyncPacketC;

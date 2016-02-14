@@ -240,7 +240,7 @@ public class ClientBlockData extends BlockData implements IClientRenderer {
     }
 
     @SideOnly(Side.CLIENT)
-    class AnimatedFrames {
+    static class AnimatedFrames {
 
         int currentFrame = 0, fps, frameCounter = 0;
         private ResourceLocation[] frames;

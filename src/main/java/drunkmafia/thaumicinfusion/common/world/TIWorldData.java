@@ -7,6 +7,7 @@
 package drunkmafia.thaumicinfusion.common.world;
 
 import drunkmafia.thaumicinfusion.common.util.helper.ReflectionLookup;
+import drunkmafia.thaumicinfusion.common.util.helper.SavableHelper;
 import drunkmafia.thaumicinfusion.common.util.quadtree.QuadTree;
 import drunkmafia.thaumicinfusion.common.world.data.BlockSavable;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;

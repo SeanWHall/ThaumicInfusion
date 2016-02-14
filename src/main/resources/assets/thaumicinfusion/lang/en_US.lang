@@ -65,6 +65,7 @@ ti.effect_info.VITIUM=Stops pesky taint from spreading across the infused block.
 ti.effect_info.MESSIS=Ever wanted to grow crops on any block? Well, this effect turns any block into a disguised farm block, so no more worrying about having to hoe grass. The farmers won't be pleased. Or will they? Well, we'll find out one way or another.
 ti.effect_info.IGNIS=Upon infusion, a fire that is placed on the block will never run out and the Ignis aspect will fuel the fire. Much like Netherrack, but with more magic and less ugly block.
 ti.effect_info.PERDITIO=This effect is quite dangerous, any interaction with the block after infusion makes it prone to exploding. Handle with extreme care!
+ti.effect_info.TENEBRAE=After the infused block survives a full night cycle, it will vanish on the next dawn and will only appear during the night!
 ti.effect_info.VINCULUM=After infusion, the block  will immobilize any entity that so happens to step onto the block. Great for stopping mobs in their tracks! Also, pet creepers.
 ti.effect_info.PERMUTATIO=Ever wanted to swap blocks between each other? Well, this works by having two effects placed down in the world and applying a redstone signal to one of the linked blocks to swap between them. To link the two effects up, simply take a piece of paper and right click on the infused block. This will imbue the coordinates into the paper. Then right click on the other infused block to link them.
 ti.effect_info.PRAECANTATIO=Use this aspect to mark a jar and other aspect containers as suppliers for all neighbouring infusions.
