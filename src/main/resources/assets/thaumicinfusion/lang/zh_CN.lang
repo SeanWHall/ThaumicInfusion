@@ -48,7 +48,7 @@ clean.data.usage=/cleandata 只有在神秘注魔的方块造成MC崩溃时再�
 # Effects Description
 ti.effect_info.EXANIMIS=After infusion, any player that happens to die while standing on the infused block will be teleported straight back to it upon respawn. Just the thing for dangerous environments!
 ti.effect_info.AQUA=摔落伤害真疼，所以要使用Aqua要素来使方块变得像水一样湿软. 它将耗散摔落的速度使你免受摔落伤害.
-ti.effect_info.AURAM=Marks a jar as a source drain aspects from for nearby infusions (WIP! Only needed if turned on in config.)
+ti.effect_info.AURAM=只要被注魔Auram要素的方块还在，该注魔所在的区块就会被一直加载.
 ti.effect_info.HERBA=厌倦使用耕地了？ 或是厌倦别人在你的作物上跳来跳去把一切搞的一团糟？ 那么就给耕地注魔Herba要素吧.
 ti.effect_info.FABRICO=想要改变某个方块的属性？ 通过注魔这个要素，你可以让一个书架和黑曜石一样坚硬，只需简单地拿着你想要变成的方块来左击这个方块，它就能改变它的属性. 用相同的方块再次左击这个方块，将会移除它的属性. 十分简单吧！ 
 ti.effect_info.LUX=和你所期待的基本上一样，它将使得任何注入Lux要素的方块成为一个光源，其亮度和火把一样. 可以预见，它将非常有用.
@@ -65,17 +65,18 @@ ti.effect_info.VITIUM=Stops pesky taint from spreading across the infused block.
 ti.effect_info.MESSIS=Ever wanted to grow crops on any block? Well, this effect turns any block into a disguised farm block, so no more worrying about having to hoe grass. The farmers won't be pleased. Or will they? Well, we'll find out one way or another.
 ti.effect_info.IGNIS=一旦方块被注魔了Ignis要素，它上面的火焰将永不熄灭. 就像地狱岩一样，但这更加魔法,也更加美观.
 ti.effect_info.PERDITIO=This effect is quite dangerous, any interaction with the block after infusion makes it prone to exploding. Handle with extreme care!
+ti.effect_info.TENEBRAE=被注魔Tenebrae要素的方块在经历了一个晚上后，它就会在第二天的黎明完全消失并且之后只会在晚上再次出现！
 ti.effect_info.VINCULUM=注魔Vinculum要素后，方块将会禁锢住任何踏上它的实体. 利用它就可以在生物运动的路径上停住它们了. 除此之外，你也可以养你的爬行者宠物了.
 ti.effect_info.PERMUTATIO=有没有曾想过交换两个方块的位置？好的，现在你可以做到了. 通过给予两个相互连接的、注入Permutatio要素的方块之一一个红石信号，你就可以交换它俩的位置. 要连接这两个方块，你只需先拿着一张纸，右击被注魔的方块之一. 这会使得坐标被绑定到纸上. 接着用这张纸右击另一个被注魔的方块就可以在它们间建立连接.
 ti.effect_info.PRAECANTATIO=Use this aspect to mark a jar and other aspect containers as suppliers for all neighbouring infusions.
 ti.effect_info.DESIDERIUM=这个贪婪的小家伙儿会把它附近地上的任何东西拉向它. 基本上来说，EA和你的钱.
 ti.effect_info.VITREUS=给方块注魔Vitreus要素将会使得光线能像穿透玻璃一样穿透该方块，在建一个不用玻璃的天窗时十分有用. 让光照在你的身上！
 ti.effect_info.VENENUM=Any player who is unfortunate enough to stand on top of a block which is infused with this will be poisoned!
-ti.effect_info.AER=想像超级马里奥一样跳跃吗？ 那么现在你该给方块注魔Aer要素了！只要站在被注魔的方块上，你就能获得一个小幅度的跳跃提升！ 哈哈，让我们去跳跃吧！
+ti.effect_info.AER=在给方块注魔Aer要素后，如果这个方块被移除，它的碰撞体积将仍会保留，而且该方块的其他注魔效果仍然会正常起效.
 ti.effect_info.MACHINA=给方块注魔Machina将会给你提供一个简便的无线红石. 也就是说只要给两个相互连接的被注魔的方块之一输入一个红石信号，另一个就能输出这个红石信号. 要连接这两个方块，你只需先拿着一张纸，右击被注魔的方块之一. 这会使得坐标被绑定到纸上. 接着用这张纸右击另一个被注魔的方块就可以在它们间建立连接. 跨维度也是可以的！
 ti.effect_info.POTENTIA=给方块注魔Potentia将会给予能量. 它会输出一个红石信号. 对它真的无需多言.  
 ti.effect_info.HUMANUS=守护核心本身是十分强大的，但它也有它的限制. 给方块注魔Humanus将使方块变得无法被破坏！ 然而这个效果可以被任何有方块注魔核心的人解除.
-ti.effect_info.GELUM=Let it go...let it g...(冰雪奇缘梗)我无意打断. 这个要素被注入方块时，它将有几率使周围的水变成冰、固体方块顶部出现积雪. 你也能说这个要素十分地cool(双关). 噢，我很抱歉.
+ti.effect_info.GELUM=在给流体注魔Gelum要素后，任何玩家都可以走在该方块上面.这将使你能大步跑过湖面而不用停下你的脚步.
 
 #Mod Effects
 ti.effect_info.INFERNUS=Sets any entity that happens to touch this block on fire. So use with caution unless you want to become fried chicken.
