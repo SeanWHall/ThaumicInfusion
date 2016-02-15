@@ -30,6 +30,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumFacing;
@@ -53,7 +54,7 @@ public class AspectLink extends AspectEffect {
         WorldCoordinates pos = new WorldCoordinates(blockPos, player.dimension);
         if (paper.getItem() == TIItems.coordinatePaper && paperTag != null && paperTag.hasKey("CoordinateX")) {
             WorldCoordinates storedDest = new WorldCoordinates(new BlockPos(paperTag.getInteger("CoordinateX"), paperTag.getInteger("CoordinateY"), paperTag.getInteger("CoordinateZ")), paperTag.getInteger("CoordinateDim"));
-            World worldDest = DimensionManager.getWorld(storedDest.dim);
+            World worldDest = MinecraftServer.getServer().worldServerForDimension(storedDest.dim);
 
             BlockData data = TIWorldData.getWorldData(worldDest).getBlock(BlockData.class, storedDest);
             if (data == null || data.getEffect(getClass()) == null || data.getEffect(getClass()) == this) {

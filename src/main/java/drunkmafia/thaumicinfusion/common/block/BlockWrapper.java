@@ -31,7 +31,7 @@ public final class BlockWrapper {
      * as TI does not want to alter the block methods anymore than is required. Which means there is less room for error.
      */
     public static Block block;
-
+    public static boolean suppressed = false;
     private static IBlockHook lastHook;
     private static BlockPos lastPos;
 
@@ -40,12 +40,14 @@ public final class BlockWrapper {
      *
      * @return If true then it triggers the ASM code within the block to run the effects code
      */
-    public static boolean hasWorldData(IBlockAccess access, BlockPos pos, Block block, int methodHash) {
+    public static boolean hasWorldData(IBlockAccess access, BlockPos pos, Block block, int methodIndex) {
         World world = TIWorldData.getWorld(access);
 
         //Checks to increase performance, Air blocks are not infuseable & it checks if the same method is being called at the same positions
         //Which deals with super calls by blocks, that way the effect is not invoked multiple times by the same block
-        if (world == null || pos == null || block == Blocks.air || block instanceof AspectEffect) return false;
+        //Also check to see if the position has been marked as suppressed
+        if (world == null || pos == null || block == Blocks.air || block instanceof AspectEffect || isSuppressed())
+            return false;
 
         long start = System.nanoTime();
 
@@ -56,20 +58,31 @@ public final class BlockWrapper {
 
         if (hook == null) return false;
 
-        Block efectBlock = hook.getBlock(methodHash);
 
-        if (efectBlock != null) {
-            BlockWrapper.block = efectBlock;
-            BlockWrapper.lastHook = hook;
-            BlockWrapper.lastPos = pos;
+        Block efectBlock = hook.getBlock(methodIndex);
 
-            handlerTime = System.nanoTime() - start;
 
-            //Ensures that the block method does not try to invoke its method off a null Block
-            return BlockWrapper.block != null;
-        }
+        if (efectBlock == null) return false;
 
-        return false;
+        BlockWrapper.block = efectBlock;
+        BlockWrapper.lastHook = hook;
+        BlockWrapper.lastPos = pos;
+
+        handlerTime = System.nanoTime() - start;
+
+        //Ensures that the block method does not try to invoke its method with a null Block
+        return BlockWrapper.block != null;
+    }
+
+    /**
+     * Checks to see if the current hook is being suppressed
+     *
+     * @return If hook should be suppressed
+     */
+    private static boolean isSuppressed() {
+        boolean ret = suppressed;
+        suppressed = false;
+        return ret;
     }
 
     /**

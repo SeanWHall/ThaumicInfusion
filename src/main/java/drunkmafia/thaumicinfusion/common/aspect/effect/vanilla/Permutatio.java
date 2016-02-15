@@ -33,7 +33,7 @@ public class Permutatio extends AspectLink {
     }
 
     @Override
-    @BlockMethod()
+    @BlockMethod(overrideBlockFunc = false)
     public void updateTick(World world, BlockPos pos, IBlockState state, Random rand) {
         if (world.isRemote) return;
         world.scheduleUpdate(pos, state.getBlock(), 1);
@@ -43,11 +43,11 @@ public class Permutatio extends AspectLink {
 
         World destinationWorld = DimensionManager.getWorld(destin.dim);
         boolean power = world.isBlockIndirectlyGettingPowered(pos) > 1;
-        if (power != lastRedstoneSignal && state.getBlock().getMobilityFlag() == 0 && state.getBlock() != Blocks.obsidian && state.getBlock().getBlockHardness(world, pos) != -1.0F) {
+        if (power != lastRedstoneSignal && state.getBlock().getMobilityFlag() == 0 && state.getBlock() != Blocks.bedrock && state.getBlock().getBlockHardness(world, pos) != -1.0F) {
             lastRedstoneSignal = power;
 
             IBlockState newBlock = destinationWorld.getBlockState(destin.pos);
-            if (newBlock == null || (newBlock.getBlock().getMobilityFlag() == 0 && newBlock.getBlock() != Blocks.obsidian && newBlock.getBlock().getBlockHardness(world, pos) != -1.0F)) {
+            if (newBlock == null || (newBlock.getBlock().getMobilityFlag() == 0 && newBlock.getBlock() != Blocks.bedrock && newBlock.getBlock().getBlockHardness(world, pos) != -1.0F)) {
                 TileEntity oldTile = world.getTileEntity(pos), newTile = destinationWorld.getTileEntity(destin.pos);
 
                 destinationWorld.removeTileEntity(destin.pos);
@@ -75,19 +75,19 @@ public class Permutatio extends AspectLink {
     }
 
     @Override
-    @BlockMethod()
+    @BlockMethod(overrideBlockFunc = false)
     public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
         updateTick(world, pos, state, world.rand);
     }
 
     @Override
-    @BlockMethod()
+    @BlockMethod(overrideBlockFunc = false)
     public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entityIn) {
         updateTick(world, pos, world.getBlockState(pos), world.rand);
     }
 
     @Override
-    @BlockMethod()
+    @BlockMethod(overrideBlockFunc = false)
     public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
         updateTick(world, pos, state, world.rand);
     }

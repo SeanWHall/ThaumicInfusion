@@ -7,6 +7,7 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
+import drunkmafia.thaumicinfusion.common.block.BlockWrapper;
 import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
@@ -21,12 +22,8 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 
-import java.lang.reflect.Field;
-
 @Effect(aspect = "fabrico", cost = 4)
 public class Fabrico extends AspectEffect {
-
-    private static Field blockHardnessField;
 
     public Block block;
 
@@ -48,26 +45,15 @@ public class Fabrico extends AspectEffect {
     @Override
     @BlockMethod
     public float getExplosionResistance(World world, BlockPos pos, Entity exploder, Explosion explosion) {
-        return (block != null ? block : world.getBlockState(pos).getBlock()).getExplosionResistance(exploder);
+        BlockWrapper.suppressed = true;
+        return (block != null ? block : world.getBlockState(pos).getBlock()).getExplosionResistance(world, pos, exploder, explosion);
     }
 
     @Override
     @BlockMethod
     public float getBlockHardness(World world, BlockPos pos) {
-        float ret = 0;
-
-        try {
-            if (blockHardnessField == null) {
-                blockHardnessField = Block.class.getDeclaredField("blockHardness");
-                blockHardnessField.setAccessible(true);
-            }
-
-            ret = (Float) blockHardnessField.get((block != null ? block : world.getBlockState(pos).getBlock()));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return ret;
+        BlockWrapper.suppressed = true;
+        return (block != null ? block : world.getBlockState(pos).getBlock()).getBlockHardness(world, pos);
     }
 
     @Override

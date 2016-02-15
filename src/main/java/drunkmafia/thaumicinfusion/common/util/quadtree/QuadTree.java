@@ -11,7 +11,7 @@ import java.util.List;
  * The implementation currently requires pre-determined bounds for data as it
  * can not rebalance itself to that degree.
  */
-public class QuadTree<T> {
+public class QuadTree<T> implements Cloneable {
 
     private final Class<T> tClass;
     private final Node root_;

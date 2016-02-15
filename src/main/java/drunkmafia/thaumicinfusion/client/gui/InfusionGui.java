@@ -109,7 +109,7 @@ public class InfusionGui extends TIGui {
             this.normalScrollRect.selected = null;
     }
 
-    class AspectSlot {
+    static class AspectSlot {
 
         private final Aspect aspect;
         private final int width;

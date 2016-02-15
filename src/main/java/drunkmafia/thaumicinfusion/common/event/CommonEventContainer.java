@@ -6,13 +6,14 @@
 
 package drunkmafia.thaumicinfusion.common.event;
 
+import drunkmafia.thaumicinfusion.common.util.helper.SavableHelper;
 import drunkmafia.thaumicinfusion.common.world.IWorldDataProvider;
-import drunkmafia.thaumicinfusion.common.world.SavableHelper;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.data.BlockSavable;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.client.ChunkRequestPacketS;
 import drunkmafia.thaumicinfusion.net.packet.server.BlockSyncPacketC;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -25,6 +26,8 @@ import net.minecraftforge.event.world.ChunkEvent.Unload;
 import net.minecraftforge.event.world.WorldEvent.Load;
 import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -57,14 +60,16 @@ public class CommonEventContainer {
     //Client Side Chunk Managing
 
     @SubscribeEvent
+    @SideOnly(Side.CLIENT)
     public void loadChunk(ChunkEvent.Load event) {
         World world = event.world;
 
         if (world != null && world.isRemote)
-            ChannelHandler.instance().sendToServer(new ChunkRequestPacketS(event.getChunk().getChunkCoordIntPair(), world.provider.getDimensionId()));
+            ChannelHandler.instance().sendToServer(new ChunkRequestPacketS(event.getChunk().getChunkCoordIntPair(), world.provider.getDimensionId(), Minecraft.getMinecraft().thePlayer.getName()));
     }
 
     @SubscribeEvent
+    @SideOnly(Side.CLIENT)
     public void unloadChunk(Unload event) {
         if (event.world == null) return;
 

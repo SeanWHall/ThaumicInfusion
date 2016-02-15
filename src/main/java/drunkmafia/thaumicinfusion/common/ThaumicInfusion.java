@@ -21,9 +21,9 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.StatCollector;
+import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
@@ -63,6 +63,8 @@ public class ThaumicInfusion {
     public void preInit(FMLPreInitializationEvent event) {
         ThaumicInfusion.logger = event.getModLog();
 
+        ForgeChunkManager.setForcedChunkLoadingCallback(instance, null);
+
         config = new Configuration(event.getSuggestedConfigurationFile());
         config.load();
         config.save();
@@ -77,7 +79,6 @@ public class ThaumicInfusion {
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         MinecraftForge.EVENT_BUS.register(new CommonEventContainer());
-        FMLCommonHandler.instance().bus().register(new CommonEventContainer());
         NetworkRegistry.INSTANCE.registerGuiHandler(ThaumicInfusion.instance, ThaumicInfusion.proxy);
 
         ThaumicInfusion.proxy.initRenderers();

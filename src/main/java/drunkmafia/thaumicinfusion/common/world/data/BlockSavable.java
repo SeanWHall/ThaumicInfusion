@@ -27,6 +27,9 @@ public class BlockSavable implements ISavable {
         this.init = true;
     }
 
+    public void dataUnload() {
+    }
+
     public boolean isInit() {
         return this.init;
     }

@@ -4,8 +4,9 @@
  * See http://www.wtfpl.net/txt/copying for licence
  */
 
-package drunkmafia.thaumicinfusion.common.world;
+package drunkmafia.thaumicinfusion.common.util.helper;
 
+import drunkmafia.thaumicinfusion.common.world.ISavable;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class SavableHelper {
@@ -18,7 +19,7 @@ public class SavableHelper {
                 data.readNBT(tag);
                 return (T) data;
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
         return null;
     }

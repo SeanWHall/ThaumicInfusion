@@ -42,25 +42,28 @@ public abstract class AspectEffect extends Block implements ISavable {
     public static void init() {
         AspectHandler.registerEffect(Aer.class);
         AspectHandler.registerEffect(Aqua.class);
+        AspectHandler.registerEffect(Auram.class);
         AspectHandler.registerEffect(Alienis.class);
+
         AspectHandler.registerEffect(Bestia.class);
 
         AspectHandler.registerEffect(Cognitio.class);
+
+        AspectHandler.registerEffect(Desiderium.class);
 
         AspectHandler.registerEffect(Fabrico.class);
 
         AspectHandler.registerEffect(Gelum.class);
 
         AspectHandler.registerEffect(Humanus.class);
+        AspectHandler.registerEffect(Herba.class);
 
         AspectHandler.registerEffect(Ignis.class);
+
         AspectHandler.registerEffect(Motus.class);
-
-        AspectHandler.registerEffect(Desiderium.class);
-        AspectHandler.registerEffect(Lux.class);
-
         AspectHandler.registerEffect(Machina.class);
-        AspectHandler.registerEffect(Herba.class);
+
+        AspectHandler.registerEffect(Lux.class);
 
         AspectHandler.registerEffect(Potentia.class);
         AspectHandler.registerEffect(Permutatio.class);
@@ -68,6 +71,7 @@ public abstract class AspectEffect extends Block implements ISavable {
         AspectHandler.registerEffect(Spiritus.class);
 
         AspectHandler.registerEffect(Terra.class);
+        AspectHandler.registerEffect(Tenebrae.class);
 
         AspectHandler.registerEffect(Vinculum.class);
         AspectHandler.registerEffect(Vitreus.class);
@@ -109,10 +113,7 @@ public abstract class AspectEffect extends Block implements ISavable {
         config.save();
     }
 
-    public void onRemoveEffect(EntityPlayer player) {
-    }
-
-    public void onPlaceEffect(EntityPlayer player) {
+    public void onRemoveEffect() {
     }
 
     public void aspectInit(World world, WorldCoordinates pos) {
@@ -145,6 +146,9 @@ public abstract class AspectEffect extends Block implements ISavable {
     public void readNBT(NBTTagCompound tagCompound) {
         this.pos = new WorldCoordinates();
         this.pos.readNBT(tagCompound);
+    }
+
+    public void onPlaceEffect(EntityPlayer player) {
     }
 
     public static class MethodInfo {

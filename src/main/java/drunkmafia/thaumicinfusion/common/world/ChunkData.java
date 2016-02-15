@@ -6,6 +6,7 @@
 
 package drunkmafia.thaumicinfusion.common.world;
 
+import drunkmafia.thaumicinfusion.common.util.helper.SavableHelper;
 import drunkmafia.thaumicinfusion.common.world.data.BlockSavable;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
@@ -56,8 +57,10 @@ public class ChunkData implements ISavable {
 
         for (int i = 0; i < datas.size(); i++) {
             BlockSavable block = datas.get(i);
-            if (type.isAssignableFrom(block.getClass()))
+            if (type.isAssignableFrom(block.getClass())) {
+                block.dataUnload();
                 datas.remove(block);
+            }
         }
 
         if (datas.size() == 0)

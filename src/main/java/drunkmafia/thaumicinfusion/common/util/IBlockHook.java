@@ -9,7 +9,7 @@ package drunkmafia.thaumicinfusion.common.util;
 import net.minecraft.block.Block;
 
 public interface IBlockHook {
-    int[] hookMethods(Block block);
+    //int[] hookMethods(Block block);
 
     Block getBlock(int method);
 
