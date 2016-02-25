@@ -58,9 +58,7 @@ public final class BlockWrapper {
 
         if (hook == null) return false;
 
-
         Block efectBlock = hook.getBlock(methodIndex);
-
 
         if (efectBlock == null) return false;
 

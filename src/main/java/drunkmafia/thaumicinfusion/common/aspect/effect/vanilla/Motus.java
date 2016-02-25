@@ -6,38 +6,23 @@
 
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
-import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
+import drunkmafia.thaumicinfusion.common.world.IServerTickable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import thaumcraft.api.internal.WorldCoordinates;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 @Effect(aspect = ("motus"), cost = 4)
-public class Motus extends AspectLink {
+public class Motus extends AspectLink implements IServerTickable {
 
     @Override
-    public void aspectInit(World world, WorldCoordinates pos) {
-        super.aspectInit(world, pos);
-        if (!world.isRemote)
-            updateTick(world, pos.pos, world.getBlockState(pos.pos), world.rand);
-    }
-
-    @Override
-    @BlockMethod(overrideBlockFunc = false)
-    public void updateTick(World world, BlockPos blockPos, IBlockState state, Random random) {
+    public void serverTick(World world) {
         if (world.isRemote)
             return;
-
-        world.scheduleUpdate(blockPos, state.getBlock(), 1);
 
         WorldCoordinates pos = getPos();
         if (pos == null || world.isAirBlock(pos.pos) || pos.dim == 1)
@@ -63,23 +48,5 @@ public class Motus extends AspectLink {
                 ent.setSneaking(false);
             }
         }
-    }
-
-    @Override
-    @BlockMethod(overrideBlockFunc = false)
-    public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
-        updateTick(world, pos, state, world.rand);
-    }
-
-    @Override
-    @BlockMethod(overrideBlockFunc = false)
-    public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entityIn) {
-        updateTick(world, pos, world.getBlockState(pos), world.rand);
-    }
-
-    @Override
-    @BlockMethod(overrideBlockFunc = false)
-    public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
-        updateTick(world, pos, state, world.rand);
     }
 }

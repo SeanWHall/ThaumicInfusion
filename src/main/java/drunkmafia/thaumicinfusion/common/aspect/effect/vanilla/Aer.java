@@ -33,8 +33,7 @@ public class Aer extends AspectEffect {
     }
 
     private void checkIfAir(World world, BlockPos pos) {
-        if (world.isAirBlock(pos))
-            world.setBlockState(pos, TIBlocks.fakeAirWithCollisionBlock.getDefaultState());
+        if (world.isAirBlock(pos)) world.setBlockState(pos, TIBlocks.fakeAirWithCollisionBlock.getDefaultState());
     }
 
     @Override

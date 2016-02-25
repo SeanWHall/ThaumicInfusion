@@ -7,13 +7,10 @@
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
-import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
+import drunkmafia.thaumicinfusion.common.world.IServerTickable;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.data.BlockData;
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
@@ -23,10 +20,9 @@ import thaumcraft.api.internal.WorldCoordinates;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 @Effect(aspect = "volatus", cost = 4)
-public class Volatus extends AspectEffect {
+public class Volatus extends AspectEffect implements IServerTickable {
 
     private int defSize = 10, tickTime = 1;
     private List<Integer> isFlying = new ArrayList<Integer>();
@@ -39,26 +35,20 @@ public class Volatus extends AspectEffect {
     }
 
     @Override
-    public void aspectInit(World world, WorldCoordinates pos) {
-        super.aspectInit(world, pos);
-        if (!world.isRemote)
-            updateTick(world, pos.pos, world.getBlockState(pos.pos), world.rand);
-    }
-
-    @BlockMethod(overrideBlockFunc = false)
-    public void updateTick(World world, BlockPos pos, IBlockState state, Random rand) {
+    public void serverTick(World world) {
         if (world.isRemote) return;
-        world.scheduleUpdate(pos, state.getBlock(), 1);
 
-        if (!world.isAirBlock(new BlockPos(pos.getX(), pos.getY() + 1, pos.getZ())))
+        BlockPos blockPos = pos.pos;
+
+        if (!world.isAirBlock(new BlockPos(blockPos.getX(), blockPos.getY() + 1, blockPos.getZ())))
             return;
 
         float size = getSize(world);
 
-        AxisAlignedBB axisalignedbb = AxisAlignedBB.fromBounds(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + size, pos.getZ() + 1);
+        AxisAlignedBB axisalignedbb = AxisAlignedBB.fromBounds(blockPos.getX(), blockPos.getY(), blockPos.getZ(), blockPos.getX() + 1, blockPos.getY() + size, blockPos.getZ() + 1);
         List playersInAABB = world.getEntitiesWithinAABB(EntityPlayer.class, axisalignedbb);
 
-        for (EntityPlayer worldPlayer : (List<EntityPlayer>) world.playerEntities) {
+        for (EntityPlayer worldPlayer : world.playerEntities) {
             if (worldPlayer == null) continue;
             int playerHash = worldPlayer.getName().hashCode();
 
@@ -108,23 +98,5 @@ public class Volatus extends AspectEffect {
             } else break;
         }
         return ret;
-    }
-
-    @Override
-    @BlockMethod(overrideBlockFunc = false)
-    public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
-        updateTick(world, pos, state, world.rand);
-    }
-
-    @Override
-    @BlockMethod(overrideBlockFunc = false)
-    public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entityIn) {
-        updateTick(world, pos, world.getBlockState(pos), world.rand);
-    }
-
-    @Override
-    @BlockMethod(overrideBlockFunc = false)
-    public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
-        updateTick(world, pos, state, world.rand);
     }
 }

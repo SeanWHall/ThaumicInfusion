@@ -7,6 +7,7 @@
 package drunkmafia.thaumicinfusion.common.event;
 
 import drunkmafia.thaumicinfusion.common.util.helper.SavableHelper;
+import drunkmafia.thaumicinfusion.common.world.IServerTickable;
 import drunkmafia.thaumicinfusion.common.world.IWorldDataProvider;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.common.world.data.BlockSavable;
@@ -26,21 +27,41 @@ import net.minecraftforge.event.world.ChunkEvent.Unload;
 import net.minecraftforge.event.world.WorldEvent.Load;
 import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class CommonEventContainer {
 
+    public static Map<Integer, List<IServerTickable>> worldTickables = new HashMap<Integer, List<IServerTickable>>();
+
     //Tick Syncing
 
-//    @SubscribeEvent
-//    public void onWorldTick(TickEvent.WorldTickEvent event) {
-//
-//    }
+    @SubscribeEvent
+    public void onWorldTick(TickEvent.WorldTickEvent event) {
+        World world = event.world;
+        if (world.isRemote) return;
+
+        final List<IServerTickable> tickableList = worldTickables.get(world.provider.getDimensionId());
+        if (tickableList == null) return;
+
+        for (int i = 0; i < tickableList.size(); i++) {
+            IServerTickable tickable = tickableList.get(i);
+            if (tickable == null) {
+                tickableList.remove(i);
+                continue;
+            }
+            tickable.serverTick(world);
+        }
+    }
 
     //Client Data Syncing
 
@@ -86,6 +107,8 @@ public class CommonEventContainer {
     public void load(Load event) {
         World world = event.world;
         if (world == null || world.isRemote) return;
+
+        worldTickables.put(world.provider.getDimensionId(), new ArrayList<IServerTickable>());
 
         try {
             File file = new File("TIWorldData/" + world.getWorldInfo().getWorldName() + "_" + world.provider.getDimensionId() + "_TIWorldData.dat");

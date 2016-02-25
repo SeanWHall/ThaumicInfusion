@@ -9,7 +9,6 @@ package drunkmafia.thaumicinfusion.net.packet.server;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.Minecraft;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -71,9 +70,13 @@ public class DataRemovePacketC implements IMessage {
             if (pos == null || ctx.side.isServer()) return null;
             World world = ChannelHandler.getClientWorld();
 
-            if (world != null && world.provider.getDimensionId() == pos.dim)
+            if (world == null) return null;
+
+            if (world.provider.getDimensionId() == pos.dim)
                 TIWorldData.getWorldData(world).removeData(message.clazz, pos, false);
-            Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.pos);
+
+            //Updates the lighting
+            world.checkLight(pos.pos);
             return null;
         }
     }

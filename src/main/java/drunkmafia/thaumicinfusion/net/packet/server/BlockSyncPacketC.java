@@ -13,7 +13,6 @@ import drunkmafia.thaumicinfusion.common.world.data.BlockData;
 import drunkmafia.thaumicinfusion.common.world.data.BlockSavable;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.world.World;
@@ -74,7 +73,9 @@ public class BlockSyncPacketC implements IMessage {
             try {
                 worldData.removeData(BlockData.class, pos, false);
                 worldData.addBlock(data, true, false);
-                Minecraft.getMinecraft().renderGlobal.markBlockForUpdate(pos.pos);
+
+                //Updates the lighting
+                world.checkLight(pos.pos);
             } catch (Exception ignored) {
             }
 

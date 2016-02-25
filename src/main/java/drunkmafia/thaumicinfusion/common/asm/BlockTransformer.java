@@ -89,6 +89,11 @@ public class BlockTransformer implements IClassTransformer {
         blockClasses = null;
     }
 
+    /**
+     * Debug method, searchs though a LOADED classes bytecode to see if it's been injected and if everything is fine.
+     *
+     * @param bytecode Class to search though
+     */
     private static void searchBlock(byte[] bytecode) throws IOException {
         if (bytecode == null) return;
         ClassNode classNode = new ClassNode(ASM5);
@@ -97,7 +102,7 @@ public class BlockTransformer implements IClassTransformer {
         if (classNode.superName == null) return;
 
         if (!classNode.superName.replace('/', '.').equals(Block.class.getName()))
-            BlockTransformer.searchBlock(Launch.classLoader.getClassBytes(FMLDeobfuscatingRemapper.INSTANCE.unmap(classNode.superName.replace('.', '/')).replace('/', '.')));
+            searchBlock(Launch.classLoader.getClassBytes(FMLDeobfuscatingRemapper.INSTANCE.unmap(classNode.superName.replace('.', '/')).replace('/', '.')));
 
         List<String> methods = instance.injectedClassess.get(classNode.name.replace('/', '.'));
         if (methods == null) return;

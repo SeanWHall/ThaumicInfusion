@@ -8,11 +8,9 @@ package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.block.TIBlocks;
-import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import net.minecraft.block.Block;
+import drunkmafia.thaumicinfusion.common.world.IServerTickable;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
@@ -21,10 +19,8 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import thaumcraft.api.internal.WorldCoordinates;
 
-import java.util.Random;
-
 @Effect(aspect = ("spiritus"), cost = 4)
-public class Spiritus extends AspectEffect {
+public class Spiritus extends AspectEffect implements IServerTickable {
 
     private IBlockState oldState;
     private TileEntity oldTile;
@@ -34,18 +30,15 @@ public class Spiritus extends AspectEffect {
         super.aspectInit(world, pos);
         if (world.getBlockState(pos.pos).getBlock() == TIBlocks.fakeAirBlock)
             world.setBlockState(pos.pos, Blocks.air.getDefaultState());
-
-        if (!world.isRemote)
-            updateTick(world, pos.pos, world.getBlockState(pos.pos), world.rand);
     }
 
     @Override
-    @BlockMethod(overrideBlockFunc = false)
-    public void updateTick(World world, BlockPos blockPos, IBlockState state, Random random) {
+    public void serverTick(World world) {
         if (world.isRemote)
             return;
 
-        world.scheduleUpdate(blockPos, state.getBlock(), 1);
+        BlockPos blockPos = pos.pos;
+        IBlockState state = world.getBlockState(blockPos);
 
         AxisAlignedBB bb = AxisAlignedBB.fromBounds(blockPos.getX() - 0.1D, blockPos.getY() - 0.1D, blockPos.getZ() - 0.1D, blockPos.getX() + 1.1D, blockPos.getY() + 1.1D, blockPos.getZ() + 1.1D);
         if (world.getEntitiesWithinAABB(EntityPlayer.class, bb).size() > 0) {
@@ -69,24 +62,5 @@ public class Spiritus extends AspectEffect {
             oldState = null;
             oldTile = null;
         }
-
-    }
-
-    @Override
-    @BlockMethod(overrideBlockFunc = false)
-    public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
-        updateTick(world, pos, state, world.rand);
-    }
-
-    @Override
-    @BlockMethod(overrideBlockFunc = false)
-    public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entityIn) {
-        updateTick(world, pos, world.getBlockState(pos), world.rand);
-    }
-
-    @Override
-    @BlockMethod(overrideBlockFunc = false)
-    public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
-        updateTick(world, pos, state, world.rand);
     }
 }

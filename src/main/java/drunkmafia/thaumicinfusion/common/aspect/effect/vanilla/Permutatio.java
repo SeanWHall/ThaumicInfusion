@@ -6,11 +6,9 @@
 
 package drunkmafia.thaumicinfusion.common.aspect.effect.vanilla;
 
-import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.annotation.Effect;
-import net.minecraft.block.Block;
+import drunkmafia.thaumicinfusion.common.world.IServerTickable;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
@@ -18,25 +16,15 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import thaumcraft.api.internal.WorldCoordinates;
 
-import java.util.Random;
-
 @Effect(aspect = ("permutatio"), cost = 4)
-public class Permutatio extends AspectLink {
+public class Permutatio extends AspectLink implements IServerTickable {
 
     private boolean lastRedstoneSignal;
 
     @Override
-    public void aspectInit(World world, WorldCoordinates pos) {
-        super.aspectInit(world, pos);
-        if (!world.isRemote)
-            updateTick(world, pos.pos, world.getBlockState(pos.pos), world.rand);
-    }
-
-    @Override
-    @BlockMethod(overrideBlockFunc = false)
-    public void updateTick(World world, BlockPos pos, IBlockState state, Random rand) {
-        if (world.isRemote) return;
-        world.scheduleUpdate(pos, state.getBlock(), 1);
+    public void serverTick(World world) {
+        BlockPos pos = getPos().pos;
+        IBlockState state = world.getBlockState(pos);
 
         WorldCoordinates destin = getDestination();
         if (destin == null) return;
@@ -72,23 +60,5 @@ public class Permutatio extends AspectLink {
                 }
             }
         }
-    }
-
-    @Override
-    @BlockMethod(overrideBlockFunc = false)
-    public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock) {
-        updateTick(world, pos, state, world.rand);
-    }
-
-    @Override
-    @BlockMethod(overrideBlockFunc = false)
-    public void onEntityCollidedWithBlock(World world, BlockPos pos, Entity entityIn) {
-        updateTick(world, pos, world.getBlockState(pos), world.rand);
-    }
-
-    @Override
-    @BlockMethod(overrideBlockFunc = false)
-    public void onBlockAdded(World world, BlockPos pos, IBlockState state) {
-        updateTick(world, pos, state, world.rand);
     }
 }

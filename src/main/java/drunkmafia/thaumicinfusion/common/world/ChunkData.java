@@ -30,10 +30,9 @@ public class ChunkData implements ISavable {
 
     public BlockSavable[] getAllBlocks() {
         ArrayList<BlockSavable> allData = new ArrayList<BlockSavable>();
-        for (int x = 0; x < this.blockdata.length; x++) {
-            for (int y = 0; y < this.blockdata[x].length; y++) {
-                for (int z = 0; z < this.blockdata[x][y].length; z++) {
-                    List<BlockSavable> savables = this.blockdata[x][y][z];
+        for (List<BlockSavable>[][] aBlockdata : this.blockdata) {
+            for (List<BlockSavable>[] anABlockdata : aBlockdata) {
+                for (List<BlockSavable> savables : anABlockdata) {
                     if (savables == null) continue;
                     for (BlockSavable data : savables)
                         allData.add(data);
@@ -73,9 +72,8 @@ public class ChunkData implements ISavable {
 
         if (this.blockdata[pos.getX() & 15][pos.getY()][pos.getZ() & 15] != null) {
             for (BlockSavable block : this.blockdata[pos.getX() & 15][pos.getY()][pos.getZ() & 15]) {
-                if (type.isAssignableFrom(block.getClass())) {
-                    return type.cast(block);
-                }
+                if (type.isAssignableFrom(block.getClass()))
+                    return (T) block;
             }
         }
         return null;

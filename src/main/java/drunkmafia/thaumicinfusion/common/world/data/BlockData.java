@@ -11,9 +11,11 @@ import drunkmafia.thaumicinfusion.common.asm.BlockTransformer;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect;
 import drunkmafia.thaumicinfusion.common.aspect.AspectEffect.MethodInfo;
 import drunkmafia.thaumicinfusion.common.aspect.AspectHandler;
+import drunkmafia.thaumicinfusion.common.event.CommonEventContainer;
 import drunkmafia.thaumicinfusion.common.util.IBlockHook;
 import drunkmafia.thaumicinfusion.common.util.annotation.BlockMethod;
 import drunkmafia.thaumicinfusion.common.util.helper.SavableHelper;
+import drunkmafia.thaumicinfusion.common.world.IServerTickable;
 import drunkmafia.thaumicinfusion.common.world.TIWorldData;
 import drunkmafia.thaumicinfusion.net.ChannelHandler;
 import drunkmafia.thaumicinfusion.net.packet.server.BlockSyncPacketC;
@@ -52,8 +54,12 @@ public class BlockData extends BlockSavable implements IBlockHook {
 
     @Override
     public void dataUnload() {
-        for (AspectEffect effect : dataEffects)
-            effect.onRemoveEffect();
+        for (AspectEffect effect : dataEffects) {
+            if (effect instanceof IServerTickable)
+                CommonEventContainer.worldTickables.get(coordinates.dim).remove(effect);
+
+            if (effect != null) effect.onRemoveEffect();
+        }
     }
 
     @Override
@@ -74,6 +80,9 @@ public class BlockData extends BlockSavable implements IBlockHook {
             }
 
             effect.aspectInit(world, this.getCoords());
+
+            if (effect instanceof IServerTickable)
+                CommonEventContainer.worldTickables.get(world.provider.getDimensionId()).add((IServerTickable) effect);
 
             List<MethodInfo> effectMethods = AspectEffect.getMethods(effect.getClass());
             for (MethodInfo method : effectMethods) {

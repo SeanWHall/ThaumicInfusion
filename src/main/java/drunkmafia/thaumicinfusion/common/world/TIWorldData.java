@@ -30,6 +30,8 @@ public class TIWorldData implements ISavable {
     private static ReflectionLookup<World> worldLookup = new ReflectionLookup<World>(World.class);
 
     public World world;
+
+    //The whole storage system for data, has been designed for extremely fast single coordinate queries and not looping
     public QuadTree<ChunkData> chunkDatas = new QuadTree<ChunkData>(ChunkData.class, -2000000, -2000000, 2000000, 2000000);
 
     public static TIWorldData getWorldData(World world) {

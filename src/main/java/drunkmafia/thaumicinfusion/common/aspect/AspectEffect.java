@@ -61,16 +61,15 @@ public abstract class AspectEffect extends Block implements ISavable {
         AspectHandler.registerEffect(Ignis.class);
 
         AspectHandler.registerEffect(Motus.class);
-        AspectHandler.registerEffect(Machina.class);
 
         AspectHandler.registerEffect(Lux.class);
 
         AspectHandler.registerEffect(Potentia.class);
         AspectHandler.registerEffect(Permutatio.class);
+        AspectHandler.registerEffect(Praemunio.class);
 
         AspectHandler.registerEffect(Spiritus.class);
 
-        AspectHandler.registerEffect(Terra.class);
         AspectHandler.registerEffect(Tenebrae.class);
 
         AspectHandler.registerEffect(Vinculum.class);
