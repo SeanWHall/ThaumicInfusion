@@ -69,6 +69,7 @@ ti.effect_info.TENEBRAE=After the infused block survives a full night cycle, it 
 ti.effect_info.VINCULUM=After infusion, the block  will immobilize any entity that so happens to step onto the block. Great for stopping mobs in their tracks! Also, pet creepers.
 ti.effect_info.PERMUTATIO=Ever wanted to swap blocks between each other? Well, this works by having two effects placed down in the world and applying a redstone signal to one of the linked blocks to swap between them. To link the two effects up, simply take a piece of paper and right click on the infused block. This will imbue the coordinates into the paper. Then right click on the other infused block to link them.
 ti.effect_info.PRAECANTATIO=Use this aspect to mark a jar and other aspect containers as suppliers for all neighbouring infusions.
+ti.effect_info.PRAEMUNIO=Causes blocks infused with it, to act like fences. Stopping entities from jumping over them.
 ti.effect_info.DESIDERIUM=This greedy little thing likes to pull in any item it can find, which just happens to be on the ground towards itself. Basically, EA and your money.
 ti.effect_info.VITREUS=This effect makes light pass though the block like glass, useful for building a skylight without the need of glass. Let the light shine upon you!
 ti.effect_info.VENENUM=Any player who is unfortunate enough to stand on top of a block which is infused with this will be poisoned!

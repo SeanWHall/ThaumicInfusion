@@ -21,7 +21,6 @@ import static drunkmafia.thaumicinfusion.common.asm.ThaumicInfusionPlugin.isObf;
 import static org.objectweb.asm.Opcodes.ASM5;
 
 /**
- * This class writer is based off:
  * It has been modified to work with Minecrafts class loader and ensures
  * that no classes are loaded during the writing of a class
  */
@@ -146,25 +145,20 @@ public class ByteClassWriter extends ClassWriter {
         closeStream();
     }
 
-    public byte[] getClassBytecode(String name) {
+    byte[] getClassBytecode(String name) {
+        LaunchClassLoader loader = Launch.classLoader;
+        InputStream stream = null;
         try {
-            LaunchClassLoader loader = Launch.classLoader;
-            InputStream stream = null;
-            try {
-                name = name.replace('.', '/').concat(".class");
-                URL classURL = loader.findResource(name);
-                if (classURL == null) return null;
+            name = name.replace('.', '/').concat(".class");
+            URL classURL = loader.findResource(name);
+            if (classURL == null) return null;
 
-                stream = classURL.openStream();
-                return (byte[]) readFully.invoke(loader, stream);
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if (stream != null) stream.close();
-            }
-        } catch (IOException e) {
+            stream = classURL.openStream();
+            return (byte[]) readFully.invoke(loader, stream);
+        } catch (Exception e) {
             e.printStackTrace();
-            throw new IllegalArgumentException(e);
+        } finally {
+            if (stream != null) closeStream();
         }
         return null;
     }

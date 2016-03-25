@@ -15,7 +15,6 @@ import net.minecraft.world.World;
 
 @Effect(aspect = ("aqua"), cost = 1)
 public class Aqua extends AspectEffect {
-
     @Override
     @BlockMethod()
     public void onFallenUpon(World worldIn, BlockPos pos, Entity entityIn, float fallDistance) {

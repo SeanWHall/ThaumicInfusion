@@ -31,7 +31,7 @@ import java.util.List;
 public abstract class AspectEffect extends Block implements ISavable {
 
     private static final HashMap<Class, ArrayList<AspectEffect.MethodInfo>> phasedMethods = new HashMap<Class, ArrayList<AspectEffect.MethodInfo>>();
-
+    public boolean isEnabled = true;
     protected WorldCoordinates pos;
     private boolean shouldRegister;
 
@@ -58,13 +58,13 @@ public abstract class AspectEffect extends Block implements ISavable {
         AspectHandler.registerEffect(Humanus.class);
         AspectHandler.registerEffect(Herba.class);
 
+        AspectHandler.registerEffect(Instrumentum.class);
         AspectHandler.registerEffect(Ignis.class);
 
         AspectHandler.registerEffect(Motus.class);
 
         AspectHandler.registerEffect(Lux.class);
 
-        AspectHandler.registerEffect(Potentia.class);
         AspectHandler.registerEffect(Permutatio.class);
         AspectHandler.registerEffect(Praemunio.class);
 
@@ -140,11 +140,13 @@ public abstract class AspectEffect extends Block implements ISavable {
     public void writeNBT(NBTTagCompound tagCompound) {
         if (this.pos != null)
             this.pos.writeNBT(tagCompound);
+        tagCompound.setBoolean("isEnabled", isEnabled);
     }
 
     public void readNBT(NBTTagCompound tagCompound) {
         this.pos = new WorldCoordinates();
         this.pos.readNBT(tagCompound);
+        isEnabled = tagCompound.getBoolean("isEnabled");
     }
 
     public void onPlaceEffect(EntityPlayer player) {

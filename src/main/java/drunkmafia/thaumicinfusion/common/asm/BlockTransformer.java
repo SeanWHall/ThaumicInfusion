@@ -34,11 +34,11 @@ import static org.objectweb.asm.Opcodes.*;
  * }
  * }
  * <p/>
- *
+ * <p>
  * However which methods it injects into is another story, the transformer is actively working to try and not inject into a method unless it has to,
  * it steps though the method super calling to make sure it does not run into a method with it already injected into and it also make sure that the
  * method itself is a method that has been marked as compatible during the initial startup
- *
+ * <p>
  * This class is heavily annotated to help debugging if future issues arise & it is essential that this transformer does not conflict with any other mod
  **/
 public class BlockTransformer implements IClassTransformer {
@@ -162,7 +162,7 @@ public class BlockTransformer implements IClassTransformer {
         String classType;
 
         //Checks if the ClassNode is the Block class or a subclass
-        if (!isBlockClass && ((classType = isClassOfType(deobfClassNode.superName, "net/minecraft/block/Block", classWriter)) == null || !classType.equals(deobfClassNode.superName)))
+        if (!isBlockClass && ((classType = isClassOfType(deobfClassNode.superName, "net/minecraft/block/Block", classWriter)) == null))
             return bytecode;
 
         if (!blockClasses.contains(deobfClassNode.superName)) blockClasses.add(deobfClassNode.superName);
@@ -324,8 +324,9 @@ public class BlockTransformer implements IClassTransformer {
     /**
      * Takes a class and steps though it's super classes to see if it extends the passed in type, avoids
      * using class loader method, to refrain from causing any classes from being loaded
+     *
      * @param className The class to step though
-     * @param typeName The class to check for
+     * @param typeName  The class to check for
      */
     private String isClassOfType(String className, String typeName, ByteClassWriter classWriter) {
         if (className == null) return null;

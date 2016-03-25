@@ -44,14 +44,6 @@ public class BlockData extends BlockSavable implements IBlockHook {
         dataEffects = this.classesToEffects(list);
     }
 
-    private static int[] toPrimitive(Integer[] IntegerArray) {
-        int[] result = new int[IntegerArray.length];
-        for (int i = 0; i < IntegerArray.length; i++) {
-            result[i] = IntegerArray[i];
-        }
-        return result;
-    }
-
     @Override
     public void dataUnload() {
         for (AspectEffect effect : dataEffects) {
@@ -84,17 +76,19 @@ public class BlockData extends BlockSavable implements IBlockHook {
             if (effect instanceof IServerTickable)
                 CommonEventContainer.worldTickables.get(world.provider.getDimensionId()).add((IServerTickable) effect);
 
-            List<MethodInfo> effectMethods = AspectEffect.getMethods(effect.getClass());
-            for (MethodInfo method : effectMethods) {
-                for (int i = 0; i < BlockTransformer.blockMethods.size(); i++) {
-                    String methodName = BlockTransformer.blockMethods.get(i);
-                    if (methodName.hashCode() == method.methodID)
-                        indexToEffect[i] = new MethodBlock(a, method.override);
-                }
+            calculateMethodIndexs(a, effect.getClass());
+        }
+    }
+
+    private void calculateMethodIndexs(int indexOfEffect, Class<? extends AspectEffect> effect) {
+        List<MethodInfo> effectMethods = AspectEffect.getMethods(effect);
+        for (MethodInfo method : effectMethods) {
+            for (int i = 0; i < BlockTransformer.blockMethods.size(); i++) {
+                String methodName = BlockTransformer.blockMethods.get(i);
+                if (methodName.hashCode() == method.methodID)
+                    indexToEffect[i] = new MethodBlock(indexOfEffect, method.override);
             }
         }
-
-        //this.methods = BlockData.toPrimitive(this.methodsToBlock.keySet().toArray(new Integer[this.methodsToBlock.keySet().size()]));
     }
 
     @Override
@@ -109,6 +103,24 @@ public class BlockData extends BlockSavable implements IBlockHook {
             if (obj.getClass() == effect)
                 return effect.cast(obj);
         return null;
+    }
+
+    public void toggleEffect(Class<? extends AspectEffect> effect) {
+        for (int i = 0; i < dataEffects.length; i++) {
+            AspectEffect obj = dataEffects[i];
+            if (obj.getClass() == effect) {
+                if (obj.isEnabled) {
+                    obj.isEnabled = false;
+                    for (int a = 0; a < indexToEffect.length; a++) {
+                        if (indexToEffect[a] != null && dataEffects[i] != null && dataEffects[indexToEffect[a].blockIndex] == obj)
+                            indexToEffect[a] = null;
+                    }
+                } else {
+                    obj.isEnabled = true;
+                    calculateMethodIndexs(i, dataEffects[i].getClass());
+                }
+            }
+        }
     }
 
     public void addEffect(Class<? extends AspectEffect>[] classes) {

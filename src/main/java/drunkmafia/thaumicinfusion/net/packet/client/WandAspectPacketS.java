@@ -12,8 +12,6 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import thaumcraft.api.aspects.Aspect;
 
-import java.util.List;
-
 public class WandAspectPacketS implements IMessage {
 
     private int playerName, slot, dim;
@@ -68,7 +66,7 @@ public class WandAspectPacketS implements IMessage {
                 return null;
 
             World world = DimensionManager.getWorld(message.dim);
-            for (EntityPlayer player : (List<EntityPlayer>) world.playerEntities) {
+            for (EntityPlayer player : world.playerEntities) {
                 if (player.getName().hashCode() == message.playerName) {
                     ItemStack stack = player.inventory.mainInventory[message.slot];
                     NBTTagCompound compound = stack.getTagCompound() != null ? stack.getTagCompound() : new NBTTagCompound();
