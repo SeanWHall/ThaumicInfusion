@@ -27,6 +27,8 @@ Once your enviorment is setup, edit your run configurations and in the VM arugme
 
 This will let forge know that this is also a core mod, which will allow the Transformers that the Mod uses to run. Otherwise, non of the effects will work when you infuse them into a block.
 
+Notice, the source requires a deobfuscated version of Thaumcraft as a libary to compile.
+
 If you make changes to the code, just make a pull request with a description of the changes and why they are there. If everything checks out, then I will accept the pull request.
 
 Localizing
