@@ -1,0 +1,85 @@
+#zh_CN
+
+# Creative Tab
+itemGroup.thaumicinfusion=神秘注魔
+
+# Blocks
+tile.local_infusionCore.name=注魔核心
+tile.local_essentia.name=Essentia Block
+tile.local_inscriber.name=Inscriber Block
+
+key.infusedBlock.infused=已注魔的
+key.essentiaBlock.brick=Brick
+key.essentiaBlock.chiseled=Chiseled
+
+
+# Item
+
+item.FocusInfusion.name=法杖核心: 方块注魔
+item.CoordinatePaper.name=坐标绑定纸
+
+# Research
+tc.research_category.THAUMICINFUSION=神秘注魔
+tc.research_name.FOCUSINFUSION=注魔核心
+tc.research_text.FOCUSINFUSION=看起来很酷，但它是用来干什么的呢？
+tc.research_page.FOCUSINFUSION.1=在反复研究了无数个小时后，你现在终于解锁了关于神秘学已知的最强大注魔的相关知识. 这个核心会给予你将各种要素注入世界上任何方块的能力. 当注入要素后，方块将根据注入要素的类型获得一项相应的独特能力. 为了正确的使用这个核心，在仔细地通过奥术注魔构建出它后，玩家首先要把它装在他们的法杖上.
+tc.research_page.FOCUSINFUSION.2=装上核心后右击你的法杖，一个菜单将会出现，它显示了所有你可以用来注魔的要素. 但是，在你开始像哈利波特一样一边喊着“羽加迪姆勒维奥萨”一边试图注魔你视线所及的所有方块之前，你首先要有一个装满你想要给方块注魔的要素的源质罐子，并把它放在你的周围. 只有在你做完这些之后，你才能够通过注魔菜单选择你想要的要素并用法杖右击任何方块来将要素注入它里面. 如果你想将要素从方块内移除，简单地再用法杖右击一次方块就行了.
+tc.research_page.FOCUSINFUSION.3=注意: 在进行方块注魔时，任何要素都需要少量该种要素来使注魔得以正常进行(其数量在菜单中每个图标的右下角显示)，这些要素将直接从摆在附近的你之前所放置的源质罐子中提取.
+
+tc.research_name.ESSENTIABLOCKS=要素方块
+tc.research_text.ESSENTIABLOCKS=要素的方块形式
+tc.research_page.ESSENTIABLOCKS.1=要素方块，正如它所承诺的，只是要素的一个固化形式. 创建它们的过程也非常简单：只要把含有相同要素的要素安瓿在奥术工作台上摆放成一个正方形——瞧！现在你就拥有一个非常漂亮的要素方块了.真棒！
+
+tc.research_name.ASPECTEFFECTS=注魔效果
+tc.research_text.ASPECTEFFECTS=给方块注魔后的效果
+
+ti.cost=消耗
+ti.linking.begin=连接已经开始，用此纸右击另一个方块以建立连接.
+ti.linking.end=连接已成功建立.
+ti.linking.fail=连接建立失败！
+
+# Commands
+
+check.instability=checkinstability
+check.instability.usage=/checkinstability 将会检测你所在区块的不稳定性
+clean.data=cleandata
+clean.data.usage=/cleandata 警告！请只有当Minecraft因神秘注魔崩溃之后再使用此指令！它会移除当前世界中所有神秘注魔的方块！
+
+# Effects Description
+ti.effect_info.EXANIMIS=注魔Exanimis要素之后，任何在这个注魔方块上死亡的玩家在重生后都会被传送回这个方块. 这是在危险环境下很有用的东西！
+ti.effect_info.FABRICO=这种注魔为每一个方块增加了一个世界的颜色. 换句话说，就是所有方块都能有不同的颜色了！而你所要做的就是手持一个你想要染成颜色的要素安瓿，然后右击那个方块来给它染色.
+ti.effect_info.LUX=和你所期待的基本上一样，它将使得任何注入Lux要素的方块成为一个光源，其亮度和火把一样. 可以预见，它将非常有用.
+ti.effect_info.SANO=如果你好好吃饭，那这种注魔将会相当有用. 它会根据你的饱食度回复你的生命. 嘛，摸上去有点粗糙.
+ti.effect_info.PANNUS=你好！Billy Mays在这里向你展示最新的注魔要素: Pannus！你因为信仰之跃而死过吗？不用担心，有了这种方块，任何掉落伤害都会被免疫. 如果你没有过也不用担心，这种注魔让你能用一个桶舀住自己. 只要998！
+ti.effect_info.COGNITIO=你讨厌书架吗？为什么你讨厌它们呢？好吧，在这种注魔使得任何方块都具有书架的作用，并且能够提升周围附魔台的附魔等级. 知识就是力量！
+ti.effect_info.ITER=如果你讨厌走路，那么这将是你理想的注魔. 站在用Iter要素注魔的两个方块之一上，按下shift键，你就可以在它们间来回传送，传送甚至可以跨越不同世界. 要连接这两个方块，你只需先拿着一张纸，右击被注魔的方块之一. 这会使得坐标被绑定到纸上. 接着用这张纸右击另一个被注魔的方块就可以在它们间建立连接.
+ti.effect_info.ALIENIS=它不是特别实用，但是用它来整人却很有趣. 注魔这个要素的方块将产生一个奇特的效果，那就是当你踩到这个方块时，你将会被随机传送到附近.
+ti.effect_info.TEMPESTAS=闪电！啊啊啊啊啊啊啊啊啊……闪电！呃……怎么说呢，在下雨的时候，这种注魔的方块会更容易被闪电击中.
+ti.effect_info.VOLATUS=这是另一个的你可能会想到的效果. 当站在注魔这个要素的方块上时，你能飞行了！但是你只能在这个被注魔的方块上方飞行，而且也只能飞到10格高，不过你可以通过注魔其下方的方块来使自己飞的更高.
+ti.effect_info.SPIRITUS=这是隐藏你贵重物品的一个好方法. 当Spiritus要素被注魔进一个方块时，这个方块将不再有任何碰撞体积，任何实体都可以穿过它. 所以基本上来说你可以像幽灵一样走过固体方块了，谁会想到还能这样呢？
+ti.effect_info.TERRA=注魔Terra要素会产生一个不错的效果，即让方块拥有重力. 也就是说方块会像沙子或砂砾一样下落了！
+ti.effect_info.FAMES=这是一个不怎么有用的注魔.看上去如果你走在这种注魔的方块上，它就会吃掉你的饱食度.那么我们为什么要用它呢？我没找到它的用途啊！
+ti.effect_info.BESTIA=你有没有在看你的房顶或是走进你的基地时突然发现一只爬行者或是一小群恼人的小僵尸？那么，注魔Bestia将会使得一切都成为过往，因为它将使得一切敌对生物都无法生成. 万岁！再也不会有烦人的咆哮声或是被炸毁的财物了！
+ti.effect_info.VITIUM=它会阻止腐化跨过Vitium注魔的方块.如果你不想让紫色的粘液和触手过来，那这种方法真是简单粗暴.那为什么腐化不会侵蚀过来呢？别较真.
+ti.effect_info.MESSIS=想在方块上种菜吗？这种注魔使得方块拥有被铲过的地的属性，这样你就不需要为铲地而费心了。农夫们不会高兴的，又或者会很高兴？好吧，我们会找到一种方式的.
+ti.effect_info.IGNIS=一旦方块被注魔了Ignis要素，它上面的火焰将永不熄灭. 就像地狱岩一样，但这更加魔法,也更加美观.
+ti.effect_info.PERDITIO=这个效果很危险，任何和Perditio注魔后方块的交互行为都会导致爆炸. 一定要非常小心！
+ti.effect_info.VINCULUM=注魔Vinculum要素后，方块将会禁锢住任何踏上它的实体. 利用它就可以在生物运动的路径上停住它们了. 除此之外，你也可以养你的爬行者宠物了.
+ti.effect_info.PERMUTATIO=有没有曾想过交换两个方块的位置？好的，现在你可以做到了. 通过给两个相互连接，并且注入了Permutatio要素的方块其中之一传输一个红石信号，你就可以交换它们两个的位置. 想要连接这两个方块，你只需要拿着一张纸，右击被注魔的方块之一. 这会使得坐标被绑定到纸上. 接着用这张纸右击另一个被注魔的方块，就可以在它们间建立连接.
+ti.effect_info.PRAECANTATIO=用这个来标记要素罐子或者其它要素容器作为附近注魔的要素提供者.
+ti.effect_info.LUCRUM=这个贪婪的小家伙儿会把它附近地上的任何东西拉向它. 简单来说，就是EA和你的钱.
+ti.effect_info.MORTUUS=如果你给这种要素附魔的方块提供更多的Mortuus要素，并且距离在十个方块之内，就会在晚上生成敌对生物，并且drain jar.
+ti.effect_info.VICTUS=如果你给这种要素附魔的方块提供更多的Victus要素，并且距离在十个方块之内，就会在晚上生成友好生物，并且drain jar.
+ti.effect_info.VITREUS=给方块注魔Vitreus要素将会使得光线能像穿透玻璃一样穿透该方块，在建一个不用玻璃的天窗时十分有用. 让光照在你的身上！
+ti.effect_info.VENENUM=任何不够幸运的玩家站在注魔Venenu要素的方块上面都会获得中毒效果.
+ti.effect_info.AER=想像超级马里奥一样跳跃吗？ 那么你就该给方块注魔Aer要素了！只要站在注魔Aer要素的方块上，你就能获得一个小幅度的跳跃提升！哈哈，跳不死你！
+ti.effect_info.MACHINA=给方块注魔Machina将会给你提供一个简便的无线红石. 也就是说只要给两个相互连接的被注魔的方块之一输入一个红石信号，另一个就能输出这个红石信号. 要连接这两个方块，你只需先拿着一张纸，右击被注魔的方块之一. 这会使得坐标被绑定到纸上. 接着用这张纸右击另一个被注魔的方块就可以在它们间建立连接. 跨越世界也是可以的！
+ti.effect_info.POTENTIA=给方块注魔Potentia将会给它充能，使得它输出一个红石信号. 对它真的没什么好说的.
+ti.effect_info.HUMANUS=守护核心本身是十分强大的，但它也有它的限制. 给方块注魔Humanus将使方块变得无法被破坏！然而这个效果可以被任何有注魔核心的玩家解除.
+ti.effect_info.ORDO=如果你曾经想要使[注魔核心](?)看上去稳定一些，那么这就是你想要的效果. 将这种要素注入任何方块，它会[使一个点更加稳定](?).
+ti.effect_info.SENSUS=视野是一种奇妙的东西，那为什么不使用它来操纵你的敌人的看见你的方式呢？当方块注魔了这种要素之后，它将会变得一边透明. 陷阱？机关？试着去实现它吧！
+ti.effect_info.GELUM=Let it go...let it g...(冰雪奇缘梗)我无意打断. 这个要素被注入方块时，它将有几率使周围的水变成冰、固体方块顶部出现积雪. 你也能说这个要素十分地cool(棒/冷). 噢，我很抱歉.
+
+
+#Mod Effects
+ti.effect_info.INFERNUS=它会使得任何触碰它的实体着火. 所以小心点用，除非你想成为炸鸡.
