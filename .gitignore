@@ -20,3 +20,12 @@ Thumbs.db
 *.iws
 *.ipr
 *.iml
+.gradle/
+gradle.log
+/.gradle/2.7/taskArtifacts/cache.properties
+/.gradle/2.7/taskArtifacts/cache.properties.lock
+/.gradle/2.7/taskArtifacts/fileHashes.bin
+/.gradle/2.7/taskArtifacts/fileSnapshots.bin
+/.gradle/2.7/taskArtifacts/outputFileStates.bin
+/.gradle/2.7/taskArtifacts/taskArtifacts.bin
+/.gradle/gradle.log
